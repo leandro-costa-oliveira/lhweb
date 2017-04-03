@@ -1,8 +1,8 @@
 <?php
 namespace lhweb\actions;
 
-use \lhweb\db\LHDB;
-use \lhweb\db\AbstractEntity;
+use \lhweb\database\LHDB;
+use \lhweb\database\AbstractEntity;
 use \lhweb\controller\AbstractController;
 use \lhweb\exceptions\ParametroRequeridoException;
 use \lhweb\exceptions\RegistroNaoEncontrado;

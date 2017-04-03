@@ -1,5 +1,5 @@
 <?php
-namespace lhweb\db;
+namespace lhweb\database;
 use \PDO;
 
 /**

@@ -1,8 +1,9 @@
 <?php
 namespace lhweb\controller;
 
-use \lhweb\db\LHDB;
-use \lhweb\db\AbstractEntity;
+use \lhweb\database\LHDB;
+use \lhweb\database\GenericQuerys;
+use \lhweb\database\AbstractEntity;
 
 abstract class AbstractController {
     /**
@@ -41,7 +42,7 @@ abstract class AbstractController {
     
     /**
      * 
-     * @return \lhweb\db\GenericQuerys
+     * @return GenericQuerys
      */
     public function getBasicMoveQuery(){
         return $this->db->query($this->getTableName());
