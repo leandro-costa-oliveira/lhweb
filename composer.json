@@ -1,0 +1,13 @@
+{
+    "name": "leandrocosta/lhweb",
+    "description": "A lightweight web framework.",
+    "authors": [
+        {
+            "name": "loki",
+            "email": "contato@leandrocosta.pro.br"
+        }
+    ],
+    "require": {
+        "php": "^5.3.3 || ^7.0"
+    }
+}
