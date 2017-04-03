@@ -39,7 +39,7 @@ class GenericQuery {
     }
     
     public function escapeValue($val){
-        return $val;
+        return htmlspecialchars($val, ENT_QUOTES | ENT_HTML5);
     }
     
     public function campos(array $campos){
@@ -52,39 +52,39 @@ class GenericQuery {
         return $this;
     }
     
-    public function where($field){
+    public function where($valor){
         $this->condition = "where";
-        $this->conditions[$this->condition] .= " $field";
+        $this->conditions[$this->condition] .= " $valor";
         
         return $this;
     }
     
-    public function whereAnd($field){
-        return $this->where("AND $field");
+    public function andWhere($valor){
+        return $this->where("AND $valor");
     }
     
-    public function whereOr($field){
-        return $this->where("OR $field");
+    public function orWhere($valor){
+        return $this->where("OR $valor");
     }
     
-    public function having($field){
+    public function having($valor){
         $this->condition = "having";
-        $this->conditions[$this->condition] .= $field;
+        $this->conditions[$this->condition] .= $$valor;
         
         return $this;
     }
     
-    public function havingAnd($field){
-        return $this->having("AND $field");
+    public function andHaving($valor){
+        return $this->having("AND $valor");
     }
     
-    public function havingOr($field){
-        return $this->having("OR $field");
+    public function orHaving($valor){
+        return $this->having("OR $valor");
     }
     
     public function basicCondition($op, $txt, $paramType) {
         $this->conditions[$this->condition] .= " $op :valores" . count($this->valores). " ";
-        array_push($this->valores, array("v" => $txt, "t" => $paramType));
+        array_push($this->valores, array("v" => $this->escapeValue($txt), "t" => $paramType));
         return $this;
     }
     
