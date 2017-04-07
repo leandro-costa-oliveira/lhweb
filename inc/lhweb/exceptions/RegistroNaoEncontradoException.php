@@ -6,6 +6,6 @@ namespace lhweb\exceptions;
  *
  * @author loki
  */
-class RegistroNaoEncontrado extends LHWebException {
+class RegistroNaoEncontradoException extends LHWebException {
     //put your code here
 }

@@ -30,8 +30,8 @@ abstract class WebAction {
     
     public abstract function buildObjectFromRequest();
     
-    public function __construct(LHDB $db) {
-        $this->db = $db;
+    public function __construct() {
+        $this->db = LHDB::getConnection();
         
         $get  = $this->parseRequestData($_GET);
         $post = $this->parseRequestData($_POST);
@@ -53,7 +53,7 @@ abstract class WebAction {
             if(is_array($val)) {
                 $ret[$key] = $this->parseRequestData($val);
             } else {
-                $ret[$key] = htmlentities($val);
+                $ret[$key] = htmlspecialchars($val, ENT_QUOTES | ENT_HTML5);
             }
         }
 
@@ -115,7 +115,7 @@ abstract class WebAction {
      * @throws \lhweb\exceptions\ParametroRequeridoException
      */
     public function getParametro($paramName, $tipo, $requerido=false, $permitirVazio=true){
-        $ret = array_key_exists($paramName, $this->in)?$this->in[$paramName]:null;
+        $param = array_key_exists($paramName, $this->in)?$this->in[$paramName]:null;
         if($requerido) {
             if(!array_key_exists($paramName, $this->in)){
                 throw new ParametroRequeridoException($paramName);
@@ -126,27 +126,18 @@ abstract class WebAction {
             }
         } 
         
-        return filter_var($ret,$tipo);
+        switch($tipo){
+            case "int"   : return filter_var($param, FILTER_SANITIZE_NUMBER_INT);
+            case "float" : return filter_var($param, FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION | FILTER_FLAG_ALLOW_THOUSAND);
+            case "string":
+            default:
+                $param = str_replace("\0", "", $param); // Removendo Null Byte, vetor de ataques.
+                return filter_var($param,FILTER_SANITIZE_STRING);
+        }
     }
     
-    /**
-     * 
-     * @param string $paramName
-     * @param int $tipo
-     * @return type
-     */
-    public function getParametroRequerido($paramName, $tipo){
-        return $this->getParametro($paramName, $tipo, true, false);
-    }
-    
-    /**
-     * 
-     * @param string $paramName
-     * @param int $tipo
-     * @return type
-     */
-    public function getParametroRequeridoPermiteVazio($paramName, $tipo){
-        return $this->getParametro($paramName, $tipo, true, true);
+    public function getParametroFloat($paramName, $requerido=false, $permitirVazio=true){
+        return $this->getParametro($paramName, "float", $requerido, $permitirVazio);
     }
     
     /**
@@ -154,7 +145,7 @@ abstract class WebAction {
      * @return AbstractEntity
      */
     public function Primeiro(){
-        return $this->getController()->primeiro();
+        return $this->controller->primeiro();
     }
     
     /**
@@ -162,7 +153,7 @@ abstract class WebAction {
      * @return AbstractEntity
      */
     public function Ultimo(){
-        return $this->getController()->ultimo();
+        return $this->controller->ultimo();
     }
     
     /**
@@ -170,10 +161,10 @@ abstract class WebAction {
      * @return AbstractEntity
      */
     public function Anterior(){
-        $pk  = $this->getParamenterRequired($this->getController()->getPkName(), FILTER_SANITIZE_NUMBER_INT);
-        $ret = $this->getController()->anterior($pk);
+        $pk  = $this->getParamenterRequired($this->controller->getPkName(), FILTER_SANITIZE_NUMBER_INT);
+        $ret = $this->controller->anterior($pk);
         if(!$ret){
-            $ret = $this->getController()->ultimo();
+            $ret = $this->controller->ultimo();
         }
         
         return $ret;
@@ -184,10 +175,10 @@ abstract class WebAction {
      * @return AbstractEntity
      */
     public function Proximo(){
-        $pk  = $this->getParamenterRequired($this->getController()->getPkName(), FILTER_SANITIZE_NUMBER_INT);
-        $ret = $this->getController()->proximo($pk);
+        $pk  = $this->getParamenterRequired($this->controller->getPkName(), FILTER_SANITIZE_NUMBER_INT);
+        $ret = $this->controller->proximo($pk);
         if(!$ret){
-            $ret = $this->getController()->primeiro();
+            $ret = $this->controller->primeiro();
         }
         return $ret;
     }
@@ -197,8 +188,8 @@ abstract class WebAction {
      * @return AbstractEntity
      */
     public function Mover(){
-        $pk  = $this->getParamenterRequired($this->getController()->getPkName(), FILTER_SANITIZE_NUMBER_INT);
-        return $this->getController()->getByPK($pk);
+        $pk  = $this->getParamenterRequired($this->controller->getPkName(), FILTER_SANITIZE_NUMBER_INT);
+        return $this->controller->getByPK($pk);
     }
     
     /**
@@ -207,11 +198,11 @@ abstract class WebAction {
      * @throws RegistroNaoEncontrado
      */
     public function Apagar(){
-        $pk  = $this->getParamenterRequired($this->getController()->getPkName(), FILTER_SANITIZE_NUMBER_INT);
-        $obj = $this->getController()->getByPK($pk);
+        $pk  = $this->getParamenterRequired($this->controller->getPkName(), FILTER_SANITIZE_NUMBER_INT);
+        $obj = $this->controller->getByPK($pk);
         
         if($obj){
-            return $this->getController()->apagar($obj);
+            return $this->controller->apagar($obj);
         } else {
             throw new RegistroNaoEncontrado();
         }
@@ -219,6 +210,6 @@ abstract class WebAction {
     
     public function Salvar(){
         $obj = $this->buildObjectFromRequest();
-        return $this->getController()->salvar($obj);
+        return $this->controller->salvar($obj);
     }
 }

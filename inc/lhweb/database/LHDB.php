@@ -10,32 +10,29 @@ use \PDO;
  * @author loki
  */
 abstract class LHDB extends PDO {
-    protected $dburl;
-    protected $dbhost;
-    protected $dbname;
-    protected $dbuser;
-    protected $dbpass;
-    protected $dbopt;
-    protected $encoding;
-    protected $autoCommit = false;
-
-
     /**
      *
      * @var PDO
      */
     protected $pdo;
     
+    protected static $conexoes = array();
+    
+    /**
+     * 
+     * @param int $idx
+     * @return LHDB
+     */
+    public static function getConnection($idx=0){
+        if(array_key_exists($idx, LHDB::$conexoes)){
+            return LHDB::$conexoes[$idx];
+        }
+    }
+    
     public function __construct($dburl, $dbhost, $dbname, $dbuser, $dbpass, $encoding="utf8", $dbopt=null){
         parent::__construct($dburl, $dbuser, $dbpass, $dbopt);
         $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $this->dburl = $dburl;
-        $this->dbhost = $dbhost;
-        $this->dbname = $dbname;
-        $this->dbuser = $dbuser;
-        $this->dbpass = $dbpass;
-        $this->dbopt  = $dbopt;
-        $this->encoding = $encoding;
+        array_push(LHDB::$conexoes, $this);
     }
     
     
@@ -63,7 +60,7 @@ abstract class LHDB extends PDO {
     /**
      * 
      * @param type string
-     * @return \lhweb\db\GenericQuerys
+     * @return \lhweb\database\GenericQuery
      */
     public function query($table){
         return new GenericQuery($this, $table, null);
@@ -71,8 +68,8 @@ abstract class LHDB extends PDO {
     
     /**
      * 
-     * @param \lhweb\db\AbstractEntity $entity
-     * @return \lhweb\db\GenericQuery
+     * @param \lhweb\database\AbstractEntity $entity
+     * @return \lhweb\database\GenericQuery
      */
     public function queryEntity(AbstractEntity $entity){
         return new GenericQuery($this, $entity->getTableName(), $entity);
