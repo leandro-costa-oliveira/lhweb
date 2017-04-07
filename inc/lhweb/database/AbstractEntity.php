@@ -6,9 +6,29 @@ namespace lhweb\database;
  * @author loki
  */
 abstract class AbstractEntity {
-    protected static $primayKey = "id";
+    protected static $primaryKey = "id";
     protected static $primaryKeyTipo = LHDB::PARAM_INT;
     protected static $table = null;
+    private $editClone;
+    
+    /**
+     * Cria uma cópia da classe atual para comprar os valores e alterar
+     * somente o necessário em caso de chamada de update.
+     */
+    public function editMode(){
+        $c = get_called_class();
+        $this->editClone = new $c;
+        
+        echo "## CREATING EDIT CLONE [$c]\n";
+        foreach($this as $key => $val) {
+            if($key == "editClone") {
+                echo "## EDIT CLONE CONTINUING\n";
+                continue;
+            }
+            
+            $this->editClone->$key = $val;
+        }
+    }
     
     /**
      * 
@@ -34,7 +54,7 @@ abstract class AbstractEntity {
     
     public function getPkName(){
         $c  = get_called_class();
-        return $c::getTableName() . "." . $c::$primayKey;
+        return $c::getTableName() . "." . $c::$primaryKey;
     }
     
     /**
@@ -184,6 +204,8 @@ abstract class AbstractEntity {
         foreach($this as $key => $val) {
             if(!$val){
                 continue;
+            } else if($key == "editClone") {
+                continue;
             }
             
             $campoTipo = $key."Tipo";
@@ -196,7 +218,7 @@ abstract class AbstractEntity {
         }
         
         $q->insert();
-        $primaryKey  = $c::$primayKey;
+        $primaryKey  = $c::$primaryKey;
         $this->$primaryKey = $q->lastInsertId();
         return $this;
     }
@@ -207,10 +229,15 @@ abstract class AbstractEntity {
      * @return AbstractEntity
      */
     public function update(){
+        $count = 0;
         $c = get_called_class();
         $q = LHDB::getConnection()->query($c::getTableName());
         foreach($this as $key => $val) {
-            if(!$val){
+            if($key==$c::$primaryKey){
+                continue;
+            } else if($val == $this->editClone->$key) {
+                continue;
+            } else if($key == "editClone") {
                 continue;
             }
             
@@ -220,10 +247,18 @@ abstract class AbstractEntity {
             } else {
                 $tipo = LHDB::PARAM_STR;
             }
+            
             $q->set($key, $val, $tipo);
+            $count++;
         }
-        $q->andWhere($c::$primaryKey)->equals($this->primaryKey, $this->primaryKeyTipo);
-        $q->update();
+        $pkName = $c::$primaryKey;
+        $q->andWhere($this->getPkName())
+                ->equals($this->$pkName, $c::$primaryKeyTipo);
+        
+        echo "UPDATE SQL:" . $q->getUpdateSql(). "\n";
+        if($count>0){
+            $q->update();
+        }
         return;
     }
     
@@ -232,8 +267,9 @@ abstract class AbstractEntity {
      * @return AbstractEntity
      */
     public function salvar(){
-        $pkName = $this->getPkName();
-        if(property_exists($this, $this->getPkName()) && !empty($this->$pkName)){
+        $c  = get_called_class();
+        $pkName = $c::$primaryKey;
+        if(property_exists($this, $pkName) && !empty($this->$pkName)){
             return $this->update();
         } else {
             return $this->insert();

@@ -205,12 +205,14 @@ class GenericQuery {
     
     function getUpdateSql(){
         $vals = array();
-        $sql = "UPDATE $this->table ";
+        $sql = "UPDATE $this->table SET ";
+        $count = 0;
         foreach($this->camposSet as $key => $campo){
+            if($count++ > 0) { $sql.=","; }
             $sql .= " $campo=:valores$key";
         }
         
-        $sql .= " WHERE $this->where";
+        $sql .= " WHERE " . $this->conditions["where"];
         return $sql;
     }
     

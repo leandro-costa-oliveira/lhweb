@@ -37,10 +37,11 @@ use \lhweb\database\MysqlDB;
                     $e = new LHWebEntity();
                 }
                 
+                $e->editMode();
                 $e->nome  = filter_var($_GET["nome"], FILTER_SANITIZE_STRING);
                 $e->valor = filter_var($_GET["valor"], FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION | FILTER_FLAG_ALLOW_THOUSAND);
                 
-                
+                 
                 echo "\nSAVING OBJECT:";
                 print_r($e);
                 
