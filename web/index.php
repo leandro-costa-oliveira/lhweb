@@ -18,8 +18,8 @@ use \lhweb\database\MysqlDB;
         <pre>
         <?php
         try {
-            $tini = time();
-            $db = new MysqlDB("localhost","lhprovedordev","lhisp","HlwebPassDB2014");
+            $tini = microtime(true);
+            $db = new MysqlDB("localhost","lhweb","lhweb","lhweb");
             
             $primeiro = LHWebEntity::primeiro();
             $ultimo   = LHWebEntity::ultimo();
@@ -58,9 +58,9 @@ use \lhweb\database\MysqlDB;
                 echo "$key => "   . print_r($empresa,true);
             }
             
-            $tend = time(); 
+            $tend = microtime(true); 
             
-            echo "\n\n##### EXECUTION TIME: " . ($tend - $tini) . "\n";
+            echo "\n\n##### EXECUTION TIME: [$tini -> $tend]" . ($tend - $tini) . "\n";
         } catch(Exception $ex) {
             echo "ERROR:" . $ex->getMessage() . "\n";
             echo "TRACE:" . $ex->getTraceAsString() . "\n";
