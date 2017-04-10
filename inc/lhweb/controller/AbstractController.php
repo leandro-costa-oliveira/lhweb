@@ -5,13 +5,7 @@ use lhweb\database\LHDB;
 use lhweb\database\AbstractEntity;
 
 abstract class AbstractController {
-    /**
-     *
-     * @var AbstractEntity
-     */
-    protected $entityClass;
-    
-    public abstract function getDaoInstance();
+    public abstract function getEntityClass();
             
     function __construct() {
         $this->db  = LHDB::getConnection();
@@ -22,7 +16,7 @@ abstract class AbstractController {
      * @return AbstractEntity
      */
     public function primeiro(){
-        $c = $this->entityClass;
+        $c = $this->getEntityClass();
         return $c::primeiro();
     }
     
@@ -31,7 +25,7 @@ abstract class AbstractController {
      * @return AbstractEntity
      */
     public function ultimo(){
-        $c = $this->entityClass;
+        $c = $this->getEntityClass();
         return $c::ultimo();
     }
     
@@ -40,7 +34,7 @@ abstract class AbstractController {
      * @return AbstractEntity
      */
     public function anterior($pk){
-        $c = $this->entityClass;
+        $c = $this->getEntityClass();
         $ret = $c::anterior($pk);
         if(!$ret){
             $ret = $c::ultimo();
@@ -54,7 +48,7 @@ abstract class AbstractController {
      * @return AbstractEntity
      */
     public function proximo($pk){
-        $c = $this->entityClass;
+        $c = $this->getEntityClass();
         $ret = $c::proximo($pk);
         if(!$ret){
             $ret = $c::primeiro();
@@ -67,7 +61,7 @@ abstract class AbstractController {
      * @return AbstractEntity
      */
     public function Mover($pk){
-        $c = $this->entityClass;
+        $c = $this->getEntityClass();
         return $c::getByPK($pk);
     }
     
@@ -77,7 +71,7 @@ abstract class AbstractController {
      * @throws RegistroNaoEncontrado
      */
     public function Apagar($pk){
-        $c = $this->entityClass;
+        $c = $this->getEntityClass();
         $obj = $c::getByPK($pk);
         
         if($obj){
@@ -93,7 +87,7 @@ abstract class AbstractController {
      * @return AbstractEntity
      */
     public function Salvar($obj){
-        $c = $this->entityClass;
+        $c = $this->getEntityClass();
         return $c::salvar($obj);
     }
 }
