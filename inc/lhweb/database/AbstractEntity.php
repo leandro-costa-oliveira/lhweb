@@ -49,7 +49,8 @@ abstract class AbstractEntity {
      */
     public static function getBasicMoveQuery(){
         if(static::$table===null){
-            static::$table = str_replace("entity", "", strtolower(static::class));
+            $class = explode("\\",strtolower(static::class));
+            static::$table = str_replace("entity", "", strtolower($class[count($class)-1]));
         }
         
         $q = LHDB::getConnection()->query(static::$table);
