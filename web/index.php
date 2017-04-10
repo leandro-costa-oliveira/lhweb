@@ -17,7 +17,7 @@ use \lhweb\database\MysqlDB;
         
         <pre>
         <?php
-        try {
+        try { 
             $tini = microtime(true);
             $db = new MysqlDB("localhost","lhweb","lhweb","lhweb");
             
