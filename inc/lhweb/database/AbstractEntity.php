@@ -11,13 +11,14 @@ abstract class AbstractEntity {
     protected static $table = null;
     private $editClone;
     
+    
     /**
      * Cria uma cópia da classe atual para comprar os valores e alterar
      * somente o necessário em caso de chamada de update.
      */
     public function editMode(){
-        $c = get_called_class();
-        $this->editClone = new $c;
+        $c = static::class;
+        $this->editClone = new $c();
         
         echo "## CREATING EDIT CLONE [$c]\n";
         foreach($this as $key => $val) {
@@ -35,12 +36,19 @@ abstract class AbstractEntity {
      * @return string
      */
     public static function getTableName(){
-        $c = get_called_class();
-        if($c::$table == null){
-            return str_replace("entity","",strtolower($c));
+        if(static::$table === null){
+            return str_replace("entity","",strtolower(static::class));
         } else {
-            return $c::$table;
+            return static::$table;
         }
+    }
+    
+    /**
+     * 
+     * @return string
+     */
+    public static function getCamposSelect(){
+        return static::getTableName() . ".*";
     }
     
     /**
@@ -48,13 +56,13 @@ abstract class AbstractEntity {
      * @return GenericQuerys
      */
     public static function getBasicMoveQuery(){
-        $c = get_called_class();
-        return LHDB::getConnection()->query($c::getTableName());
+        return LHDB::getConnection()
+                ->query(static::getTableName())
+                ->campos(array(static::getTableName().".*"));
     }
     
     public function getPkName(){
-        $c  = get_called_class();
-        return $c::getTableName() . "." . $c::$primaryKey;
+        return static::getTableName() . "." . static::$primaryKey;
     }
     
     /**
@@ -67,7 +75,7 @@ abstract class AbstractEntity {
             return NULL;
         }
         
-        $c = get_called_class();
+        $c = static::class;
         $o = new $c();
         foreach($o as $key => $val){
             if(is_array($rs) && array_key_exists($key, $rs)){
@@ -86,12 +94,11 @@ abstract class AbstractEntity {
      * @return AbstractEntity
      */
     public static function getByPK($pk){
-        $c  = get_called_class();
-        $rs = $c::getBasicMoveQuery()
-                ->andWhere($c::getPkName())->equals($pk, $c::$primaryKeyTipo)
-                ->getSingle($c);
+        $rs = static::getBasicMoveQuery()
+                ->andWhere(static::getPkName())->equals($pk, static::$primaryKeyTipo)
+                ->getSingle(static::class);
         
-        return $c::makeFromRs($rs);
+        return static::makeFromRs($rs);
     }
     
     /**
@@ -99,11 +106,10 @@ abstract class AbstractEntity {
      * @return AbstractEntity
      */
     public static function primeiro(){
-        $c  = get_called_class();
-        $rs = $c::getBasicMoveQuery()
-                ->orderby($c::getPkName())
-                ->getSingle($c);
-        return $c::makeFromRs($rs);
+        $q = static::getBasicMoveQuery()->orderby(static::getPkName());
+        $rs = $q->getSingle(static::class);
+        echo $q->getQuerySql() . "\n";
+        return static::makeFromRs($rs);
     }
     
     /**
@@ -111,11 +117,10 @@ abstract class AbstractEntity {
      * @return AbstractEntity
      */
     public static function ultimo(){
-        $c  = get_called_class();
-        $rs = $c::getBasicMoveQuery()
-                ->orderby($c::getPkName(),"DESC")
-                ->getSingle($c);
-        return $c::makeFromRs($rs);
+        $rs = static::getBasicMoveQuery()
+                ->orderby(static::getPkName(),"DESC")
+                ->getSingle(static::class);
+        return static::makeFromRs($rs);
     }
     
     /**
@@ -124,11 +129,10 @@ abstract class AbstractEntity {
      * @return AbstractEntity
      */
     public static function proximo($pk){
-        $c  = get_called_class();
-        $rs = $c::getBasicMoveQuery()
-                ->andWhere($c::getPkName())->maiorQue($pk, $c::$primaryKeyTipo)
-                ->getSingle($c);
-        return $c::makeFromRs($rs);
+        $rs = static::getBasicMoveQuery()
+                ->andWhere(static::getPkName())->maiorQue($pk, static::$primaryKeyTipo)
+                ->getSingle(static::class);
+        return static::makeFromRs($rs);
     }
     
     /**
@@ -137,12 +141,11 @@ abstract class AbstractEntity {
      * @return AbstractEntity
      */
     public static function anterior($pk){
-        $c  = get_called_class();
-        $rs = $c::getBasicMoveQuery()
-                ->where($c::getPkName())->menorQue($pk, $c::$primaryKeyTipo)
-                ->orderBy($c::getPkName(),"DESC")
-                ->getSingle($c);
-        return $c::makeFromRs($rs);
+        $rs = static::getBasicMoveQuery()
+                ->where(static::getPkName())->menorQue($pk, static::$primaryKeyTipo)
+                ->orderBy(static::getPkName(),"DESC")
+                ->getSingle(static::class);
+        return static::makeFromRs($rs);
     }
     
     
@@ -152,8 +155,7 @@ abstract class AbstractEntity {
      * @return AbstractEntity
      */
     public static function listar(){
-        $c  = get_called_class();
-        return new EntityArray($c::getBasicMoveQuery()->getList($c), $c);
+        return new EntityArray(static::getBasicMoveQuery()->getList(static::class), static::class);
     }
     
     /**
@@ -163,8 +165,7 @@ abstract class AbstractEntity {
      * @return array
      */
     public static function getProcurarQuery($campo, $txt, $modo="like") {
-        $c = get_called_class();
-        $q = $c::getBasicMoveQuery();
+        $q = static::getBasicMoveQuery();
         
         if(!method_exists($q, $modo)){
             throw new Exception("Modo de Procura Inválido: $modo");
@@ -176,20 +177,17 @@ abstract class AbstractEntity {
     }
     
     public static function procurar($campo, $txt, $modo="like") {
-        $c = get_called_class();
-        $q = $c::getProcurarQuery($campo, $txt, $modo);
-        return new EntityArray($q->getList($c),$c);
+        $q = static::getProcurarQuery($campo, $txt, $modo);
+        return new EntityArray($q->getList(static::class),static::class);
     }
     
     public static function getBy($campo, $txt, $modo="like") {
-        $c = get_called_class();
-        $q = $c::getProcurarQuery($campo, $txt, $modo);
+        $q = static::getProcurarQuery($campo, $txt, $modo);
         return $q->getSingle($c);
     }
     
     public static function listarPor($campo, $txt, $modo="like") {
-        $c = get_called_class();
-        $q = $c::getProcurarQuery($campo, $txt, $modo);
+        $q = static::getProcurarQuery($campo, $txt, $modo);
         return $q->getList($c);
     }
     
@@ -199,8 +197,7 @@ abstract class AbstractEntity {
      * @return AbstractEntity
      */
     public function insert(){
-        $c = get_called_class();
-        $q = LHDB::getConnection()->query($c::getTableName());
+        $q = LHDB::getConnection()->query(static::getTableName());
         foreach($this as $key => $val) {
             if(!$val){
                 continue;
@@ -209,8 +206,8 @@ abstract class AbstractEntity {
             }
             
             $campoTipo = $key."Tipo";
-            if(property_exists($c, $campoTipo)){
-                $tipo = $c::$$campoTipo;
+            if(property_exists(static::class, $campoTipo)){
+                $tipo = static::$$campoTipo;
             } else {
                 $tipo = LHDB::PARAM_STR;
             }
@@ -218,7 +215,7 @@ abstract class AbstractEntity {
         }
         
         $q->insert();
-        $primaryKey  = $c::$primaryKey;
+        $primaryKey  = static::$primaryKey;
         $this->$primaryKey = $q->lastInsertId();
         return $this;
     }
@@ -230,10 +227,9 @@ abstract class AbstractEntity {
      */
     public function update(){
         $count = 0;
-        $c = get_called_class();
-        $q = LHDB::getConnection()->query($c::getTableName());
+        $q = LHDB::getConnection()->query(static::getTableName());
         foreach($this as $key => $val) {
-            if($key==$c::$primaryKey){
+            if($key==static::$primaryKey){
                 continue;
             } else if($val == $this->editClone->$key) {
                 continue;
@@ -243,7 +239,7 @@ abstract class AbstractEntity {
             
             $campoTipo = $key."Tipo";
             if(property_exists($c, $campoTipo)){
-                $tipo = $c::$$campoTipo;
+                $tipo = static::$$campoTipo;
             } else {
                 $tipo = LHDB::PARAM_STR;
             }
@@ -251,9 +247,9 @@ abstract class AbstractEntity {
             $q->set($key, $val, $tipo);
             $count++;
         }
-        $pkName = $c::$primaryKey;
+        $pkName = static::$primaryKey;
         $q->andWhere($this->getPkName())
-                ->equals($this->$pkName, $c::$primaryKeyTipo);
+                ->equals($this->$pkName, static::$primaryKeyTipo);
         
         echo "UPDATE SQL:" . $q->getUpdateSql(). "\n";
         if($count>0){
@@ -267,8 +263,7 @@ abstract class AbstractEntity {
      * @return AbstractEntity
      */
     public function salvar(){
-        $c  = get_called_class();
-        $pkName = $c::$primaryKey;
+        $pkName = static::$primaryKey;
         if(property_exists($this, $pkName) && !empty($this->$pkName)){
             return $this->update();
         } else {
@@ -282,9 +277,8 @@ abstract class AbstractEntity {
      * @return int
      */
     public function delete(){
-        $c = get_called_class();
-        $q = LHDB::getConnection()->query($c::getTableName());
-        $q->andWhere($c::$primaryKey)->equals($this->primaryKey, $this->primaryKeyTipo);
+        $q = LHDB::getConnection()->query(static::getTableName());
+        $q->andWhere(static::$primaryKey)->equals($this->primaryKey, $this->primaryKeyTipo);
         return $q->delete();
     }
 }
