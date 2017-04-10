@@ -140,6 +140,10 @@ abstract class WebAction {
         return $this->getParametro($paramName, "float", $requerido, $permitirVazio);
     }
     
+    public function getParametroString($paramName, $requerido=false, $permitirVazio=true){
+        return $this->getParametro($paramName, "string", $requerido, $permitirVazio);
+    }
+    
     /**
      * 
      * @return AbstractEntity
