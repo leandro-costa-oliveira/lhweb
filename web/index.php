@@ -20,8 +20,33 @@ use \lhweb\database\MysqlDB;
         try { 
             echo "\n";
             $tini = microtime(true);
-            $db = new MysqlDB("localhost","lhweb","lhweb","lhweb");
+            $db = new MysqlDB("localhost","lhwebdb","lhweb","lhweb");
             
+            
+            
+            if(array_key_exists("nome", $_GET) && array_key_exists("valor", $_GET) && array_key_exists("descp", $_GET)){
+                echo "\n###########################################################################################\n";
+                $e = LHWebEntity::getBy("nome", filter_var($_GET["nome"], FILTER_SANITIZE_STRING));
+                if(!$e){
+                    $e = new LHWebEntity();
+                }
+                
+                echo "\nSAVING OBJECT:";
+                print_r($e);
+                
+                $e->editMode();
+                $e->nome  = filter_var($_GET["nome"], FILTER_SANITIZE_STRING);
+                $e->valor = filter_var($_GET["valor"], FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION | FILTER_FLAG_ALLOW_THOUSAND);
+                $e->descp = filter_var($_GET["descp"], FILTER_SANITIZE_STRING);
+                $e->salvar();
+                
+                echo "\nSAVED OBJECT:";
+                print_r($e);
+                
+                echo "DESCP:" . filter_var($_GET["descp"], FILTER_SANITIZE_STRING) . "\n";
+            }
+            
+            echo "\n###########################################################################################\n";
             $primeiro = LHWebEntity::primeiro();
             $ultimo   = LHWebEntity::ultimo();
             echo "\nBY PK[4]:" . print_r(LHWebEntity::getByPK(4),true);
@@ -29,29 +54,6 @@ use \lhweb\database\MysqlDB;
             echo "\nULTIMO  :" . print_r($ultimo,true);
             echo "\nPROXIMO  A [" . ($primeiro?$primeiro->id:"") . "]:" . print_r($primeiro?LHWebEntity::proximo($primeiro->id):"",true);
             echo "\nANTERIOR A [" . ($ultimo?$ultimo->id:"") . "]:"   . print_r($ultimo?LHWebEntity::anterior($ultimo->id):"",true);
-            
-            
-            if(array_key_exists("nome", $_GET) && array_key_exists("valor", $_GET)){
-                echo "\n###########################################################################################\n";
-                $e = LHWebEntity::getBy("nome", filter_var($_GET["nome"], FILTER_SANITIZE_STRING));
-                if(!$e){
-                    $e = new LHWebEntity();
-                }
-                
-                $e->editMode();
-                $e->nome  = filter_var($_GET["nome"], FILTER_SANITIZE_STRING);
-                $e->valor = filter_var($_GET["valor"], FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION | FILTER_FLAG_ALLOW_THOUSAND);
-                
-                 
-                echo "\nSAVING OBJECT:";
-                print_r($e);
-                
-                $e->salvar();
-                
-                echo "\nSAVED OBJECT:";
-                print_r($e);
-            }
-             
             
             echo "\n###########################################################################################";
             echo "\n#### LISTA:\n";

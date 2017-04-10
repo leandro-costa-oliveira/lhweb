@@ -133,6 +133,7 @@ class GenericQuery {
     
     function getQuerySql(){
         $sql = "SELECT " . implode(",", $this->campos) . " FROM $this->table";
+        
         if($this->join){$sql .= " $this->join "; }
         if(!empty($this->conditions["where"])) { $sql .= " WHERE " . $this->conditions["where"]; }
         if($this->groupBy) { $sql .= " GROUP BY $this->groupBy "; }
@@ -194,7 +195,7 @@ class GenericQuery {
     function getInsertSql($insertOpt=""){
         $vals = array();
         foreach(array_keys($this->valoresSet) as $key){
-            $vals[$key] = ":valores$key";
+            $vals[$key] = ":valoresSet$key";
         }
         
         $sql = "INSERT $insertOpt INTO $this->table (" . implode(",", $this->camposSet) . ")"
@@ -209,7 +210,7 @@ class GenericQuery {
         $count = 0;
         foreach($this->camposSet as $key => $campo){
             if($count++ > 0) { $sql.=","; }
-            $sql .= " $campo=:valores$key";
+            $sql .= " $campo=:valoresSet$key";
         }
         
         $sql .= " WHERE " . $this->conditions["where"];
@@ -219,7 +220,7 @@ class GenericQuery {
     function bindInsertUpdateParameters($stm){
         if(count($this->valoresSet)>0){
             foreach($this->valoresSet as $key => $valor){
-                echo "##" . $stm->bindValue(":valores$key", $valor, $this->tiposSet[$key]) . "\n";
+                $stm->bindValue(":valoresSet$key", $valor, $this->tiposSet[$key]);
             }
         }
     }
@@ -234,6 +235,7 @@ class GenericQuery {
     function update(){
         $stm = $this->db->prepare($this->getUpdateSql());
         $this->bindInsertUpdateParameters($stm);
+        $this->bindQueryParameters($stm);
         return $stm->execute();
     }
     

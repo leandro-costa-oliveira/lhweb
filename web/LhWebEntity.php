@@ -8,4 +8,12 @@ class LHWebEntity extends AbstractEntity {
     public $id;
     public $nome;
     public $valor;
+    public $descp;
+    
+    protected static $campos = array(
+        "id",
+        "nome",
+        "valor",
+        "descp" => "DESCRICAO"
+    );
 }
