@@ -3,7 +3,7 @@ require_once("../inc/autoloader.php");
 require_once("LhWebEntity.php");
 header('Content-Type: text/html; charset=utf-8');
 
-use \lhweb\database\MysqlDB;
+use \lhweb\database\MysqlDB; 
 ?><!DOCTYPE html>
 <html>
     <head>
