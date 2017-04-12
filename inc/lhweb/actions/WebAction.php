@@ -31,12 +31,13 @@ abstract class WebAction {
     public abstract function buildObjectFromRequest();
     
     public function __construct() {
-        $this->db = LHDB::getConnection();
-        
         $get  = $this->parseRequestData($_GET);
         $post = $this->parseRequestData($_POST);
-    
         $this->in = array_merge($get,$post);
+    }
+    
+    public function initDatabase() {
+        $this->db = LHDB::getConnection();
     }
     
     /**
