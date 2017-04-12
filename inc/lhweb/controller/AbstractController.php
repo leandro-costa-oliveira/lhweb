@@ -5,7 +5,15 @@ use lhweb\database\LHDB;
 use lhweb\database\AbstractEntity;
 
 abstract class AbstractController {
-    public abstract function getEntityClass();
+    protected static $entityClass = null;
+    
+    public static function getEntityClass(){
+        if(static::$entityClass===null){
+            $class = explode("\\",strtolower(static::class));
+            static::$entityClass = str_replace("controller", "", strtolower($class[count($class)-1]));
+        }
+        return static::$entityClass;
+    }
             
     function __construct() {
         $this->db  = LHDB::getConnection();
