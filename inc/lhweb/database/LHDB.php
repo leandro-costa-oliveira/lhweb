@@ -12,10 +12,8 @@ use \PDO;
 abstract class LHDB extends PDO {
     /**
      *
-     * @var PDO
+     * @var LHDB[]
      */
-    protected $pdo;
-    
     protected static $conexoes = array();
     
     /**
@@ -26,10 +24,12 @@ abstract class LHDB extends PDO {
     public static function getConnection($idx=0){
         if(array_key_exists($idx, LHDB::$conexoes)){
             return LHDB::$conexoes[$idx];
+        } else {
+            throw new Exception("Nenhuma Conexão com o Banco de Dados");
         }
     }
     
-    public function __construct($dburl, $dbhost, $dbname, $dbuser, $dbpass, $encoding="utf8", $dbopt=null){
+    public function __construct($dburl, $dbuser, $dbpass, $dbopt=null){
         parent::__construct($dburl, $dbuser, $dbpass, $dbopt);
         $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         array_push(LHDB::$conexoes, $this);
@@ -81,7 +81,7 @@ abstract class LHDB extends PDO {
      * @return int
      */
     public function exec($sql) {
-        $nrows = $this->pdo->exec($sql);
+        $nrows = $this->exec($sql);
         
         if($this->autoCommit) {
             $this->commit();
