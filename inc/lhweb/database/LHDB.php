@@ -25,7 +25,7 @@ abstract class LHDB extends PDO {
         if(array_key_exists($idx, LHDB::$conexoes)){
             return LHDB::$conexoes[$idx];
         } else {
-            throw new Exception("Nenhuma Conexão com o Banco de Dados");
+            throw new \Exception("Conexão com o Banco de Dados não encontrada.");
         }
     }
     
