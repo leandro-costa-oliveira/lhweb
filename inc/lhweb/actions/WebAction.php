@@ -136,6 +136,10 @@ abstract class WebAction {
         }
     }
     
+    public function getParametroInt($paramName, $requerido=false, $permitirVazio=true){
+        return $this->getParametro($paramName, "int", $requerido, $permitirVazio);
+    }
+    
     public function getParametroFloat($paramName, $requerido=false, $permitirVazio=true){
         return $this->getParametro($paramName, "float", $requerido, $permitirVazio);
     }
