@@ -68,7 +68,7 @@ abstract class AbstractController {
      * 
      * @return AbstractEntity
      */
-    public function Mover($pk){
+    public function mover($pk){
         $c = $this->getEntityClass();
         return $c::getByPK($pk);
     }
@@ -78,7 +78,7 @@ abstract class AbstractController {
      * @return int
      * @throws RegistroNaoEncontrado
      */
-    public function Apagar($pk){
+    public function apagar($pk){
         $c = $this->getEntityClass();
         $obj = $c::getByPK($pk);
         
@@ -94,8 +94,13 @@ abstract class AbstractController {
      * @param AbstractEntity $obj
      * @return AbstractEntity
      */
-    public function Salvar($obj){
+    public function salvar($obj){
         $c = $this->getEntityClass();
         return $c::salvar($obj);
+    }
+    
+    public function listar(){
+        $c = $this->getEntityClass();
+        return $c::listar();
     }
 }
