@@ -18,13 +18,13 @@ class GenericQuery {
      * @var string
      */
     protected $table = null;
-    protected $join = null;
     protected $campos = array("*");
     protected $camposSet= array();
     protected $union  = array();
     protected $valores = array();
     protected $valoresSet = array();
     protected $tiposSet = array();
+    protected $join    = array();
     protected $limit   = null;
     protected $offset  = null;
     protected $orderBy  = null;
@@ -126,6 +126,14 @@ class GenericQuery {
         return $this->basicCondition("LIKE", $txt, $paramType);
     }
     
+    public function join($table, $condition) {
+        array_push($this->join, " JOIN $table ON $condition");
+    }
+    
+    public function leftOuterJoin($table, $condition) {
+        array_push($this->join, " LEFT OUTER JOIN $table ON $condition");
+    }
+    
     public function orderBy($txt, $dir="ASC"){
         $this->orderBy .= "$txt $dir";
         return $this;
@@ -134,7 +142,10 @@ class GenericQuery {
     function getQuerySql(){
         $sql = "SELECT " . implode(",", $this->campos) . " FROM $this->table";
         
-        if($this->join){$sql .= " $this->join "; }
+        foreach($this->join as $j) {
+            $sql .= " $this->join ";        
+        }
+        
         if(!empty($this->conditions["where"])) { $sql .= " WHERE " . $this->conditions["where"]; }
         if($this->groupBy) { $sql .= " GROUP BY $this->groupBy "; }
         if(!empty($this->conditions["having"])){ $sql .= " HAVING " . $this->conditions["having"]; }
