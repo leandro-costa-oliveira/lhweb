@@ -61,6 +61,8 @@ use \lhweb\database\MysqlDB;
                 echo "$key => "   . print_r($empresa,true);
             }
             
+            echo "\n#### LISTA JSON:\n";
+            echo json_encode(LHWebEntity::listar(),JSON_PRETTY_PRINT);
             $tend = microtime(true); 
             
             echo "\n\n##### EXECUTION TIME: [$tini -> $tend]" . ($tend - $tini) . "\n";

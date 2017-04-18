@@ -6,7 +6,7 @@ namespace lhweb\database;
  *
  * @author loki
  */
-class EntityArray implements \Iterator, \Countable {
+class EntityArray implements \Iterator, \Countable, \JsonSerializable {
     /**
      *
      * @var array
@@ -46,4 +46,14 @@ class EntityArray implements \Iterator, \Countable {
     public function valid() {
         return array_key_exists($this->idx, $this->array);
     }
+
+    public function jsonSerialize() {
+        $ret = array();
+        foreach($this as $item){
+            array_push($ret, $item);
+        }
+        
+        return $ret;
+    }
+
 }

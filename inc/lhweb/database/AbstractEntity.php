@@ -5,7 +5,7 @@ namespace lhweb\database;
  *
  * @author loki
  */
-abstract class AbstractEntity {
+abstract class AbstractEntity implements \JsonSerializable {
     protected static $primaryKey = "id";
     protected static $primaryKeyTipo = LHDB::PARAM_INT;
     protected static $table = null;
@@ -162,7 +162,7 @@ abstract class AbstractEntity {
      * @return AbstractEntity
      */
     public static function listar(){
-        return new EntityArray(static::getBasicMoveQuery()->getList(static::class), static::class);
+        return new EntityArray(static::getBasicMoveQuery()->getList(), static::class);
     }
     
     /**
@@ -291,4 +291,12 @@ abstract class AbstractEntity {
         return static::class . "[" . $this->$pk . "]";
     }
 
+    public function jsonSerialize (){
+        $ret = array();
+        foreach($this as $key => $val){ 
+            $ret[$key] = $val;
+        }
+        
+        return $ret;
+    }
 }
