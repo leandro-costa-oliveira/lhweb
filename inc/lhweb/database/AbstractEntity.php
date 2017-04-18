@@ -185,7 +185,7 @@ abstract class AbstractEntity implements \JsonSerializable {
     
     public static function procurar($campo, $txt, $modo="like") {
         $q = static::getProcurarQuery($campo, $txt, $modo);
-        return new EntityArray($q->getList(static::class),static::class);
+        return new EntityArray($q->getList(),static::class);
     }
     
     public static function getBy($campo, $txt, $modo="like") {
@@ -195,7 +195,7 @@ abstract class AbstractEntity implements \JsonSerializable {
     
     public static function listarPor($campo, $txt, $modo="like") {
         $q = static::getProcurarQuery($campo, $txt, $modo);
-        return $q->getList(static::class);
+        return new EntityArray($q->getList(),static::class);
     }
     
     /**
