@@ -102,6 +102,14 @@ class GenericQuery {
         return $this;
     }
     
+    public function isNull() {
+        $this->conditions[$this->condition] .= " IS NULL";
+    }
+    
+    public function isNotNull() {
+        $this->conditions[$this->condition] .= " IS NOT NULL";
+    }
+    
     public function equals($txt, $paramType=LHDB::PARAM_STR) {
         return $this->basicCondition("=", $txt, $paramType);
     }

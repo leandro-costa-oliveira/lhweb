@@ -23,7 +23,7 @@ use \lhweb\database\MysqlDB;
             $db = new MysqlDB("localhost","lhwebdb","lhweb","lhweb");
             
             
-            
+            LHWebEntity::getBy("nome", "","isNull");
             if(array_key_exists("nome", $_GET) && array_key_exists("valor", $_GET) && array_key_exists("descp", $_GET)){
                 echo "\n###########################################################################################\n";
                 $e = LHWebEntity::getBy("nome", filter_var($_GET["nome"], FILTER_SANITIZE_STRING));
