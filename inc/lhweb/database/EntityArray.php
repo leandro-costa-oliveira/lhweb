@@ -21,7 +21,7 @@ class EntityArray implements \Iterator, \Countable, \JsonSerializable {
         $this->entityClass = $entityClass;
     }
     
-    public function count($mode = 'COUNT_NORMAL') {
+    public function count($mode = COUNT_NORMAL) {
         return count($this->array, $mode);
     }
 
