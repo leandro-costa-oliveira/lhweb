@@ -175,7 +175,7 @@ abstract class AbstractEntity implements \JsonSerializable {
         $q = static::getBasicMoveQuery();
         
         if(!method_exists($q, $modo)){
-            throw new Exception("Modo de Procura Inválido: $modo");
+            throw new \Exception("Modo de Procura Inválido: $modo");
         }
         
         $q->andWhere(static::getNomeCampo($campo))->$modo($txt);
