@@ -5,6 +5,6 @@ namespace lhweb\exceptions;
  *
  * @author loki
  */
-class LHWebException extends Exception {
+class LHWebException extends \Exception {
     //put your code here
 }
