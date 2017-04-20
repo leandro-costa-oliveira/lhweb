@@ -1,7 +1,5 @@
 <?php
 namespace lhweb\controller;
-
-use lhweb\database\LHDB;
 use lhweb\database\AbstractEntity;
 
 abstract class AbstractController {
@@ -14,10 +12,7 @@ abstract class AbstractController {
         }
         return static::$entityClass;
     }
-            
-    function __construct() {
-        $this->db  = LHDB::getConnection();
-    }
+    
     
     /**
      * 
@@ -83,7 +78,7 @@ abstract class AbstractController {
         $obj = $c::getByPK($pk);
         
         if($obj){
-            return $c::delete($obj);
+            return $obj->delete();
         } else {
             throw new RegistroNaoEncontrado();
         }
@@ -95,8 +90,7 @@ abstract class AbstractController {
      * @return AbstractEntity
      */
     public function salvar($obj){
-        $c = $this->getEntityClass();
-        return $c::salvar($obj);
+        return $obj->salvar();
     }
     
     public function listar(){
