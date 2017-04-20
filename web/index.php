@@ -36,7 +36,7 @@ use lhweb\view\LHFInpText;
                     <?php LHFInpText::id("inp_name")->width(6)->class("text-mutted")->render(); ?>
                     
                     <div class="col-sm-1">
-                    <?php LHFButton::id("bt_novo")->icon("usd")->class("primary")->text("Novo Registro")->render(); ?>
+                    <?php LHFButton::id("bt_novo")->icon("usd")->class("btn-primary")->text("Novo Registro")->render(); ?>
                     </div>
                 </div>
             </div>
