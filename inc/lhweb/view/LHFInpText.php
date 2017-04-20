@@ -15,6 +15,7 @@ class LHFInpText extends LHFormField {
     public function render() {
         echo "<div class='col-sm-$this->width'>";
         echo "<input type='text' class='form-control $this->class' id='$this->id' ";
+        echo $this->name?" name='$this->name'":" name='$this->id'";
         echo " placeholder='$this->placeholder' value='$this->value' ";
         echo $this->required?" required":"";
         echo $this->readonly?" readonly":"";

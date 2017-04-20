@@ -12,6 +12,7 @@ abstract class LHFormField {
     public static $RIGHT = 2;
     
     protected $id    = "lhFormField";
+    protected $name  = null;
     protected $class = "";
     protected $disabled = false;
     
