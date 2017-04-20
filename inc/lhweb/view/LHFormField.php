@@ -13,6 +13,7 @@ abstract class LHFormField {
     
     protected $id    = "lhFormField";
     protected $class = "";
+    protected $disabled = false;
     
     /**
      * Deve renderizar o componente.
