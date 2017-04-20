@@ -249,7 +249,6 @@ class GenericQuery {
     function insert(){
         $stm = $this->db->prepare($this->getInsertSql());
         $this->bindInsertUpdateParameters($stm);
-        $stm->debugDumpParams();
         return $stm->execute();
     }
     

@@ -251,7 +251,6 @@ abstract class AbstractEntity implements \JsonSerializable {
             $tipo = property_exists(static::class, $campoTipo)?static::$$campoTipo:LHDB::PARAM_STR;
             
             $q->set(static::getNomeCampo($key), $val, $tipo);
-            echo "## SETTING: " . static::getNomeCampo($key) . " -> $val \n";
             $count++;
         }
         
