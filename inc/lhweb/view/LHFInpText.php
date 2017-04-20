@@ -11,12 +11,16 @@ class LHFInpText extends LHFormField {
     protected $value       = "";
     protected $required    = false;
     protected $readonly    = false;
+    protected $class       = "form-control";
     
     public function render() {
         echo "<div class='col-sm-$this->width'>";
-        echo "<input type='text' class='$this->class' id='$this->id' ";
-        echo $this->name?" name='$this->name'":" name='$this->id'";
-        echo " placeholder='$this->placeholder' value='$this->value' ";
+        echo "<input type='text' ";
+        $this->renderHtmlAttr("class");
+        $this->renderHtmlAttr("id");
+        $this->renderHtmlAttr("name");
+        $this->renderHtmlAttr("placeholder");
+        $this->renderHtmlAttr("value");
         echo $this->required?" required":"";
         echo $this->readonly?" readonly":"";
         echo $this->disabled?" disabled":"";

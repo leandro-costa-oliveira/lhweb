@@ -42,10 +42,12 @@ abstract class LHFormField {
             throw new \Exception(static::class . " ERROR: Campo Inexistente [" . htmlspecialchars($var). "]");
         }
         
-        if($this->$var) {
-            $this->$var .= " ";
+        switch($var){
+            case "class":
+                $this->$var .= " " . htmlspecialchars($val); break;
+            default:
+                $this->$var = htmlspecialchars($val);
         }
-        $this->$var .= htmlspecialchars($val);
     }
     
     protected function pushData($key, $val) {
@@ -74,13 +76,13 @@ abstract class LHFormField {
         }
     }
     
-    public function renderHtmlAttr($attr) {
+    public function renderHtmlAttr($attr, $val=null) {
         if(!property_exists($this, $attr)){
             throw new \Exception(static::class . " RENDE HTML ATTR: Campo Inexistente [" . htmlspecialchars($attr). "]");
         }
         
         if(!empty($this->$attr)){
-            echo " $attr=\"" . $this->$attr . "\" ";
+            echo " $attr=\"" . ($val?$val:$this->$attr) . "\" ";
         }
     }
     
