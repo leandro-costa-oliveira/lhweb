@@ -90,6 +90,9 @@ abstract class AbstractController {
      * @return AbstractEntity
      */
     public function salvar($obj){
+        if($obj===null) {
+            throw new RegistroNaoEncontrado();
+        }
         return $obj->salvar();
     }
     
