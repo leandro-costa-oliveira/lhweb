@@ -150,6 +150,10 @@ abstract class WebAction {
         return $this->getParametro($paramName, "string", $requerido, $permitirVazio);
     }
     
+    public function getPk(){
+        return $this->getParametro($this->controller->getPkName(), FILTER_SANITIZE_NUMBER_INT,true,false);
+    }
+    
     /**
      * 
      * @return AbstractEntity
@@ -171,7 +175,7 @@ abstract class WebAction {
      * @return AbstractEntity
      */
     public function Anterior(){
-        $pk  = $this->getParamenterRequired($this->controller->getPkName(), FILTER_SANITIZE_NUMBER_INT);
+        $pk  = $this->getPk();
         $ret = $this->controller->anterior($pk);
         if(!$ret){
             $ret = $this->controller->ultimo();
@@ -185,7 +189,7 @@ abstract class WebAction {
      * @return AbstractEntity
      */
     public function Proximo(){
-        $pk  = $this->getParamenterRequired($this->controller->getPkName(), FILTER_SANITIZE_NUMBER_INT);
+        $pk  = $this->getPk();
         $ret = $this->controller->proximo($pk);
         if(!$ret){
             $ret = $this->controller->primeiro();
@@ -198,7 +202,7 @@ abstract class WebAction {
      * @return AbstractEntity
      */
     public function Mover(){
-        $pk  = $this->getParamenterRequired($this->controller->getPkName(), FILTER_SANITIZE_NUMBER_INT);
+        $pk  = $this->getPk();
         return $this->controller->getByPK($pk);
     }
     
@@ -208,7 +212,7 @@ abstract class WebAction {
      * @throws RegistroNaoEncontrado
      */
     public function Apagar(){
-        $pk  = $this->getParamenterRequired($this->controller->getPkName(), FILTER_SANITIZE_NUMBER_INT);
+        $pk  = $this->getPk();
         $obj = $this->controller->getByPK($pk);
         
         if($obj){
