@@ -70,4 +70,24 @@ abstract class LHFormField {
             echo " data-$key=\"$val\" ";
         }
     }
+    
+    public function renderHtmlAttr($attr) {
+        if(!property_exists($this, $attr)){
+            throw new \Exception(static::class . " RENDE HTML ATTR: Campo Inexistente [" . htmlspecialchars($attr). "]");
+        }
+        
+        if(!empty($this->$attr)){
+            echo " $attr=\"" . $this->$attr . "\" ";
+        }
+    }
+    
+    public function renderHtmlProp($attr) {
+        if(!property_exists($this, $attr)){
+            throw new \Exception(static::class . " RENDE HTML ATTR: Campo Inexistente [" . htmlspecialchars($attr). "]");
+        }
+        
+        if(!empty($this->$attr) && $this->$attr){
+            echo " $attr ";
+        }
+    }
 }

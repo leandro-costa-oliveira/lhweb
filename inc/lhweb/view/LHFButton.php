@@ -8,8 +8,7 @@ namespace lhweb\view;
  */
 class LHFButton  extends LHFormField {
     protected $class = "";
-    protected $size  = "";
-    protected $text  = "LHFormButton";
+    protected $text  = "";
     protected $title = "";
     protected $icon  = null;
     protected $iconSide = 1;
@@ -17,9 +16,9 @@ class LHFButton  extends LHFormField {
     
     public function render() {
         echo "<button id='$this->id' type='$this->type' ";
-        echo " class='btn" . ($this->class?" btn-$this->class":"") . ($this->size?" btn-$this->size":"")  ."'";
-        echo $this->title?" title='$this->title'":"";
-        echo $this->disabled?" disabled":"";
+        $this->renderHtmlAttr("class");
+        $this->renderHtmlAttr("title");
+        $this->renderHtmlAttr("disabled");
         $this->renderData();
         echo ">";
         
