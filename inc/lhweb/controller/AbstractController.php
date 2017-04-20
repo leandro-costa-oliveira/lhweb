@@ -5,6 +5,10 @@ use lhweb\database\AbstractEntity;
 abstract class AbstractController {
     protected static $entityClass = null;
     
+    public function __construct() {
+    }
+    
+    
     public static function getEntityClass(){
         if(static::$entityClass===null){
             $class = explode("\\",strtolower(static::class));

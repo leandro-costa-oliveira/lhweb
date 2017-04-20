@@ -10,6 +10,9 @@ abstract class AbstractEntity implements \JsonSerializable {
     protected static $primaryKeyTipo = LHDB::PARAM_INT;
     protected static $table = null;
     
+    public function __construct() {
+    }
+    
     /**
      *
      * @var array
