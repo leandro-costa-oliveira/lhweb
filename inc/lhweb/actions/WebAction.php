@@ -29,6 +29,7 @@ abstract class WebAction {
     
     
     public abstract function buildObjectFromRequest();
+    public abstract function initController();
     
     public function __construct() {
         $get  = $this->parseRequestData($_GET);
