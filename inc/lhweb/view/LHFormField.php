@@ -42,7 +42,7 @@ abstract class LHFormField {
             throw new \Exception(static::class . " ERROR: Campo Inexistente [" . htmlspecialchars($var). "]");
         }
         
-        $this->$var = htmlspecialchars($val);
+        $this->$var .= htmlspecialchars($val);
     }
     
     protected function pushData($key, $val) {
