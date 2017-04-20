@@ -11,7 +11,10 @@ class LHFLabel extends LHFormField {
     protected $width = 1;
     
     public function render() {
-        echo "<label for='$this->id' class='col-sm-$this->width control-label $this->class'>$this->text</label>";
+        echo "<label for='$this->id' class='col-sm-$this->width control-label $this->class'";
+        $this->renderData();
+        echo ">";
+        echo "$this->text</label>";
     }
 
 }

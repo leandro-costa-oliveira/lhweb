@@ -20,6 +20,7 @@ class LHFButton  extends LHFormField {
         echo " class='btn" . ($this->class?" btn-$this->class":"") . ($this->size?" btn-$this->size":"")  ."'";
         echo $this->title?" title='$this->title'":"";
         echo $this->disabled?" disabled":"";
+        $this->renderData();
         echo ">";
         
         if($this->icon !== null && $this->iconSide === static::$LEFT){

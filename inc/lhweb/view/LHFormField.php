@@ -14,7 +14,9 @@ abstract class LHFormField {
     protected $id    = "lhFormField";
     protected $name  = null;
     protected $class = "";
+    protected $role  = "";
     protected $disabled = false;
+    protected $data = array();
     
     /**
      * Deve renderizar o componente.
@@ -35,15 +37,25 @@ abstract class LHFormField {
         return $o;
     }
     
-    public function __call($method, $args) {
-        if(count($args) != 1) {
-            throw new \Exception(static::class . " ERROR: PASSE UM ÚNICO VALOR]");
+    protected function set($var, $val) {
+        if(!property_exists($this, $var)){
+            throw new \Exception(static::class . " ERROR: Campo Inexistente [" . htmlspecialchars($var). "]");
         }
         
-        if(property_exists($this, $method)){
-            $this->$method = htmlspecialchars($args[0]);
-        } else {
-            throw new \Exception(static::class . " ERROR: Campo Inexistente[" . htmlspecialchars($method). "]");
+        $this->$var = htmlspecialchars($val);
+    }
+    
+    protected function pushData($key, $val) {
+        $this->data[$key] = htmlspecialchars($val);
+    }
+    
+    public function __call($method, $args) {
+        foreach($args as $val){
+            if(strpos($method, "data")!==false){
+                $this->pushData(strtolower(str_replace("data", "", $method)), $val);
+            } else {
+                $this->set($method, $val);
+            }
         }
                 
         return $this;
@@ -51,5 +63,11 @@ abstract class LHFormField {
     
     public function renderGlyphIcon($icon) {
         echo " <span class='glyphicon glyphicon-$icon'></span> ";
+    }
+    
+    public function renderData(){
+        foreach($this->data as $key => $val) {
+            echo " data-$key=\"$val\" ";
+        }
     }
 }

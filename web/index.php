@@ -32,7 +32,7 @@ use lhweb\view\LHFInpText;
         <div class="container">
             <div class="form-horizontal" style="border: solid red 1px; margin-left: 50px;">
                 <div class="form-group">
-                    <?php LHFLabel::id("inp_name")->text("Nome:")->width(2)->render(); ?>
+                    <?php LHFLabel::id("inp_name")->text("Nome:")->width(2)->dataTeste("true")->render(); ?>
                     <?php LHFInpText::id("inp_name")->width(6)->class("text-mutted")->render(); ?>
                     
                     <div class="col-sm-1">

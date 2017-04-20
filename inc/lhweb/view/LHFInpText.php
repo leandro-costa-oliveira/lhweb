@@ -20,6 +20,7 @@ class LHFInpText extends LHFormField {
         echo $this->required?" required":"";
         echo $this->readonly?" readonly":"";
         echo $this->disabled?" disabled":"";
+        $this->renderData();
         echo " />";
         echo "</div>";
     }
