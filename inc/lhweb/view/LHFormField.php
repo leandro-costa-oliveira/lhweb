@@ -23,7 +23,7 @@ abstract class LHFormField {
      * 
      * @return LHFormField
      */
-    public static function create($id){
+    public static function id($id){
         if(!$id) {
             throw new \Exception(static::class . " ERROR: É necessário setar a id do campo.");
         }
