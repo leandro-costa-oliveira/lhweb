@@ -3,17 +3,48 @@ require_once("../inc/autoloader.php");
 require_once("LhWebEntity.php");
 header('Content-Type: text/html; charset=utf-8');
 
-use \lhweb\database\MysqlDB; 
+use lhweb\database\MysqlDB; 
+use lhweb\view\LHFButton;
+use lhweb\view\LHFLabel;
+use lhweb\view\LHFInpText;
 ?><!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8">
         <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
         <title></title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+        
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     </head>
-    <body>
+    
         <h1>LHWEB FRAMEWORK</h1>
         <p>Teste Page</p>
+        
+        <div class="container">
+            <div class="form-horizontal" style="border: solid red 1px; margin-left: 50px;">
+                <div class="form-group">
+                    <?php LHFLabel::create("inp_name")->text("Nome:")->width(2)->render(); ?>
+                    <?php LHFInpText::create("inp_name")->width(6)->class("text-mutted")->render(); ?>
+                    
+                    <div class="col-sm-1">
+                    <?php LHFButton::create("bt_novo")->icon("usd")->class("primary")->text("Novo Registro")->render(); ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <br/>
+        <br/>
+        <br/>
         
         <pre>
         <?php
@@ -72,5 +103,5 @@ use \lhweb\database\MysqlDB;
         }
         ?>
         </pre>
-    </body>
+    
 </html>
