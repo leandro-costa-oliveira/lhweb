@@ -293,8 +293,9 @@ abstract class AbstractEntity implements \JsonSerializable {
      * @return int
      */
     public function delete(){
+        $pkName = static::$primaryKey;
         $q = LHDB::getConnection()->query(static::$table);
-        $q->andWhere(static::$primaryKey)->equals($this->primaryKey, $this->primaryKeyTipo);
+        $q->andWhere(static::getPkName())->equals($this->$pkName, static::$primaryKeyTipo);
         return $q->delete();
     }
     
