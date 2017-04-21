@@ -120,11 +120,11 @@ abstract class WebAction {
         $param = array_key_exists($paramName, $this->in)?$this->in[$paramName]:null;
         if($requerido) {
             if(!array_key_exists($paramName, $this->in)){
-                throw new ParametroRequeridoException($paramName);
+                throw new ParametroRequeridoException("O Parâmetro é requerido: ".$paramName);
             }
             
             if(!$permitirVazio && empty($this->in[$paramName])){
-                throw new ParametroRequeridoException($paramName);
+                throw new ParametroRequeridoException("O Parâmetro não pode estar vazio: ".$paramName);
             }
         } 
         
