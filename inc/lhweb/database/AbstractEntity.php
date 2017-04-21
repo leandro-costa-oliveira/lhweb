@@ -25,7 +25,7 @@ abstract class AbstractEntity implements \JsonSerializable {
      * resultado retornar será armazenado na propriedade campoDaClasse do objeto.
      * 
      */
-    protected static $campos = array();
+    public static $campos = array();
     private $editClone;
     
     
@@ -67,8 +67,18 @@ abstract class AbstractEntity implements \JsonSerializable {
         return $q;
     }
     
-    public function getPkName(){
+    public static function getPkName(){
         return static::$table . "." . static::$primaryKey;
+    }
+    
+    public static function getPkAttribute(){
+        foreach(static::$campos as $key => $val) {
+            if($val === static::$primaryKey) {
+                return $key;
+            }
+        }
+        
+        return static::$primaryKey;
     }
     
     public static function getNomeCampo($campo){
@@ -255,7 +265,7 @@ abstract class AbstractEntity implements \JsonSerializable {
         }
         
         $pkName = static::$primaryKey;
-        $q->andWhere($this->getPkName())->equals($this->$pkName, static::$primaryKeyTipo);
+        $q->andWhere(static::getPkName())->equals($this->$pkName, static::$primaryKeyTipo);
         
         if($count>0){
             $q->update();
