@@ -219,4 +219,16 @@ abstract class WebAction {
         $obj = $this->buildObjectFromRequest();
         return $this->controller->salvar($obj);
     }
+    
+    public function printValue($obj, $var) {
+        if($obj===null) {
+            return;
+        }
+        
+        if(!property_exists($obj, $var)){
+            return;
+        }
+        
+        echo htmlspecialchars($obj->$var);
+    }
 }
