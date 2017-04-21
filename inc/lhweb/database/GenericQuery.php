@@ -238,6 +238,12 @@ class GenericQuery {
         return $sql;
     }
     
+    function getDeleteSql(){
+        $vals = array();
+        $sql = "DELETE FROM $this->table WHERE " . $this->conditions["where"];
+        return $sql;
+    }
+    
     function bindInsertUpdateParameters($stm){
         if(count($this->valoresSet)>0){
             foreach($this->valoresSet as $key => $valor){
@@ -255,6 +261,12 @@ class GenericQuery {
     function update(){
         $stm = $this->db->prepare($this->getUpdateSql());
         $this->bindInsertUpdateParameters($stm);
+        $this->bindQueryParameters($stm);
+        return $stm->execute();
+    }
+    
+    function delete(){
+        $stm = $this->db->prepare($this->getDeleteSql());
         $this->bindQueryParameters($stm);
         return $stm->execute();
     }
