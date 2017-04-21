@@ -68,7 +68,7 @@ abstract class AbstractEntity implements \JsonSerializable {
     }
     
     public static function getPkName(){
-        return static::$table . "." . static::$primaryKey;
+        return static::$table . "." . static::getNomeCampo(static::$primaryKey);
     }
     
     public static function getPkAttribute(){
