@@ -36,8 +36,16 @@ abstract class WebAction {
         $this->in = array_merge($get,$post);
     }
     
-    public function initDatabase() {
-        $this->db = LHDB::getConnection();
+    public function initDatabase(LHDB $db=null) {
+        if($db===null){
+            $this->db = LHDB::getConnection();
+        } else {
+            $this->db = $db;
+        }
+    }
+    
+    public function getController(){
+        return $this->controller;
     }
     
     /**
