@@ -220,7 +220,7 @@ abstract class WebAction {
         return $this->controller->salvar($obj);
     }
     
-    public function printValue($obj, $var) {
+    public function get($obj, $var) {
         if($obj===null) {
             return;
         }
@@ -229,6 +229,6 @@ abstract class WebAction {
             return;
         }
         
-        echo htmlspecialchars($obj->$var);
+        return htmlspecialchars($obj->$var);
     }
 }
