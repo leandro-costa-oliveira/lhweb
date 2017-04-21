@@ -5,7 +5,6 @@ use \lhweb\database\LHDB;
 use \lhweb\database\AbstractEntity;
 use \lhweb\controller\AbstractController;
 use \lhweb\exceptions\ParametroRequeridoException;
-use \lhweb\exceptions\RegistroNaoEncontrado;
 
 abstract class WebAction {
     /**
@@ -213,13 +212,7 @@ abstract class WebAction {
      */
     public function Apagar(){
         $pk  = $this->getPk();
-        $obj = $this->controller->getByPK($pk);
-        
-        if($obj){
-            return $this->controller->apagar($obj);
-        } else {
-            throw new RegistroNaoEncontrado();
-        }
+        return $this->controller->apagar($pk);
     }
     
     public function Salvar(){
