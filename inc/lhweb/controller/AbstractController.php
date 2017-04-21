@@ -71,6 +71,15 @@ abstract class AbstractController {
      * 
      * @return AbstractEntity
      */
+    public function getByPK($pk){
+        $c = $this->getEntityClass();
+        return $c::getByPK($pk);
+    }
+    
+    /**
+     * 
+     * @return AbstractEntity
+     */
     public function mover($pk){
         $c = $this->getEntityClass();
         return $c::getByPK($pk);
