@@ -98,7 +98,7 @@ abstract class AbstractController {
         if($obj){
             return $obj->delete();
         } else {
-            throw new RegistroNaoEncontradoException();
+            throw new RegistroNaoEncontradoException("PK:".htmlspecialchars($pk));
         }
     }
     
