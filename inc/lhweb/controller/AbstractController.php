@@ -19,7 +19,16 @@ abstract class AbstractController {
     
     public function getPkName(){
         $c = $this->getEntityClass();
-        $c::getPkName();
+        $pk = $c::getPkName();
+        
+        // Checa se a PK está no array de campos, e  envia o nome da porpertie.
+        foreach($c::$campos as $key => $val) {
+            if($pk === $val) {
+                return $key;
+            }
+        }
+        
+        return $pk;
     }
     
     /**
