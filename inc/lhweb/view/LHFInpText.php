@@ -14,8 +14,6 @@ class LHFInpText extends LHFormField {
     protected $class       = "form-control";
     
     public function render() {
-        w
-        
         echo "<div class='col-sm-$this->width'>";
         echo "<input type='text' ";
         $this->renderHtmlAttr("class");
