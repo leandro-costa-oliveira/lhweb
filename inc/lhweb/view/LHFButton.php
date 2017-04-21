@@ -15,6 +15,10 @@ class LHFButton  extends LHFormField {
     protected $type  = "button";
     
     public function render() {
+        if($this->name === null){
+            $this->name = $this->id;
+        }
+        
         echo "<button ";
         $this->renderHtmlAttr("id");
         $this->renderHtmlAttr("name");
