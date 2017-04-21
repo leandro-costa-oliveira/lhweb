@@ -1,6 +1,7 @@
 <?php
 namespace lhweb\controller;
 use lhweb\database\AbstractEntity;
+use lhweb\exceptions\RegistroNaoEncontradoException;
 
 abstract class AbstractController {
     protected static $entityClass = null;
@@ -88,7 +89,7 @@ abstract class AbstractController {
     /**
      * 
      * @return int
-     * @throws RegistroNaoEncontrado
+     * @throws RegistroNaoEncontradoException
      */
     public function apagar($pk){
         $c = $this->getEntityClass();
@@ -97,7 +98,7 @@ abstract class AbstractController {
         if($obj){
             return $obj->delete();
         } else {
-            throw new RegistroNaoEncontrado();
+            throw new RegistroNaoEncontradoException();
         }
     }
     
