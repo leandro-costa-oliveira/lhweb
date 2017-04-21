@@ -17,6 +17,10 @@ abstract class AbstractController {
         return static::$entityClass;
     }
     
+    public function getPkName(){
+        $c = $this->getEntityClass();
+        $c::getPkName();
+    }
     
     /**
      * 
