@@ -25,7 +25,7 @@ abstract class AbstractEntity implements \JsonSerializable {
      * resultado retornar será armazenado na propriedade campoDaClasse do objeto.
      * 
      */
-    public static $campos = array();
+    protected static $campos = array();
     private $editClone;
     
     
