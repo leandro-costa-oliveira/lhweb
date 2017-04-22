@@ -79,20 +79,21 @@ abstract class LHFormField {
     public function renderHtmlAttr($attr, $val=null) {
         if(!$val){
             if(!property_exists($this, $attr)){
-                throw new \Exception(static::class . " RENDE HTML ATTR: Campo Inexistente [" . htmlspecialchars($attr). "]");
+                throw new \Exception(static::class . " RENDER HTML ATTR: Campo Inexistente [" . htmlspecialchars($attr). "]");
             }
             
             $val = $this->$attr;
         }
         
         if(!empty($val)){
+            $attr = str_replace("_", "-", $attr);
             echo " $attr=\"" . htmlspecialchars($val) . "\" ";
         }
     }
     
     public function renderHtmlProp($attr) {
         if(!property_exists($this, $attr)){
-            throw new \Exception(static::class . " RENDE HTML ATTR: Campo Inexistente [" . htmlspecialchars($attr). "]");
+            throw new \Exception(static::class . " RENDER HTML ATTR: Campo Inexistente [" . htmlspecialchars($attr). "]");
         }
         
         if(!empty($this->$attr) && $this->$attr){
