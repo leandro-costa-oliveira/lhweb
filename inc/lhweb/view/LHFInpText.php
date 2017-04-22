@@ -7,6 +7,7 @@ namespace lhweb\view;
  */
 class LHFInpText extends LHFormField {
     protected $width       = 4;
+    protected $maxLength   = null;
     protected $placeholder = "";
     protected $value       = "";
     protected $required    = false;
@@ -25,6 +26,7 @@ class LHFInpText extends LHFormField {
         $this->renderHtmlAttr("name");
         $this->renderHtmlAttr("placeholder");
         $this->renderHtmlAttr("value");
+        $this->renderHtmlAttr("max-length", $this->maxLength);
         echo $this->required?" required":"";
         echo $this->readonly?" readonly":"";
         echo $this->disabled?" disabled":"";
