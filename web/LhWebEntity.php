@@ -16,4 +16,10 @@ class LHWebEntity extends AbstractEntity {
         "valor",
         "descp" => "DESCRICAO"
     );
+    
+    
+    public function __toString() {
+        return $this->id . ":" . $this->nome . " - " . $this->valor;
+    }
+
 }

@@ -1,6 +1,8 @@
 <?php
 namespace lhweb\view;
 
+use lhweb\database\AbstractEntity;
+
 /**
  * Renderizar campos de formulário de forma padronizada, assim caso necessite
  * alguma alteração em todo o sistema, basta estender a classe e customizar.
@@ -38,15 +40,21 @@ abstract class LHFormField {
     }
     
     protected function set($var, $val) {
-        if(!property_exists($this, $var)){
-            throw new \Exception(static::class . " ERROR: Campo Inexistente [" . htmlspecialchars($var). "]");
-        }
-        
         switch($var){
-            case "class":
+            case "class": // faz o append no class do css.
                 $this->$var .= " " . htmlspecialchars($val); break;
             default:
                 $this->$var = htmlspecialchars($val);
+        }
+    }
+    
+    protected function setArray($var, $val) {
+        if(is_array($val) || $val instanceof \Iterator){
+            foreach($val as $v) {
+                array_push($this->$var, $v);
+            }
+        } else {
+            array_push($this->$var, $val);
         }
     }
     
@@ -58,6 +66,10 @@ abstract class LHFormField {
         foreach($args as $val){
             if(strpos($method, "data")!==false){
                 $this->pushData(strtolower(str_replace("data", "", $method)), $val);
+            } else if(!property_exists($this, $method)){
+                throw new \Exception(static::class . " ERROR: Campo Inexistente [" . htmlspecialchars($var). "]");
+            } else if(is_array($this->$method)) {
+                $this->setArray($method, $val);
             } else {
                 $this->set($method, $val);
             }

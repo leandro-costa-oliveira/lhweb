@@ -6,7 +6,10 @@ header('Content-Type: text/html; charset=utf-8');
 use lhweb\database\MysqlDB; 
 use lhweb\view\LHFButton;
 use lhweb\view\LHFLabel;
+use lhweb\view\LHFSelect;
 use lhweb\view\LHFInpText;
+
+$db = new MysqlDB("localhost","lhwebdb","lhweb","lhweb");
 ?><!DOCTYPE html>
 <html>
     <head>
@@ -35,6 +38,10 @@ use lhweb\view\LHFInpText;
                     <?php LHFLabel::id("inp_name")->text("Nome:")->width(2)->dataTeste("true")->render(); ?>
                     <?php LHFInpText::id("inp_name")->width(6)->class("text-mutted")->render(); ?>
                     
+                    <div class="col-sm-3">
+                        <?php LHFSelect::id("slc_campo_id")->options(LHWebEntity::listar())->render(); ?>
+                    </div>
+                    
                     <div class="col-sm-1">
                     <?php LHFButton::id("bt_novo")->icon("usd")->class("btn-primary")->text("Novo Registro")->render(); ?>
                     </div>
@@ -51,7 +58,7 @@ use lhweb\view\LHFInpText;
         try { 
             echo "\n";
             $tini = microtime(true);
-            $db = new MysqlDB("localhost","lhwebdb","lhweb","lhweb");
+            
             
             
             LHWebEntity::getBy("nome", "","isNull");
@@ -105,3 +112,4 @@ use lhweb\view\LHFInpText;
         </pre>
     
 </html>
+ 

@@ -74,7 +74,7 @@ abstract class AbstractEntity implements \JsonSerializable {
     public static function getPkAttribute(){
         foreach(static::$campos as $key => $val) {
             if($val === static::$primaryKey) {
-                return $key;
+                return $key?$key:$val;
             }
         }
         

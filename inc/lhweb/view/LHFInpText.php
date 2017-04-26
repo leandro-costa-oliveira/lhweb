@@ -6,7 +6,7 @@ namespace lhweb\view;
  * @author loki
  */
 class LHFInpText extends LHFormField {
-    protected $width       = 4;
+    protected $width       = 0;
     protected $maxlength   = null;
     protected $placeholder = "";
     protected $value       = "";
@@ -19,7 +19,10 @@ class LHFInpText extends LHFormField {
             $this->name = $this->id;
         }
         
-        echo "<div class='col-sm-$this->width'>";
+        if($this->width > 0) {
+            echo "<div class='col-sm-$this->width'>";
+        }
+        
         echo "<input type='text' ";
         $this->renderHtmlAttr("class");
         $this->renderHtmlAttr("id");
@@ -32,7 +35,10 @@ class LHFInpText extends LHFormField {
         echo $this->disabled?" disabled":"";
         $this->renderData();
         echo " />";
-        echo "</div>";
+        
+        if($this->width > 0){
+            echo "</div>";
+        }
     }
 
 }
