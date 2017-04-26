@@ -8,9 +8,11 @@ use lhweb\database\AbstractEntity;
  * @author loki
  */
 class LHFSelect  extends LHFormField {
+    protected $width       = 0;
     protected $class = "form-control";
     protected $text  = "";
     protected $title = "";
+    protected $required = false;
     protected $showEmptyOption = true;
     protected $options = array();
     
@@ -19,10 +21,14 @@ class LHFSelect  extends LHFormField {
             $this->name = $this->id;
         }
         
+        if($this->width > 0) {
+            echo "<div class='col-sm-$this->width'>";
+        }
         echo "<select ";
         $this->renderHtmlAttr("id");
         $this->renderHtmlAttr("name");
         $this->renderHtmlAttr("class");
+        $this->renderHtmlProp("required");
         $this->renderHtmlProp("disabled");
         $this->renderData();
         echo ">";
@@ -40,6 +46,11 @@ class LHFSelect  extends LHFormField {
         }
         
         echo "</select>";
+        
+        
+        if($this->width > 0){
+            echo "</div>";
+        }
     } // render
 
 }
