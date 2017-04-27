@@ -15,6 +15,7 @@ class LHFSelect  extends LHFormField {
     protected $required = false;
     protected $showEmptyOption = true;
     protected $options = array();
+    protected $value = null;
     
     public function render() {
         if($this->name === null){
@@ -42,7 +43,9 @@ class LHFSelect  extends LHFormField {
                 $pkName = $val->getPkAttribute();
                 $key = $val->$pkName;
             }
-            echo "<option value='" . htmlspecialchars($key) . "'>" . htmlspecialchars($val) . "</option>";
+            
+            $slc = $this->value == $key ? "selected":"";
+            echo "<option value='" . htmlspecialchars($key) . "' $slc>" . htmlspecialchars($val) . "</option>";
         }
         
         echo "</select>";
