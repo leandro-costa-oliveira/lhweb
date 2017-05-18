@@ -26,6 +26,7 @@ class LHFButton  extends LHFormField {
         $this->renderHtmlAttr("type");
         $this->renderHtmlAttr("title");
         $this->renderHtmlProp("disabled");
+        $this->renderHtmlAttr("style");
         $this->renderData();
         echo ">";
         

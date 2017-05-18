@@ -16,6 +16,7 @@ abstract class LHFormField {
     protected $id    = "lhFormField";
     protected $name  = null;
     protected $class = "";
+    protected $style = "";
     protected $role  = "";
     protected $disabled = false;
     protected $data = array();
@@ -39,10 +40,15 @@ abstract class LHFormField {
         return $o;
     }
     
+    public function css($field, $val) {
+        $this->style .= "$field=$val;";
+        return $this;
+    }
+    
     protected function set($var, $val) {
         switch($var){
             case "class": // faz o append no class do css.
-                $this->$var .= " " . htmlspecialchars($val); break;
+                $this->$var .= ($this->$var?" ":"") . htmlspecialchars($val); break;
             default:
                 $this->$var = htmlspecialchars($val);
         }
@@ -84,6 +90,7 @@ abstract class LHFormField {
     
     public function renderData(){
         foreach($this->data as $key => $val) {
+            $val = str_replace("\"", "'", $val);
             echo " data-$key=\"$val\" ";
         }
     }

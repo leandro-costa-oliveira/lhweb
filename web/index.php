@@ -39,7 +39,7 @@ $db = new MysqlDB("localhost","lhwebdb","lhweb","lhweb");
                     <?php LHFInpText::id("inp_name")->width(6)->class("text-mutted")->render(); ?>
                     
                     <div class="col-sm-3">
-                        <?php LHFSelect::id("slc_campo_id")->options(LHWebEntity::listar())->render(); ?>
+                        <?php LHFSelect::id("slc_campo_id")->options(LHWebEntity::listar())->css("width","100%")->render(); ?>
                     </div>
                     
                     <div class="col-sm-1">

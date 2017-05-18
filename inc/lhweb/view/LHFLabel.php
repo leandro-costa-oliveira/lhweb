@@ -15,6 +15,7 @@ class LHFLabel extends LHFormField {
             $this->text = ucwords($this->id) . ":";
         }
         echo "<label for='$this->id' class='col-sm-$this->width control-label $this->class'";
+        $this->renderHtmlAttr("style");
         $this->renderData();
         echo ">";
         echo "$this->text</label>";

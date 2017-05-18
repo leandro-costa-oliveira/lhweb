@@ -30,6 +30,7 @@ class LHFInpText extends LHFormField {
         $this->renderHtmlAttr("placeholder");
         $this->renderHtmlAttr("value");
         $this->renderHtmlAttr("maxlength");
+        $this->renderHtmlAttr("style");
         echo $this->required?" required":"";
         echo $this->readonly?" readonly":"";
         echo $this->disabled?" disabled":"";

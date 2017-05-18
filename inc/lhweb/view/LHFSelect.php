@@ -29,6 +29,7 @@ class LHFSelect  extends LHFormField {
         $this->renderHtmlAttr("id");
         $this->renderHtmlAttr("name");
         $this->renderHtmlAttr("class");
+        $this->renderHtmlAttr("style");
         $this->renderHtmlProp("required");
         $this->renderHtmlProp("disabled");
         $this->renderData();
