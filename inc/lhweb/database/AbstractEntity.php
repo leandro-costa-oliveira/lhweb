@@ -110,6 +110,7 @@ abstract class AbstractEntity implements \JsonSerializable {
             }
         }
         
+        unset($o->editClone);
         return $o;
     }
     
