@@ -147,7 +147,6 @@ abstract class AbstractController {
             $q->where($obj::getNomeCampo($campo))->like($valor);
         }
         
-        error_log("PROCURAR SQL:" . $q->getQuerySql());
         return new EntityArray($q->getList(), $obj);
     }
 }
