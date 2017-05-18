@@ -41,7 +41,7 @@ abstract class LHFormField {
     }
     
     public function css($field, $val) {
-        $this->style .= "$field=$val;";
+        $this->style .= "$field: $val;";
         return $this;
     }
     
