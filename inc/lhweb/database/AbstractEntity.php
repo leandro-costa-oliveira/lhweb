@@ -29,6 +29,10 @@ abstract class AbstractEntity implements \JsonSerializable {
     private $editClone;
     
     
+    public static function getCampos(){
+        return static::$campos;
+    }
+    
     /**
      * Cria uma cópia da classe atual para comprar os valores e alterar
      * somente o necessário em caso de chamada de update.

@@ -56,11 +56,11 @@ abstract class LHFormField {
     
     protected function setArray($var, $val) {
         if(is_array($val) || $val instanceof \Iterator){
-            foreach($val as $v) {
-                array_push($this->$var, $v);
+            foreach($val as $k => $v) {
+                $this->$var[$k] = $v;
             }
         } else {
-            array_push($this->$var, $val);
+            $this->$var[$k] = $v;
         }
     }
     

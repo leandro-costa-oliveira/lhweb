@@ -34,6 +34,10 @@ class GenericQuery {
         "having" => "",
     );
     protected $condition = "where";
+    protected $addAndOr = array(
+        "where" => false,
+        "having" => false,
+    );
     
     public function __construct(LHDB $db, $table) {
         $this->db = $db;
@@ -58,19 +62,21 @@ class GenericQuery {
     }
     
     public function andWhere($valor){
-        if($this->conditions[$this->condition]){
-            return $this->where("AND $valor");
-        } else {
-            return $this->where("$valor");
+        if($this->conditions[$this->condition] && $this->addAndOr[$this->condition]){
+            $this->where(" AND ");
+            $this->addAndOr[$this->condition] = false;
         }
+        
+        return $this->where("$valor");
     }
     
     public function orWhere($valor){
-        if($this->conditions[$this->condition]){
-            return $this->where("OR $valor");
-        } else {
-            return $this->where("$valor");
-        }
+        if($this->conditions[$this->condition] && $this->addAndOr[$this->condition]){
+            $this->where(" OR ");
+            $this->addAndOr[$this->condition] = false;
+        } 
+        
+        return $this->where("$valor");
     }
     
     public function having($valor){
@@ -81,23 +87,26 @@ class GenericQuery {
     }
     
     public function andHaving($valor){
-        if($this->conditions[$this->condition]){
-            return $this->having("AND $valor");
-        } else {
-            return $this->having("$valor");
+        if($this->conditions[$this->condition] && $this->addAndOr[$this->condition]){
+            $this->having(" AND ");
+            $this->addAndOr[$this->condition] = false;
         }
+        
+        return $this->having("$valor");
     }
     
     public function orHaving($valor){
-        if($this->conditions[$this->condition]){
-            return $this->having("OR $valor");
-        } else {
-            return $this->having("$valor");
+        if($this->conditions[$this->condition] && $this->addAndOr[$this->condition]){
+            $this->having(" OR ");
+            $this->addAndOr[$this->condition] = false;
         }
+        
+        $this->having("$valor");
     }
     
     public function basicCondition($op, $txt, $paramType) {
         $this->conditions[$this->condition] .= " $op :valores" . count($this->valores). " ";
+        $this->addAndOr[$this->condition] = true;
         array_push($this->valores, array("v" => $txt, "t" => $paramType));
         return $this;
     }
