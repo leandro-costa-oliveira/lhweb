@@ -127,7 +127,7 @@ abstract class AbstractController {
      * @param string $valor
      * @return AbstractEntity
      */
-    public function procurar($campo, $valor, $tipo=LHDB::PARAM_STR){
+    public function procurar($campo, $valor, $tipo=LHDB::PARAM_STR, $limit=0){
         $obj = $this->getEntityClass();
         $q = $obj::getBasicMoveQuery();
         
@@ -146,6 +146,10 @@ abstract class AbstractController {
             }
             $q->where($obj::getNomeCampo($campo))->like($valor, $tipo);
         } 
+        
+        if($limit){
+            $q->limit($limit);
+        }
         
         return new EntityArray($q->getList(), $obj);
     }
