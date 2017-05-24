@@ -117,9 +117,9 @@ abstract class AbstractController {
         return $obj->salvar();
     }
     
-    public function listar(){
+    public function listar($limit=0, $offset=0){
         $c = $this->getEntityClass();
-        return $c::listar();
+        return $c::listar($limit, $offset);
     }
     
     /**
