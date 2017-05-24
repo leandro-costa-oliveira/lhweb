@@ -14,7 +14,7 @@ class LHFLabel extends LHFormField {
         if($this->text === null) {
             $this->text = ucwords($this->id) . ":";
         }
-        echo "<label for='$this->id' class='col-sm-$this->width control-label $this->class'";
+        echo "<label id='label_$this->id' for='$this->id' class='col-sm-$this->width control-label $this->class'";
         $this->renderHtmlAttr("style");
         $this->renderData();
         echo ">";

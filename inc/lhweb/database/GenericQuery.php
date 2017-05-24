@@ -158,6 +158,16 @@ class GenericQuery {
         return $this;
     }
     
+    public function limit($l){
+        $this->limit = $l;
+        return $this;
+    }
+    
+    public function offset($o){
+        $this->offset = $o;
+        return $this;
+    }
+    
     function getQuerySql(){
         $sql = "SELECT " . implode(",", $this->campos) . " FROM $this->table";
         

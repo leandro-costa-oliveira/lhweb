@@ -179,8 +179,18 @@ abstract class AbstractEntity implements \JsonSerializable {
      * @param int $pk
      * @return AbstractEntity
      */
-    public static function listar(){
-        return new EntityArray(static::getBasicMoveQuery()->getList(), static::class);
+    public static function listar($limit=0, $offset=0){
+        $q = static::getBasicMoveQuery();
+        
+        if($limit) {
+            $q->limit($limit);
+        }
+        
+        if($offset) {
+            $q->offset($offset);
+        }
+        
+        return new EntityArray($q->getList(), static::class);
     }
     
     /**
