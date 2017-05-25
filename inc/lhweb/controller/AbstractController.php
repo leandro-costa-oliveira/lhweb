@@ -12,7 +12,10 @@ abstract class AbstractController {
     public function __construct() {
     }
     
-    
+    /**
+     * 
+     * @return AbstractEntity
+     */
     public static function getEntityClass(){
         if(static::$entityClass===null){
             $class = explode("\\",strtolower(static::class));
@@ -152,5 +155,10 @@ abstract class AbstractController {
         }
         
         return new EntityArray($q->getList(), $obj);
+    }
+    
+    public function count(){
+        $c = $this->getEntityClass();
+        return $c::count();
     }
 }
