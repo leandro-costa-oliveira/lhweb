@@ -26,6 +26,14 @@ abstract class AbstractEntity implements \JsonSerializable {
      * 
      */
     protected static $campos = array();
+    
+    /**
+     *
+     * @var array
+     * Tipos dos campos, deve ser declarado no formato:
+     * nomeDoCampo => LHDB::PARAM_STR
+     */
+    protected static $tipos = array();
     private $editClone;
     
     
