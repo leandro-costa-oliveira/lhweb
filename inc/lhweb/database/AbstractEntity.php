@@ -324,7 +324,7 @@ abstract class AbstractEntity implements \JsonSerializable {
      */
     public function count(){
         $rs = static::getBasicMoveQuery()->campos(array("COUNT(" . static::getPkName() . ") as total"))->getSingle();
-        return $rs->total;
+        return $rs["total"];
     }
 
     public function jsonSerialize (){
