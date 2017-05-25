@@ -130,7 +130,7 @@ abstract class AbstractController {
      * @param string $valor
      * @return AbstractEntity
      */
-    public function procurar($campo, $valor, $tipo=LHDB::PARAM_STR, $limit=0){
+    public function procurar($campo, $valor, $limit=0, $offset=0){
         $obj = $this->getEntityClass();
         $q = $obj::getBasicMoveQuery();
         
@@ -140,19 +140,18 @@ abstract class AbstractController {
                 if(!property_exists($obj, $c)){
                     throw new \lhweb\exceptions\LHWebException("Campo [$c] para Procura não encontrado em " . print_r($obj,true));
                 }
-                $q->orWhere($obj::getNomeCampo($c))->like($valor, $tipo);
+                $q->orWhere($obj::getNomeCampo($c))->like($valor, $obj::getTipoCampo($campo));
             }
             $q->Where(")");
         } else {
             if(!property_exists($obj, $campo)){
                 throw new \lhweb\exceptions\LHWebException("Campo [$campo] para Procura não encontrado em " . $campo);
             }
-            $q->where($obj::getNomeCampo($campo))->like($valor, $tipo);
+            $q->where($obj::getNomeCampo($campo))->like($valor, $obj::getTipoCampo($campo));
         } 
         
-        if($limit){
-            $q->limit($limit);
-        }
+        if($limit) { $q->limit($limit); }
+        if($offset) { $q->offset($offset); }
         
         return new EntityArray($q->getList(), $obj);
     }
