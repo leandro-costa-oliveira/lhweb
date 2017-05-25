@@ -89,6 +89,10 @@ abstract class AbstractEntity implements \JsonSerializable {
         return array_key_exists($campo, static::$campos)?static::$campos[$campo]:$campo;
     }
     
+    public static function getTipoCampo($campo){
+        return array_key_exists($campo, static::$tipos)?static::$tipos[$campo]:LHDB::PARAM_STR;
+    }
+    
     /**
      * 
      * @param type $rs
@@ -206,7 +210,7 @@ abstract class AbstractEntity implements \JsonSerializable {
             throw new \Exception("Modo de Procura Inválido: $modo");
         }
         
-        $q->andWhere(static::getNomeCampo($campo))->$modo($txt);
+        $q->andWhere(static::getNomeCampo($campo))->$modo($txt, static::getTipoCampo($campo));
         
         return $q;
     }
@@ -240,12 +244,7 @@ abstract class AbstractEntity implements \JsonSerializable {
                 continue;
             }
             
-            $campoTipo = $key."Tipo";
-            if(property_exists(static::class, $campoTipo)){
-                $tipo = static::$$campoTipo;
-            } else {
-                $tipo = LHDB::PARAM_STR;
-            }
+            $tipo = static::getTipoCampo($key);
             $q->set(static::getNomeCampo($key), $val, $tipo);
         }
         
@@ -272,8 +271,7 @@ abstract class AbstractEntity implements \JsonSerializable {
                 continue;
             }
             
-            $campoTipo = $key."Tipo";
-            $tipo = property_exists(static::class, $campoTipo)?static::$$campoTipo:LHDB::PARAM_STR;
+            $tipo = static::getTipoCampo($campo);
             
             $q->set(static::getNomeCampo($key), $val, $tipo);
             $count++;
