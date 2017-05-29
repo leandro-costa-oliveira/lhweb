@@ -145,8 +145,14 @@ abstract class AbstractEntity implements \JsonSerializable {
      */
     public static function primeiro(){
         $q = static::getBasicMoveQuery()->orderby(static::getPkName());
-        $rs = $q->getSingle();
-        return static::makeFromRs($rs);
+        
+        try {
+            $rs = $q->getSingle();
+            return static::makeFromRs($rs);
+        } catch(Exception $ex) {
+            error_log("[AbstractEntity->primeiro:" . $q->getQuerySql());
+            throw $ex;
+        }
     }
     
     /**
@@ -154,10 +160,14 @@ abstract class AbstractEntity implements \JsonSerializable {
      * @return AbstractEntity
      */
     public static function ultimo(){
-        $rs = static::getBasicMoveQuery()
-                ->orderby(static::getPkName(),"DESC")
-                ->getSingle();
-        return static::makeFromRs($rs);
+        $q = static::getBasicMoveQuery()->orderby(static::getPkName(),"DESC");
+        try {
+            $rs = $q->getSingle();
+            return static::makeFromRs($rs);
+        } catch(Exception $ex) {
+            error_log("[AbstractEntity->ultimo:" . $q->getQuerySql());
+            throw $ex;
+        }
     }
     
     /**
@@ -166,10 +176,16 @@ abstract class AbstractEntity implements \JsonSerializable {
      * @return AbstractEntity
      */
     public static function proximo($pk){
-        $rs = static::getBasicMoveQuery()
-                ->andWhere(static::getPkName())->maiorQue($pk, static::$primaryKeyTipo)
-                ->getSingle();
-        return static::makeFromRs($rs);
+        $q = static::getBasicMoveQuery()
+                ->andWhere(static::getPkName())->maiorQue($pk, static::$primaryKeyTipo);
+        
+        try {
+            $rs = $q->getSingle();
+            return static::makeFromRs($rs);
+        }  catch(Exception $ex) {
+            error_log("[AbstractEntity->proximo:" . $q->getQuerySql());
+            throw $ex;
+        }
     }
     
     /**
@@ -178,11 +194,16 @@ abstract class AbstractEntity implements \JsonSerializable {
      * @return AbstractEntity
      */
     public static function anterior($pk){
-        $rs = static::getBasicMoveQuery()
+        $q = static::getBasicMoveQuery()
                 ->where(static::getPkName())->menorQue($pk, static::$primaryKeyTipo)
-                ->orderBy(static::getPkName(),"DESC")
-                ->getSingle();
-        return static::makeFromRs($rs);
+                ->orderBy(static::getPkName(),"DESC");
+        try {
+            $rs = $q->getSingle();
+            return static::makeFromRs($rs);
+        }  catch(Exception $ex) {
+            error_log("[AbstractEntity->anterior:" . $q->getQuerySql());
+            throw $ex;
+        }
     }
     
     
@@ -202,7 +223,12 @@ abstract class AbstractEntity implements \JsonSerializable {
             $q->offset($offset);
         }
         
-        return new EntityArray($q->getList(), static::class);
+        try {
+            return new EntityArray($q->getList(), static::class);
+        }  catch(Exception $ex) {
+            error_log("[AbstractEntity->listar:" . $q->getQuerySql());
+            throw $ex;
+        }
     }
     
     /**
@@ -225,17 +251,35 @@ abstract class AbstractEntity implements \JsonSerializable {
     
     public static function procurar($campo, $txt, $modo="like") {
         $q = static::getProcurarQuery($campo, $txt, $modo);
-        return new EntityArray($q->getList(),static::class);
+        
+        try {
+            return new EntityArray($q->getList(),static::class);
+        } catch(Exception $ex) {
+            error_log("[AbstractEntity->procurar:" . $q->getQuerySql());
+            throw $ex;
+        }
     }
     
     public static function getBy($campo, $txt, $modo="like") {
         $q = static::getProcurarQuery($campo, $txt, $modo);
-        return static::makeFromRs($q->getSingle());
+        
+        try {
+            return static::makeFromRs($q->getSingle());
+        }  catch(Exception $ex) {
+            error_log("[AbstractEntity->getBy:" . $q->getQuerySql());
+            throw $ex;
+        }
     }
     
     public static function listarPor($campo, $txt, $modo="like") {
         $q = static::getProcurarQuery($campo, $txt, $modo);
-        return new EntityArray($q->getList(),static::class);
+        
+        try {
+            return new EntityArray($q->getList(),static::class);
+        }  catch(Exception $ex) {
+            error_log("[AbstractEntity->listarPor:" . $q->getQuerySql());
+            throw $ex;
+        }
     }
     
     /**
@@ -256,10 +300,15 @@ abstract class AbstractEntity implements \JsonSerializable {
             $q->set(static::getNomeCampo($key), $val, $tipo);
         }
         
-        $q->insert();
-        $primaryKey  = static::$primaryKey;
-        $this->$primaryKey = $q->lastInsertId();
-        return $this;
+        try {
+            $q->insert();
+            $primaryKey  = static::$primaryKey;
+            $this->$primaryKey = $q->lastInsertId();
+            return $this;
+        }  catch(Exception $ex) {
+            error_log("[AbstractEntity->insert:" . $q->getInsertSql());
+            throw $ex;
+        }
     }
     
     /**
@@ -289,7 +338,12 @@ abstract class AbstractEntity implements \JsonSerializable {
         $q->andWhere(static::getPkName())->equals($this->$pkName, static::$primaryKeyTipo);
         
         if($count>0){
-            $q->update();
+            try {
+                $q->update();
+            }  catch(Exception $ex) {
+                error_log("[AbstractEntity->update:" . $q->getUpdateSql());
+                throw $ex;
+            }
         }
         
         return $this;
@@ -317,7 +371,13 @@ abstract class AbstractEntity implements \JsonSerializable {
         $pkName = static::$primaryKey;
         $q = LHDB::getConnection()->query(static::$table);
         $q->andWhere(static::getPkName())->equals($this->$pkName, static::$primaryKeyTipo);
-        return $q->delete();
+        
+        try {
+            return $q->delete();
+        }  catch(Exception $ex) {
+            error_log("[AbstractEntity->delete:" . $q->getDeleteSql());
+            throw $ex;
+        }
     }
     
     public function __toString() {
@@ -339,6 +399,7 @@ abstract class AbstractEntity implements \JsonSerializable {
             $ret[$key] = $val;
         }
         
+        $ret["toString"] = "".$this;
         return $ret;
     }
 }
