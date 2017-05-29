@@ -27,6 +27,10 @@ abstract class WebAction {
     protected $in;
     
     
+    public static $PARAM_INT = "int";
+    public static $PARAM_FLOAT = "float";
+    public static $PARAM_STRING = "string";
+    
     public abstract function buildObjectFromRequest();
     public abstract function initController();
     
@@ -133,12 +137,12 @@ abstract class WebAction {
             if(!$permitirVazio && empty($this->in[$paramName])){
                 throw new ParametroRequeridoException("O Parâmetro não pode estar vazio: ".$paramName);
             }
-        } 
+        }
         
         switch($tipo){
-            case "int"   : return filter_var($param, FILTER_SANITIZE_NUMBER_INT);
-            case "float" : return filter_var($param, FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION | FILTER_FLAG_ALLOW_THOUSAND);
-            case "string":
+            case static::$PARAM_INT   : return filter_var($param, FILTER_SANITIZE_NUMBER_INT);
+            case static::$PARAM_FLOAT : return filter_var($param, FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION | FILTER_FLAG_ALLOW_THOUSAND);
+            case static::$PARAM_STRING:
             default:
                 $param = str_replace("\0", "", $param); // Removendo Null Byte, vetor de ataques.
                 return filter_var($param,FILTER_SANITIZE_STRING);
