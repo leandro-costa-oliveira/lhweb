@@ -150,15 +150,15 @@ abstract class WebAction {
     }
     
     public function getParametroInt($paramName, $requerido=false, $permitirVazio=true){
-        return $this->getParametro($paramName, "int", $requerido, $permitirVazio);
+        return $this->getParametro($paramName, static::$PARAM_INT, $requerido, $permitirVazio);
     }
     
     public function getParametroFloat($paramName, $requerido=false, $permitirVazio=true){
-        return $this->getParametro($paramName, "float", $requerido, $permitirVazio);
+        return $this->getParametro($paramName, static::$PARAM_FLOAT, $requerido, $permitirVazio);
     }
     
     public function getParametroString($paramName, $requerido=false, $permitirVazio=true){
-        return $this->getParametro($paramName, "string", $requerido, $permitirVazio);
+        return $this->getParametro($paramName, static::$PARAM_STRING, $requerido, $permitirVazio);
     }
     
     public function getPk(){
