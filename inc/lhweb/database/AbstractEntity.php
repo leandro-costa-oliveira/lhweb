@@ -328,8 +328,7 @@ abstract class AbstractEntity implements \JsonSerializable {
                 continue;
             }
             
-            $tipo = static::getTipoCampo($campo);
-            
+            $tipo = static::getTipoCampo($key);
             $q->set(static::getNomeCampo($key), $val, $tipo);
             $count++;
         }
