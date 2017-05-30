@@ -195,7 +195,7 @@ abstract class AbstractEntity implements \JsonSerializable {
      */
     public static function anterior($pk){
         $q = static::getBasicMoveQuery()
-                ->where(static::getPkName())->menorQue($pk, static::$primaryKeyTipo)
+                ->andWhere(static::getPkName())->menorQue($pk, static::$primaryKeyTipo)
                 ->orderBy(static::getPkName(),"DESC");
         try {
             $rs = $q->getSingle();
