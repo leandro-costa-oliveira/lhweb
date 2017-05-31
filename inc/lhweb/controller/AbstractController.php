@@ -1,9 +1,9 @@
 <?php
 namespace lhweb\controller;
 
-use lhweb\database\LHDB;
-use lhweb\database\EntityArray;
 use lhweb\database\AbstractEntity;
+use lhweb\database\EntityArray;
+use lhweb\exceptions\LHWebException;
 use lhweb\exceptions\RegistroNaoEncontradoException;
 
 abstract class AbstractController {
@@ -138,14 +138,14 @@ abstract class AbstractController {
             $q->andWhere("(");
             foreach($campo as $c){
                 if(!property_exists($obj, $c)){
-                    throw new \lhweb\exceptions\LHWebException("Campo [$c] para Procura não encontrado em " . print_r($obj,true));
+                    throw new LHWebException("Campo [$c] para Procura não encontrado em " . print_r($obj,true));
                 }
                 $q->orWhere($obj::getNomeCampo($c))->like($valor, $obj::getTipoCampo($c));
             }
             $q->Where(")");
         } else {
             if(!property_exists($obj, $campo)){
-                throw new \lhweb\exceptions\LHWebException("Campo [$campo] para Procura não encontrado em " . $campo);
+                throw new LHWebException("Campo [$campo] para Procura não encontrado em " . $campo);
             }
             $q->andWhere($obj::getNomeCampo($campo))->like($valor, $obj::getTipoCampo($campo));
         } 
