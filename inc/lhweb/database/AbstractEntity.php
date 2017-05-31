@@ -304,7 +304,7 @@ abstract class AbstractEntity implements \JsonSerializable {
             $q->insert();
             $primaryKey  = static::$primaryKey;
             $this->$primaryKey = $q->lastInsertId();
-            return $this;
+            return static::getByPK($this->$primaryKey);
         }  catch(Exception $ex) {
             error_log("[AbstractEntity->insert:" . $q->getInsertSql());
             throw $ex;
@@ -345,7 +345,7 @@ abstract class AbstractEntity implements \JsonSerializable {
             }
         }
         
-        return $this;
+        return static::getByPK($this->$pkName);
     }
     
     /**

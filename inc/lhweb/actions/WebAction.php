@@ -1,10 +1,10 @@
 <?php
 namespace lhweb\actions;
 
-use \lhweb\database\LHDB;
-use \lhweb\database\AbstractEntity;
-use \lhweb\controller\AbstractController;
-use \lhweb\exceptions\ParametroRequeridoException;
+use lhweb\controller\AbstractController;
+use lhweb\database\AbstractEntity;
+use lhweb\database\LHDB;
+use lhweb\exceptions\ParametroRequeridoException;
 
 abstract class WebAction {
     /**
@@ -104,18 +104,27 @@ abstract class WebAction {
     }
     
     public function getFile($paramName){
-        error_log("GET FILE[$paramName]:" . print_r($_FILES));
-        throw new Exception("LWHEB::WebAction::STUB [GET FILE] $paramName");
+        if(array_key_exists($paramName, $_FILES)){
+            return $_FILES[$paramName];
+        } else {
+            return NULL;
+        }
     }
     
     public function getFileName($paramName){
-        error_log("GET FILE NAME [$paramName]:" . print_r($_FILES));
-        throw new Exception("LWHEB::WebAction::STUB [GET FILE NAME] $paramName");
+        if(array_key_exists($paramName, $_FILES)){
+            return filter_var($_FILES[$paramName]["name"],FILTER_SANITIZE_STRING);
+        } else {
+            return NULL;
+        }
     }
     
     public function getFileContent($paramName){
-        error_log("GET FILE CONTENT [$paramName]:" . print_r($_FILES));
-        throw new Exception("LWHEB::WebAction::STUB [GET FILE CONTENT] $paramName");
+        if(array_key_exists($paramName, $_FILES)){
+            return file_get_contents($_FILES[$paramName]["tmp_name"]);
+        } else {
+            return NULL;
+        }
     }
     
     /**
@@ -125,7 +134,7 @@ abstract class WebAction {
      * @param boolean $requerido
      * @param boolean $permitirVazio
      * @return type
-     * @throws \lhweb\exceptions\ParametroRequeridoException
+     * @throws ParametroRequeridoException
      */
     public function getParametro($paramName, $tipo, $requerido=false, $permitirVazio=true){
         $param = array_key_exists($paramName, $this->in)?$this->in[$paramName]:null;
