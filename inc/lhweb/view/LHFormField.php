@@ -1,7 +1,8 @@
 <?php
 namespace lhweb\view;
 
-use lhweb\database\AbstractEntity;
+use Exception;
+use Iterator;
 
 /**
  * Renderizar campos de formulário de forma padronizada, assim caso necessite
@@ -32,7 +33,7 @@ abstract class LHFormField {
      */
     public static function id($id){
         if(!$id) {
-            throw new \Exception(static::class . " ERROR: É necessário setar a id do campo.");
+            throw new Exception(static::class . " ERROR: É necessário setar a id do campo.");
         }
         $c = static::class;
         $o = new $c();
@@ -55,7 +56,7 @@ abstract class LHFormField {
     }
     
     protected function setArray($var, $val) {
-        if(is_array($val) || $val instanceof \Iterator){
+        if(is_array($val) || $val instanceof Iterator){
             foreach($val as $k => $v) {
                 $this->$var[$k] = $v;
             }
@@ -73,7 +74,7 @@ abstract class LHFormField {
             if(strpos($method, "data")!==false){
                 $this->pushData(strtolower(str_replace("data", "", $method)), $val);
             } else if(!property_exists($this, $method)){
-                throw new \Exception(static::class . " ERROR: Campo Inexistente [" . htmlspecialchars($var). "]");
+                throw new Exception(static::class . " ERROR: Campo Inexistente [" . htmlspecialchars($var). "]");
             } else if(is_array($this->$method)) {
                 $this->setArray($method, $val);
             } else {
@@ -85,20 +86,24 @@ abstract class LHFormField {
     }
     
     public function renderGlyphIcon($icon) {
-        echo " <span class='glyphicon glyphicon-$icon'></span> ";
+        return " <span class='glyphicon glyphicon-$icon'></span> ";
     }
     
     public function renderData(){
+        $txt = "";
+        
         foreach($this->data as $key => $val) {
             $val = str_replace("\"", "'", $val);
-            echo " data-$key=\"$val\" ";
+            $txt .= " data-$key=\"$val\" ";
         }
+        
+        return $txt;
     }
     
     public function renderHtmlAttr($attr, $val=null) {
         if(!$val){
             if(!property_exists($this, $attr)){
-                throw new \Exception(static::class . " RENDER HTML ATTR: Campo Inexistente [" . htmlspecialchars($attr). "]");
+                throw new Exception(static::class . " RENDER HTML ATTR: Campo Inexistente [" . htmlspecialchars($attr). "]");
             }
             
             $val = $this->$attr;
@@ -106,17 +111,17 @@ abstract class LHFormField {
         
         if(!empty($val)){
             $attr = str_replace("_", "-", $attr);
-            echo " $attr=\"" . htmlspecialchars($val) . "\" ";
+            return " $attr=\"" . htmlspecialchars($val) . "\" ";
         }
     }
     
     public function renderHtmlProp($attr) {
         if(!property_exists($this, $attr)){
-            throw new \Exception(static::class . " RENDER HTML ATTR: Campo Inexistente [" . htmlspecialchars($attr). "]");
+            throw new Exception(static::class . " RENDER HTML ATTR: Campo Inexistente [" . htmlspecialchars($attr). "]");
         }
         
         if(!empty($this->$attr) && $this->$attr){
-            echo " $attr ";
+            return " $attr ";
         }
     }
 }

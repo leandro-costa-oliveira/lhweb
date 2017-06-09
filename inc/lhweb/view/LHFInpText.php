@@ -18,28 +18,31 @@ class LHFInpText extends LHFormField {
         if($this->name === null){
             $this->name = $this->id;
         }
+        $txt = "";
         
         if($this->width > 0) {
-            echo "<div class='col-sm-$this->width'>";
+            $txt .=  "<div class='col-sm-$this->width'>";
         }
         
-        echo "<input type='text' ";
-        $this->renderHtmlAttr("class");
-        $this->renderHtmlAttr("id");
-        $this->renderHtmlAttr("name");
-        $this->renderHtmlAttr("placeholder");
-        $this->renderHtmlAttr("value");
-        $this->renderHtmlAttr("maxlength");
-        $this->renderHtmlAttr("style");
-        echo $this->required?" required":"";
-        echo $this->readonly?" readonly":"";
-        echo $this->disabled?" disabled":"";
-        $this->renderData();
-        echo " />";
+        $txt .= "<input type='text' ";
+        $txt .= $this->renderHtmlAttr("class");
+        $txt .= $this->renderHtmlAttr("id");
+        $txt .= $this->renderHtmlAttr("name");
+        $txt .= $this->renderHtmlAttr("placeholder");
+        $txt .= $this->renderHtmlAttr("value");
+        $txt .= $this->renderHtmlAttr("maxlength");
+        $txt .= $this->renderHtmlAttr("style");
+        $txt .= $this->required?" required":"";
+        $txt .= $this->readonly?" readonly":"";
+        $txt .= $this->disabled?" disabled":"";
+        $txt .= $this->renderData();
+        $txt .= " />";
         
         if($this->width > 0){
-            echo "</div>";
+            $txt .=  "</div>";
         }
+        
+        return $txt;
     }
 
 }

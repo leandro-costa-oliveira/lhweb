@@ -14,11 +14,13 @@ class LHFLabel extends LHFormField {
         if($this->text === null) {
             $this->text = ucwords($this->id) . ":";
         }
-        echo "<label id='label_$this->id' for='$this->id' class='col-sm-$this->width control-label $this->class'";
-        $this->renderHtmlAttr("style");
-        $this->renderData();
-        echo ">";
-        echo "$this->text</label>";
+        $txt = "<label id='label_$this->id' for='$this->id' class='col-sm-$this->width control-label $this->class'";
+        $txt .= $this->renderHtmlAttr("style");
+        $txt .= $this->renderData();
+        $txt .= ">";
+        $txt .= "$this->text</label>";
+        
+        return $txt;
     }
 
 }

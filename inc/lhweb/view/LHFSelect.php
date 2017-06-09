@@ -22,21 +22,24 @@ class LHFSelect  extends LHFormField {
             $this->name = $this->id;
         }
         
+        $txt = "";
+        
         if($this->width > 0) {
-            echo "<div class='col-sm-$this->width'>";
+            $txt .= "<div class='col-sm-$this->width'>";
         }
-        echo "<select ";
-        $this->renderHtmlAttr("id");
-        $this->renderHtmlAttr("name");
-        $this->renderHtmlAttr("class");
-        $this->renderHtmlAttr("style");
-        $this->renderHtmlProp("required");
-        $this->renderHtmlProp("disabled");
-        $this->renderData();
-        echo ">";
+        
+        $txt .= "<select ";
+        $txt .= $this->renderHtmlAttr("id");
+        $txt .= $this->renderHtmlAttr("name");
+        $txt .= $this->renderHtmlAttr("class");
+        $txt .= $this->renderHtmlAttr("style");
+        $txt .= $this->renderHtmlProp("required");
+        $txt .= $this->renderHtmlProp("disabled");
+        $txt .= $this->renderData();
+        $txt .=  ">";
     
         if($this->showEmptyOption){
-            echo "<option value=''></option>";
+            $txt .= "<option value=''></option>";
         }
         
         foreach($this->options as $key => $val) {
@@ -46,15 +49,17 @@ class LHFSelect  extends LHFormField {
             }
             
             $slc = $this->value == $key ? "selected":"";
-            echo "<option value='" . htmlspecialchars($key) . "' $slc>" . htmlspecialchars($val) . "</option>";
+            $txt .= "<option value='" . htmlspecialchars($key) . "' $slc>" . htmlspecialchars($val) . "</option>";
         }
         
-        echo "</select>";
+        $txt .= "</select>";
         
         
         if($this->width > 0){
-            echo "</div>";
+            $txt .= "</div>";
         }
+        
+        return $txt;
     } // render
 
 }

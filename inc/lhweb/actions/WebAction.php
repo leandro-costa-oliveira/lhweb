@@ -136,7 +136,7 @@ abstract class WebAction {
      * @return type
      * @throws ParametroRequeridoException
      */
-    public function getParametro($paramName, $tipo, $requerido=false, $permitirVazio=true){
+    public function getParametro($paramName, $tipo, $requerido=true, $permitirVazio=false){
         $param = array_key_exists($paramName, $this->in)?$this->in[$paramName]:null;
         if($requerido) {
             if(!array_key_exists($paramName, $this->in)){
@@ -158,16 +158,28 @@ abstract class WebAction {
         }
     }
     
-    public function getParametroInt($paramName, $requerido=false, $permitirVazio=true){
-        return $this->getParametro($paramName, static::$PARAM_INT, $requerido, $permitirVazio);
+    public function getParametroInt($paramName){
+        return $this->getParametro($paramName, static::$PARAM_INT, false, true);
     }
     
-    public function getParametroFloat($paramName, $requerido=false, $permitirVazio=true){
-        return $this->getParametro($paramName, static::$PARAM_FLOAT, $requerido, $permitirVazio);
+    public function getParametroFloat($paramName){
+        return $this->getParametro($paramName, static::$PARAM_FLOAT, false, true);
     }
     
-    public function getParametroString($paramName, $requerido=false, $permitirVazio=true){
-        return $this->getParametro($paramName, static::$PARAM_STRING, $requerido, $permitirVazio);
+    public function getParametroString($paramName){
+        return $this->getParametro($paramName, static::$PARAM_STRING, false, true);
+    }
+    
+    public function requererParametroInt($paramName, $permitirVazio=false){
+        return $this->getParametro($paramName, static::$PARAM_INT, true, $permitirVazio);
+    }
+    
+    public function requererParametroFloat($paramName, $permitirVazio=false){
+        return $this->getParametro($paramName, static::$PARAM_FLOAT, true, $permitirVazio);
+    }
+    
+    public function requererParametroString($paramName, $permitirVazio=false){
+        return $this->getParametro($paramName, static::$PARAM_STRING, true, $permitirVazio);
     }
     
     public function getPk(){

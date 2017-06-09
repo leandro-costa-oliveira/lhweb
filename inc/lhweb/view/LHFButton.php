@@ -19,27 +19,29 @@ class LHFButton  extends LHFormField {
             $this->name = $this->id;
         }
         
-        echo "<button ";
-        $this->renderHtmlAttr("id");
-        $this->renderHtmlAttr("name");
-        $this->renderHtmlAttr("class");
-        $this->renderHtmlAttr("type");
-        $this->renderHtmlAttr("title");
-        $this->renderHtmlProp("disabled");
-        $this->renderHtmlAttr("style");
-        $this->renderData();
-        echo ">";
+        $txt = "<button ";
+        $txt .= $this->renderHtmlAttr("id");
+        $txt .= $this->renderHtmlAttr("name");
+        $txt .= $this->renderHtmlAttr("class");
+        $txt .= $this->renderHtmlAttr("type");
+        $txt .= $this->renderHtmlAttr("title");
+        $txt .= $this->renderHtmlProp("disabled");
+        $txt .= $this->renderHtmlAttr("style");
+        $txt .= $this->renderData();
+        $txt .= ">";
         
         if($this->icon !== null && $this->iconSide === static::$LEFT){
-            $this->renderGlyphIcon($this->icon);
+            $txt .= $this->renderGlyphIcon($this->icon);
         }
         
-        echo htmlspecialchars($this->text);
+        $txt .= htmlspecialchars($this->text);
         
         if($this->icon !== null && $this->iconSide === static::$RIGHT){
-            $this->renderGlyphIcon($this->icon);
+            $txt .= $this->renderGlyphIcon($this->icon);
         }
-        echo "</button>";
+        $txt .= "</button>";
+        
+        return $txt;
     } // render
 
 }
