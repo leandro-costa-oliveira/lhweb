@@ -1,12 +1,19 @@
 <?php
 namespace lhweb\actions;
 
+use DateTime;
 use lhweb\controller\AbstractController;
 use lhweb\database\AbstractEntity;
 use lhweb\database\LHDB;
+use lhweb\exceptions\ParametroException;
 use lhweb\exceptions\ParametroRequeridoException;
 
 abstract class WebAction {
+    public static $FORMATO_DATA_EXIBICAO = "d/m/Y";
+    public static $FORMATO_DATAHORA_EXIBICAO = "d/m/Y H:i";
+    public static $FORMATO_DATA_DB= "Y-m-d";
+    public static $FORMATO_DATAHORA_DB= "Y-m-d H:i";
+    
     /**
      *
      * @var LHDB
@@ -170,6 +177,16 @@ abstract class WebAction {
         return $this->getParametro($paramName, static::$PARAM_STRING, false, true);
     }
     
+    public function getParametroData($paramName){
+        $txt = $this->getParametro($paramName, static::$PARAM_STRING, false, true);
+        $dt = DateTime::createFromFormat(static::$FORMATO_DATA_EXIBICAO, $txt);
+        if($dt){
+            return $dt->format(static::$FORMATO_DATA_DB);
+        } else {
+            throw new ParametroException("[$paramName] Data Inválida");
+        }
+    }
+    
     public function requererParametroInt($paramName, $permitirVazio=false){
         return $this->getParametro($paramName, static::$PARAM_INT, true, $permitirVazio);
     }
@@ -181,6 +198,17 @@ abstract class WebAction {
     public function requererParametroString($paramName, $permitirVazio=false){
         return $this->getParametro($paramName, static::$PARAM_STRING, true, $permitirVazio);
     }
+    
+    public function requererParametroData($paramName){
+        $txt = $this->getParametro($paramName, static::$PARAM_STRING, true);
+        $dt = DateTime::createFromFormat(static::$FORMATO_DATA_EXIBICAO, $txt);
+        if($dt){
+            return $dt->format(static::$FORMATO_DATA_DB);
+        } else {
+            throw new ParametroException("[$paramName] Data Inválida");
+        }
+    }
+    
     
     public function getPk(){
         return $this->getParametro($this->controller->getPkName(), FILTER_SANITIZE_NUMBER_INT,true,false);
