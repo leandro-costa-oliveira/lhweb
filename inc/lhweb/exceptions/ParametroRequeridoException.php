@@ -6,5 +6,5 @@ namespace lhweb\exceptions;
  *
  * @author loki
  */
-class ParametroRequeridoException extends LHWebException {
+class ParametroRequeridoException extends ParametroException {
 }
