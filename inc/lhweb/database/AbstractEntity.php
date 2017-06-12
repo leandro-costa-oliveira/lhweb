@@ -26,6 +26,9 @@ abstract class AbstractEntity implements \JsonSerializable {
      * 
      */
     protected static $campos = array();
+    protected static $camposReadOnly = array();
+    protected static $camposBlockUpdate = array();
+    protected static $camposBlockInsert = array();
     
     /**
      *
@@ -294,6 +297,8 @@ abstract class AbstractEntity implements \JsonSerializable {
                 continue;
             } else if($key == "editClone") {
                 continue;
+            } else if(in_array($key, static::$camposBlockInsert) || in_array($key, static::$camposReadOnly)){
+                continue;
             }
             
             $tipo = static::getTipoCampo($key);
@@ -325,6 +330,8 @@ abstract class AbstractEntity implements \JsonSerializable {
             } else if($this->editClone && $val == $this->editClone->$key) { // checando se o valor foi alterado
                 continue;
             } else if($key == "editClone") {
+                continue;
+            } else if(in_array($key, static::$camposBlockUpdate) || in_array($key, static::$camposReadOnly)){
                 continue;
             }
             
