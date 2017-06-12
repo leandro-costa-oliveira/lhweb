@@ -5,10 +5,14 @@ namespace lhweb\misc;
  *
  * @author Leandro
  */
-class LHDataHora extends \DateTime {
+class LHWebDataHora extends \DateTime {
     
     private $formatoExibicao = "d/m/Y H:i";
     private $formatoDb       = "Y-m-d H:i";
+    
+    public function __construct($time="now", $timezone=NULL) {
+        parent::__construct($time, $timezone);
+    }
     
     function getFormatoExibicao() {
         return $this->formatoExibicao;
