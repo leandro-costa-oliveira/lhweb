@@ -5,7 +5,7 @@ namespace lhweb\misc;
  *
  * @author Leandro
  */
-class DataHora extends \DateTime {
+class LHDataHora extends \DateTime {
     
     private $formatoExibicao = "d/m/Y H:i";
     private $formatoDb       = "Y-m-d H:i";
