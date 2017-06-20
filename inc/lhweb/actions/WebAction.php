@@ -185,6 +185,16 @@ abstract class WebAction {
         $txt = $this->getParametro($paramName, static::$PARAM_STRING, false, true);
         $dt = DateTime::createFromFormat(static::$FORMATO_DATA_EXIBICAO, $txt);
         if($dt){
+            return $dt;
+        } else {
+            throw new ParametroException("[$paramName] Data Inválida");
+        }
+    }
+    
+    public function getParametroDataAsString($paramName){
+        $txt = $this->getParametro($paramName, static::$PARAM_STRING, false, true);
+        $dt = DateTime::createFromFormat(static::$FORMATO_DATA_EXIBICAO, $txt);
+        if($dt){
             return $dt->format(static::$FORMATO_DATA_DB);
         } else {
             throw new ParametroException("[$paramName] Data Inválida");
@@ -204,6 +214,16 @@ abstract class WebAction {
     }
     
     public function requererParametroData($paramName){
+        $txt = $this->getParametro($paramName, static::$PARAM_STRING, true);
+        $dt = DateTime::createFromFormat(static::$FORMATO_DATA_EXIBICAO, $txt);
+        if($dt){
+            return $dt;
+        } else {
+            throw new ParametroException("[$paramName] Data Inválida");
+        }
+    }
+    
+    public function requererParametroDataAsString($paramName){
         $txt = $this->getParametro($paramName, static::$PARAM_STRING, true);
         $dt = DateTime::createFromFormat(static::$FORMATO_DATA_EXIBICAO, $txt);
         if($dt){
