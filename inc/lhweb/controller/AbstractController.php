@@ -139,10 +139,9 @@ abstract class AbstractController {
             foreach($campo as $c){
                 if(strpos($c, ".")!==false){ // PROCURAR NOS JOINS
                     list($ftable, $c) = explode(".", $c);
-                    error_log("$ftable, $c");
                     foreach($obj::$joins as $cj => $join){
                         list($fk, $attr) = $join;
-                        if($attr==$c){
+                        if($attr==$ftable){
                             $q->orWhere($cj::getNomeCampo($c,true))->like($valor, $cj::getTipoCampo($c));
                             break;
                         }
@@ -155,12 +154,10 @@ abstract class AbstractController {
         } else {
             if(strpos($campo, ".")!==false){ // PROCURAR NOS JOINS
                 list($ftable, $campo) = explode(".", $campo);
-                error_log("$ftable, $campo");
-                
                 foreach($obj::$joins as $cj => $join){
                     list($fk, $attr) = $join;
-                    if($attr==$campo){
-                        $q->orWhere($cj::getNomeCampo($c,true))->like($valor, $cj::getTipoCampo($c));
+                    if($attr==$ftable){
+                        $q->andWhere($cj::getNomeCampo($campo,true))->like($valor, $cj::getTipoCampo($campo));
                         break;
                     }
                 }
