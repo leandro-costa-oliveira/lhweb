@@ -9,12 +9,19 @@ abstract class AbstractEntity implements \JsonSerializable {
     protected static $primaryKey = "id";
     protected static $primaryKeyTipo = LHDB::PARAM_INT;
     protected static $table = null;
+    public static $processarJoins = true;
     
     /**
      *
      * @var AbstractEntity 
      */
     public static $joins = [];
+    
+    /**
+     *
+     * @var AbstractEntity 
+     */
+    public static $leftOuterJoins = [];
     
     public function __construct() {
     }
@@ -99,14 +106,43 @@ abstract class AbstractEntity implements \JsonSerializable {
         $q = LHDB::getConnection()->query(static::$table);
         $q->campos(static::getCamposQuery());
         
+        // error_log("BUILD QUERY FOR: " . static::class . " TABLE:" . static::$table);
+        $join_count = 0;
         foreach(static::$joins as $cj => $join){
             list($fk, $attr) = $join;
-            $q->join($cj::$table, $cj::getPkName() . "=" . static::$table . "." . static::getNomeCampo($fk));
+            $original_table_name = $cj::$table; // holds the name, for restoring.
+            $jointable_name = $cj::$table . " AS " . $cj::$table . "_" . $join_count;
+            // error_log("JOINING TO: " . $cj . " TABLE: " . $cj::$table . " AS " . $jointable_name);
+            
+            $cj::$table = $cj::$table . "_" . $join_count;
+            
+            $q->join($jointable_name , $cj::getPkName() . "=" . static::$table . "." . static::getNomeCampo($fk));
             
             foreach($cj::getCamposQuery($cj::$table) as $c){
                 $q->addCampo($c);
             }
+            
+            $cj::$table = $original_table_name; // restoring the name.
+            $join_count++;
         }
+        
+        foreach(static::$leftOuterJoins as $cj => $join){
+            list($fk, $attr) = $join;
+            $original_table_name = $cj::$table; 
+            $jointable_name = $cj::$table . " AS " . $cj::$table . "_" . $join_count;
+            $cj::$table     = $cj::$table . "_" . $join_count;
+            
+            $q->leftOuterJoin($jointable_name, $cj::getPkName() . "=" . static::$table . "." . static::getNomeCampo($fk));
+            
+            foreach($cj::getCamposQuery($cj::$table) as $c){
+                $q->addCampo($c);
+            }
+            
+            $cj::$table = $original_table_name;
+            $join_count++;
+        }
+        
+        // error_log("Q: " . $q->getQuerySql());
         
         return $q;
     }
@@ -153,6 +189,7 @@ abstract class AbstractEntity implements \JsonSerializable {
         $o = new $c();
         foreach($o as $key => $val){
             $campoDoBanco = $prefix . static::getNomeCampo($key);
+            
             if(is_array($rs) && array_key_exists($campoDoBanco, $rs)){
                 $o->$key = $rs[$campoDoBanco];
             } else if(is_object($rs) && property_exists($campoDoBanco, $campoDoBanco)){
@@ -160,9 +197,29 @@ abstract class AbstractEntity implements \JsonSerializable {
             }
         }
         
-        foreach(static::$joins as $cj => $join){
-            list($fk, $attr) = $join;
-            $o->$attr = $cj::makeFromRs($rs,$cj::$table . "_");
+        if(static::$processarJoins){
+            $join_count = 0;
+            foreach(static::$joins as $cj => $join){
+                list($fk, $attr) = $join;
+                $original_table_name = $cj::$table;
+                $cj::$table     = $cj::$table . "_" . $join_count;
+                $cj::$processarJoins = false;
+                //error_log("-------------------------------------------------------------------");
+                //error_log("JOINING TABLE: " . $cj::$table);
+                $o->$attr = $cj::makeFromRs($rs, $cj::$table . "_");
+                $join_count++;
+                $cj::$table = $original_table_name;
+            }
+
+            foreach(static::$leftOuterJoins as $cj => $join){
+                list($fk, $attr) = $join;
+                $original_table_name = $cj::$table;
+                $cj::$table     = $cj::$table . "_" . $join_count;
+                $cj::$processarJoins = false;
+                $o->$attr = $cj::makeFromRs($rs, $cj::$table . "_");
+                $join_count++;
+                $cj::$table = $original_table_name;
+            }
         }
         
         return $o;
