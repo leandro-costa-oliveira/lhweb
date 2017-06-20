@@ -10,6 +10,12 @@ abstract class AbstractEntity implements \JsonSerializable {
     protected static $primaryKeyTipo = LHDB::PARAM_INT;
     protected static $table = null;
     
+    /**
+     *
+     * @var AbstractEntity 
+     */
+    protected static $joins = [];
+    
     public function __construct() {
     }
     
@@ -61,6 +67,25 @@ abstract class AbstractEntity implements \JsonSerializable {
         }
     }
     
+    public static function getCamposQuery($prefix=""){
+        if(count(static::$campos) > 0) {
+            $campos = array();
+            foreach(static::$campos as $key => $c){
+                if($prefix){
+                    $c2 = static::getNomeCampo($key,true) . " as " . $prefix . "_" . $c;
+                } else {
+                    $c2 = static::getNomeCampo($key,true);
+                }
+                
+                array_push($campos, $c2);
+            }
+
+            return $campos;
+        } else {
+            return array(static::$table.".*");
+        }
+    }
+    
     /**
      * 
      * @return GenericQuery
@@ -72,11 +97,15 @@ abstract class AbstractEntity implements \JsonSerializable {
         }
         
         $q = LHDB::getConnection()->query(static::$table);
+        $q->campos(static::getCamposQuery());
         
-        if(count(static::$campos) > 0) {
-            $q->campos(static::$campos);
-        } else {
-            $q->campos(array(static::$table.".*"));
+        foreach(static::$joins as $cj => $join){
+            list($fk, $attr) = $join;
+            $q->join($cj::$table, $cj::getPkName() . "=" . static::$table . "." . static::getNomeCampo($fk));
+            
+            foreach($cj::getCamposQuery($cj::$table) as $c){
+                $q->addCampo($c);
+            }
         }
         
         return $q;
@@ -96,8 +125,14 @@ abstract class AbstractEntity implements \JsonSerializable {
         return static::$primaryKey;
     }
     
-    public static function getNomeCampo($campo){
-        return array_key_exists($campo, static::$campos)?static::$campos[$campo]:$campo;
+    public static function getNomeCampo($campo, $prependTableName=false){
+        $n = array_key_exists($campo, static::$campos)?static::$campos[$campo]:$campo;
+        
+        if($prependTableName && strpos($n, ".")===false){
+            return static::$table . "." . $n;
+        } else {
+            return $n;
+        }
     }
     
     public static function getTipoCampo($campo){
@@ -109,7 +144,7 @@ abstract class AbstractEntity implements \JsonSerializable {
      * @param type $rs
      * @returns AbstractEntity
      */
-    public static function makeFromRs($rs) {
+    public static function makeFromRs($rs, $prefix="") {
         if(!$rs) {
             return NULL;
         }
@@ -117,7 +152,7 @@ abstract class AbstractEntity implements \JsonSerializable {
         $c = static::class;
         $o = new $c();
         foreach($o as $key => $val){
-            $campoDoBanco = static::getNomeCampo($key);
+            $campoDoBanco = $prefix . static::getNomeCampo($key);
             if(is_array($rs) && array_key_exists($campoDoBanco, $rs)){
                 $o->$key = $rs[$campoDoBanco];
             } else if(is_object($rs) && property_exists($campoDoBanco, $campoDoBanco)){
@@ -125,7 +160,12 @@ abstract class AbstractEntity implements \JsonSerializable {
             }
         }
         
-        unset($o->editClone);
+        foreach(static::$joins as $cj => $join){
+            list($fk, $attr) = $join;
+            $o->$attr = $cj::makeFromRs($rs,$cj::$table . "_");
+        }
+        
+        error_log(print_r($o,true));
         return $o;
     }
     
@@ -247,11 +287,12 @@ abstract class AbstractEntity implements \JsonSerializable {
             throw new \Exception("Modo de Procura Inválido: $modo");
         }
         
-        $q->andWhere(static::getNomeCampo($campo))->$modo($txt, static::getTipoCampo($campo));
+        $q->andWhere(static::getNomeCampo($campo,true))->$modo($txt, static::getTipoCampo($campo));
         
         return $q;
     }
     
+    /*
     public static function procurar($campo, $txt, $modo="like") {
         $q = static::getProcurarQuery($campo, $txt, $modo);
         
@@ -261,7 +302,7 @@ abstract class AbstractEntity implements \JsonSerializable {
             error_log("[AbstractEntity->procurar:" . $q->getQuerySql());
             throw $ex;
         }
-    }
+    }*/
     
     public static function getBy($campo, $txt, $modo="like") {
         $q = static::getProcurarQuery($campo, $txt, $modo);

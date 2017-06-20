@@ -140,14 +140,14 @@ abstract class AbstractController {
                 if(!property_exists($obj, $c)){
                     throw new LHWebException("Campo [$c] para Procura não encontrado em " . print_r($obj,true));
                 }
-                $q->orWhere($obj::getNomeCampo($c))->like($valor, $obj::getTipoCampo($c));
+                $q->orWhere($obj::getNomeCampo($c,true))->like($valor, $obj::getTipoCampo($c));
             }
             $q->Where(")");
         } else {
             if(!property_exists($obj, $campo)){
                 throw new LHWebException("Campo [$campo] para Procura não encontrado em " . $campo);
             }
-            $q->andWhere($obj::getNomeCampo($campo))->like($valor, $obj::getTipoCampo($campo));
+            $q->andWhere($obj::getNomeCampo($campo,true))->like($valor, $obj::getTipoCampo($campo));
         } 
         
         if($limit) { $q->limit($limit); }

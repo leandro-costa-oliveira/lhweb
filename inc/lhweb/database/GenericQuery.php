@@ -193,7 +193,7 @@ class GenericQuery {
         $sql = "SELECT " . implode(",", $this->campos) . " FROM $this->table";
         
         foreach($this->join as $j) {
-            $sql .= " $this->join ";        
+            $sql .= " $j ";        
         }
         
         if(!empty($this->conditions["where"])) { $sql .= " WHERE " . $this->conditions["where"]; }
