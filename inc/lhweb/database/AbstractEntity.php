@@ -165,7 +165,6 @@ abstract class AbstractEntity implements \JsonSerializable {
             $o->$attr = $cj::makeFromRs($rs,$cj::$table . "_");
         }
         
-        error_log(print_r($o,true));
         return $o;
     }
     
