@@ -137,17 +137,36 @@ abstract class AbstractController {
         if(is_array($campo)){
             $q->andWhere("(");
             foreach($campo as $c){
-                if(!property_exists($obj, $c)){
-                    throw new LHWebException("Campo [$c] para Procura não encontrado em " . print_r($obj,true));
+                if(strpos($c, ".")!==false){ // PROCURAR NOS JOINS
+                    list($ftable, $c) = explode(".", $c);
+                    error_log("$ftable, $c");
+                    foreach($obj::$joins as $cj => $join){
+                        list($fk, $attr) = $join;
+                        if($attr==$c){
+                            $q->orWhere($cj::getNomeCampo($c,true))->like($valor, $cj::getTipoCampo($c));
+                            break;
+                        }
+                    }
+                } else { // É UM CAMPO DA PROPRIA CLASSE
+                    $q->orWhere($obj::getNomeCampo($c,true))->like($valor, $obj::getTipoCampo($c));
                 }
-                $q->orWhere($obj::getNomeCampo($c,true))->like($valor, $obj::getTipoCampo($c));
             }
             $q->Where(")");
         } else {
-            if(!property_exists($obj, $campo)){
-                throw new LHWebException("Campo [$campo] para Procura não encontrado em " . $campo);
-            }
-            $q->andWhere($obj::getNomeCampo($campo,true))->like($valor, $obj::getTipoCampo($campo));
+            if(strpos($campo, ".")!==false){ // PROCURAR NOS JOINS
+                list($ftable, $campo) = explode(".", $campo);
+                error_log("$ftable, $campo");
+                
+                foreach($obj::$joins as $cj => $join){
+                    list($fk, $attr) = $join;
+                    if($attr==$campo){
+                        $q->orWhere($cj::getNomeCampo($c,true))->like($valor, $cj::getTipoCampo($c));
+                        break;
+                    }
+                }
+            } else { // É UM CAMPO DA PROPRIA CLASSE
+                $q->andWhere($obj::getNomeCampo($campo,true))->like($valor, $obj::getTipoCampo($campo));
+            } 
         } 
         
         if($limit) { $q->limit($limit); }

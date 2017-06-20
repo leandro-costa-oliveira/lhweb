@@ -14,7 +14,7 @@ abstract class AbstractEntity implements \JsonSerializable {
      *
      * @var AbstractEntity 
      */
-    protected static $joins = [];
+    public static $joins = [];
     
     public function __construct() {
     }
