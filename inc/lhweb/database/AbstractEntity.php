@@ -8,7 +8,7 @@ namespace lhweb\database;
 abstract class AbstractEntity implements \JsonSerializable {
     protected static $primaryKey = "id";
     protected static $primaryKeyTipo = LHDB::PARAM_INT;
-    protected static $table = null;
+    public static $table = null;
     public static $processarJoins = true;
     
     /**
@@ -115,8 +115,7 @@ abstract class AbstractEntity implements \JsonSerializable {
             // error_log("JOINING TO: " . $cj . " TABLE: " . $cj::$table . " AS " . $jointable_name);
             
             $cj::$table = $cj::$table . "_" . $join_count;
-            
-            $q->join($jointable_name , $cj::getPkName() . "=" . static::$table . "." . static::getNomeCampo($fk));
+            $q->join($jointable_name , $cj::getPkName() . "=" . static::$table . "." . static::getNomeCampo($fk,false));
             
             foreach($cj::getCamposQuery($cj::$table) as $c){
                 $q->addCampo($c);
@@ -132,7 +131,7 @@ abstract class AbstractEntity implements \JsonSerializable {
             $jointable_name = $cj::$table . " AS " . $cj::$table . "_" . $join_count;
             $cj::$table     = $cj::$table . "_" . $join_count;
             
-            $q->leftOuterJoin($jointable_name, $cj::getPkName() . "=" . static::$table . "." . static::getNomeCampo($fk));
+            $q->leftOuterJoin($jointable_name, $cj::getPkName() . "=" . static::$table . "." . static::getNomeCampo($fk, false));
             
             foreach($cj::getCamposQuery($cj::$table) as $c){
                 $q->addCampo($c);
@@ -148,7 +147,7 @@ abstract class AbstractEntity implements \JsonSerializable {
     }
     
     public static function getPkName(){
-        return static::$table . "." . static::getNomeCampo(static::$primaryKey);
+        return static::getNomeCampo(static::$primaryKey);
     }
     
     public static function getPkAttribute(){
@@ -161,7 +160,7 @@ abstract class AbstractEntity implements \JsonSerializable {
         return static::$primaryKey;
     }
     
-    public static function getNomeCampo($campo, $prependTableName=false){
+    public static function getNomeCampo($campo, $prependTableName=true){
         $n = array_key_exists($campo, static::$campos)?static::$campos[$campo]:$campo;
         
         if($prependTableName && strpos($n, ".")===false){
@@ -187,8 +186,9 @@ abstract class AbstractEntity implements \JsonSerializable {
         
         $c = static::class;
         $o = new $c();
+        
         foreach($o as $key => $val){
-            $campoDoBanco = $prefix . static::getNomeCampo($key);
+            $campoDoBanco = $prefix . static::getNomeCampo($key,false);
             
             if(is_array($rs) && array_key_exists($campoDoBanco, $rs)){
                 $o->$key = $rs[$campoDoBanco];
@@ -204,11 +204,11 @@ abstract class AbstractEntity implements \JsonSerializable {
                 $original_table_name = $cj::$table;
                 $cj::$table     = $cj::$table . "_" . $join_count;
                 $cj::$processarJoins = false;
-                //error_log("-------------------------------------------------------------------");
-                //error_log("JOINING TABLE: " . $cj::$table);
+                
                 $o->$attr = $cj::makeFromRs($rs, $cj::$table . "_");
                 $join_count++;
                 $cj::$table = $original_table_name;
+                $cj::$processarJoins = true;
             }
 
             foreach(static::$leftOuterJoins as $cj => $join){
@@ -219,6 +219,7 @@ abstract class AbstractEntity implements \JsonSerializable {
                 $o->$attr = $cj::makeFromRs($rs, $cj::$table . "_");
                 $join_count++;
                 $cj::$table = $original_table_name;
+                $cj::$processarJoins = true;
             }
         }
         

@@ -139,11 +139,44 @@ abstract class AbstractController {
             foreach($campo as $c){
                 if(strpos($c, ".")!==false){ // PROCURAR NOS JOINS
                     list($ftable, $c) = explode(".", $c);
+
+                    $found = false;
+                    $join_count = 0;
                     foreach($obj::$joins as $cj => $join){
                         list($fk, $attr) = $join;
+                        $original_table_name = $cj::$table; // holds the name, for restoring.
+                        $cj::$table = $cj::$table . "_" . $join_count;
                         if($attr==$ftable){
-                            $q->orWhere($cj::getNomeCampo($c,true))->like($valor, $cj::getTipoCampo($c));
+                            error_log("SEARCH CONDITION: " . $cj::getNomeCampo($c));
+                            $q->andWhere($cj::getNomeCampo($c))->like($valor, $cj::getTipoCampo($c));
+                            $found = true;
+                        }
+
+                        $cj::$table = $original_table_name; // restoring the name.
+                        $join_count++;
+
+                        if($found) {
                             break;
+                        }
+                    }
+
+                    if(!$found){
+                        foreach($obj::$leftOuterJoins as $cj => $join){
+                            list($fk, $attr) = $join;
+                            $original_table_name = $cj::$table; // holds the name, for restoring.
+                            $cj::$table = $cj::$table . "_" . $join_count;
+                            if($attr==$ftable){
+                                error_log("SEARCH CONDITION: " . $cj::getNomeCampo($c));
+                                $q->andWhere($cj::getNomeCampo($c))->like($valor, $cj::getTipoCampo($c));
+                                $found = true;
+                            }
+
+                            $cj::$table = $original_table_name; // restoring the name.
+                            $join_count++;
+
+                            if($found) {
+                                break;
+                            }
                         }
                     }
                 } else { // É UM CAMPO DA PROPRIA CLASSE
@@ -154,15 +187,48 @@ abstract class AbstractController {
         } else {
             if(strpos($campo, ".")!==false){ // PROCURAR NOS JOINS
                 list($ftable, $campo) = explode(".", $campo);
+                
+                $found = false;
+                $join_count = 0;
                 foreach($obj::$joins as $cj => $join){
                     list($fk, $attr) = $join;
+                    $original_table_name = $cj::$table; // holds the name, for restoring.
+                    $cj::$table = $cj::$table . "_" . $join_count;
                     if($attr==$ftable){
-                        $q->andWhere($cj::getNomeCampo($campo,true))->like($valor, $cj::getTipoCampo($campo));
+                        error_log("SEARCH CONDITION: " . $cj::getNomeCampo($campo));
+                        $q->andWhere($cj::getNomeCampo($campo))->like($valor, $cj::getTipoCampo($campo));
+                        $found = true;
+                    }
+                    
+                    $cj::$table = $original_table_name; // restoring the name.
+                    $join_count++;
+                    
+                    if($found) {
                         break;
                     }
                 }
+                
+                if(!$found){
+                    foreach($obj::$leftOuterJoins as $cj => $join){
+                        list($fk, $attr) = $join;
+                        $original_table_name = $cj::$table; // holds the name, for restoring.
+                        $cj::$table = $cj::$table . "_" . $join_count;
+                        if($attr==$ftable){
+                            error_log("SEARCH CONDITION: " . $cj::getNomeCampo($campo));
+                            $q->andWhere($cj::getNomeCampo($campo))->like($valor, $cj::getTipoCampo($campo));
+                            $found = true;
+                        }
+
+                        $cj::$table = $original_table_name; // restoring the name.
+                        $join_count++;
+
+                        if($found) {
+                            break;
+                        }
+                    }
+                }
             } else { // É UM CAMPO DA PROPRIA CLASSE
-                $q->andWhere($obj::getNomeCampo($campo,true))->like($valor, $obj::getTipoCampo($campo));
+                $q->andWhere($obj::getNomeCampo($campo))->like($valor, $obj::getTipoCampo($campo));
             } 
         } 
         
