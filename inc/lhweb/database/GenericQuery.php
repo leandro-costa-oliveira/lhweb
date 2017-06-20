@@ -111,6 +111,27 @@ class GenericQuery {
         return $this;
     }
     
+    public function in($dados, $paramType=LHDB::PARAM_STR) {
+        // Evitando erro na consulta caso receba um array vazio.
+        if(count($dados) <= 0){
+            return $this->equals("",$paramType);
+        }
+        
+        $this->addAndOr[$this->condition]    = true;
+        $this->conditions[$this->condition] .= " IN (";
+        
+        $count = 0;
+        foreach($dados as $val){
+            if($count++ > 0){
+                $this->conditions[$this->condition] .= ",";
+            }
+            $this->conditions[$this->condition] .= ":valores" . count($this->valores);
+            array_push($this->valores, array("v" => $val, "t" => $paramType));
+        }
+        $this->conditions[$this->condition] .= ") ";
+        return $this;
+    }
+    
     public function isNull() {
         $this->conditions[$this->condition] .= " IS NULL";
         return $this;
