@@ -391,7 +391,7 @@ abstract class AbstractEntity implements \JsonSerializable {
     public function insert(){
         $q = LHDB::getConnection()->query(static::$table);
         foreach($this as $key => $val) {
-            if(!$val){
+            if(!isset($val)){
                 continue;
             } else if($key == "editClone") {
                 continue;
