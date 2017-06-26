@@ -3,7 +3,7 @@ namespace lhweb\controller;
 
 use lhweb\database\AbstractEntity;
 use lhweb\database\EntityArray;
-use lhweb\exceptions\LHWebException;
+use lhweb\exceptions\RegistroInvalidoException;
 use lhweb\exceptions\RegistroNaoEncontradoException;
 
 abstract class AbstractController {
@@ -111,12 +111,21 @@ abstract class AbstractController {
     /**
      * 
      * @param AbstractEntity $obj
-     * @return AbstractEntity
      */
-    public function salvar($obj){
-        if($obj===null) {
+    public function validar($obj){
+        if($obj == null){
             throw new RegistroNaoEncontrado();
         }
+    }
+    
+    
+    /**
+     * 
+     * @param AbstractEntity $obj
+     * @return AbstractEntity
+     */
+    public function salvar(AbstractEntity $obj){
+        $this->validar($obj);
         return $obj->salvar();
     }
     
