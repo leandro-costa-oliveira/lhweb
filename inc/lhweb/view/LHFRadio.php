@@ -22,7 +22,7 @@ class LHFRadio extends LHFormField {
             $txt .=  "<div class='col-sm-$this->width'>";
         }
         
-        $txt = "<label id='label_$this->id' for='$this->id' class='col-sm-$this->width checkbox-inline $this->class'";
+        $txt = "<label id='label_$this->id' for='$this->id' class='checkbox-inline $this->class'";
         $txt .= $this->renderHtmlAttr("style");
         $txt .= $this->renderData();
         $txt .= ">";
