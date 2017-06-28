@@ -202,6 +202,11 @@ class GenericQuery {
         return $this;
     }
     
+    public function groupBy($txt){
+        $this->groupBy .= $txt;
+        return $this;
+    }
+    
     public function limit($l){
         $this->limit = $l;
         return $this;
