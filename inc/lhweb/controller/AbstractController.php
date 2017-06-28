@@ -3,7 +3,6 @@ namespace lhweb\controller;
 
 use lhweb\database\AbstractEntity;
 use lhweb\database\EntityArray;
-use lhweb\exceptions\RegistroInvalidoException;
 use lhweb\exceptions\RegistroNaoEncontradoException;
 
 abstract class AbstractController {

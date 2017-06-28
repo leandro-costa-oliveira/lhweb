@@ -147,14 +147,14 @@ abstract class WebAction {
      * @return type
      * @throws ParametroRequeridoException
      */
-    public function getParametro($paramName, $tipo, $requerido=true, $permitirVazio=false){
-        $param = array_key_exists($paramName, $this->in)?$this->in[$paramName]:null;
+    private function getParametro($in, $paramName, $tipo, $requerido=true, $permitirVazio=false){
+        $param = array_key_exists($paramName, $in)?$in[$paramName]:null;
         if($requerido) {
-            if(!array_key_exists($paramName, $this->in)){
+            if(!array_key_exists($paramName, $in)){
                 throw new ParametroRequeridoException("O Campo $paramName é requerido");
             }
             
-            if(!$permitirVazio && empty($this->in[$paramName])){
+            if(!$permitirVazio && empty($in[$paramName])){
                 throw new ParametroRequeridoException("Preencha o campo $paramName");
             }
         }
@@ -172,19 +172,32 @@ abstract class WebAction {
     }
     
     public function getParametroInt($paramName){
-        return $this->getParametro($paramName, static::$PARAM_INT, false, true);
+        return $this->getParametro($this->in, $paramName, static::$PARAM_INT, false, true);
     }
     
     public function getParametroFloat($paramName){
-        return $this->getParametro($paramName, static::$PARAM_FLOAT, false, true);
+        return $this->getParametro($this->in, $paramName, static::$PARAM_FLOAT, false, true);
     }
     
     public function getParametroString($paramName){
-        return $this->getParametro($paramName, static::$PARAM_STRING, false, true);
+        return $this->getParametro($this->in, $paramName, static::$PARAM_STRING, false, true);
+    }
+    
+    public function getParametroArray($arrayName, $tipo){
+        $ret = [];
+        if(array_key_exists($arrayName,$this->in)) {
+            error_log("ARRAY \$this->in[$arrayName] -> " . print_r($this->in[$arrayName],true));
+            foreach(array_keys($this->in[$arrayName]) as $k){
+                error_log("GETTING \$this->in[$arrayName][$k]");
+                array_push($ret, $this->getParametro($this->in[$arrayName], $k, $tipo));
+            }
+        }
+        
+        return $ret;
     }
     
     public function getParametroData($paramName){
-        $txt = $this->getParametro($paramName, static::$PARAM_STRING, false, true);
+        $txt = $this->getParametro($this->in, $paramName, static::$PARAM_STRING, false, true);
         $dt = DateTime::createFromFormat(static::$FORMATO_DATA_EXIBICAO, $txt);
         if($dt){
             return $dt;
@@ -194,7 +207,7 @@ abstract class WebAction {
     }
     
     public function getParametroDataAsString($paramName){
-        $txt = $this->getParametro($paramName, static::$PARAM_STRING, false, true);
+        $txt = $this->getParametro($this->in, $paramName, static::$PARAM_STRING, false, true);
         $dt = DateTime::createFromFormat(static::$FORMATO_DATA_EXIBICAO, $txt);
         if($dt){
             return $dt->format(static::$FORMATO_DATA_DB);
@@ -204,19 +217,19 @@ abstract class WebAction {
     }
     
     public function requererParametroInt($paramName, $permitirVazio=false){
-        return $this->getParametro($paramName, static::$PARAM_INT, true, $permitirVazio);
+        return $this->getParametro($this->in, $paramName, static::$PARAM_INT, true, $permitirVazio);
     }
     
     public function requererParametroFloat($paramName, $permitirVazio=false){
-        return $this->getParametro($paramName, static::$PARAM_FLOAT, true, $permitirVazio);
+        return $this->getParametro($this->in, $paramName, static::$PARAM_FLOAT, true, $permitirVazio);
     }
     
     public function requererParametroString($paramName, $permitirVazio=false){
-        return $this->getParametro($paramName, static::$PARAM_STRING, true, $permitirVazio);
+        return $this->getParametro($this->in, $paramName, static::$PARAM_STRING, true, $permitirVazio);
     }
     
     public function requererParametroData($paramName){
-        $txt = $this->getParametro($paramName, static::$PARAM_STRING, true);
+        $txt = $this->getParametro($this->in, $paramName, static::$PARAM_STRING, true);
         $dt = DateTime::createFromFormat(static::$FORMATO_DATA_EXIBICAO, $txt);
         if($dt){
             return $dt;
@@ -226,7 +239,7 @@ abstract class WebAction {
     }
     
     public function requererParametroDataAsString($paramName){
-        $txt = $this->getParametro($paramName, static::$PARAM_STRING, true);
+        $txt = $this->getParametro($this->in, $paramName, static::$PARAM_STRING, true);
         $dt = DateTime::createFromFormat(static::$FORMATO_DATA_EXIBICAO, $txt);
         if($dt){
             return $dt->format(static::$FORMATO_DATA_DB);
