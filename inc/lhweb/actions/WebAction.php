@@ -186,9 +186,7 @@ abstract class WebAction {
     public function getParametroArray($arrayName, $tipo){
         $ret = [];
         if(array_key_exists($arrayName,$this->in)) {
-            error_log("ARRAY \$this->in[$arrayName] -> " . print_r($this->in[$arrayName],true));
             foreach(array_keys($this->in[$arrayName]) as $k){
-                error_log("GETTING \$this->in[$arrayName][$k]");
                 array_push($ret, $this->getParametro($this->in[$arrayName], $k, $tipo));
             }
         }
