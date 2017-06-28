@@ -111,7 +111,29 @@ class GenericQuery {
         return $this;
     }
     
+    /**
+     * 
+     * @param GenericQuery $sq
+     */
+    public function inSubquery($sq) {
+        $sql = $sq->getQuerySql();
+        $sql = str_replace(":valores",":valores_sb",$sql);
+        
+        foreach($sq->valores as $key => $v) {
+            $idx = count($this->valores);
+            array_push($this->valores, $v);
+            $sql = str_replace(":valores_sb$key",":valores$idx",$sql);
+        }
+        
+        $this->conditions[$this->condition] .= " IN (". $sql . ")";
+        return $this;
+    }
+    
     public function in($dados, $paramType=LHDB::PARAM_STR) {
+        if($dados instanceof GenericQuery) {
+            return $this->inSubquery($dados);
+        }
+        
         // Evitando erro na consulta caso receba um array vazio.
         if(count($dados) <= 0){
             return $this->equals("",$paramType);
