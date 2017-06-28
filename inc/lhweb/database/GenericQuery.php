@@ -126,6 +126,7 @@ class GenericQuery {
         }
         
         $this->conditions[$this->condition] .= " IN (". $sql . ")";
+        $this->addAndOr[$this->condition] = true;
         return $this;
     }
     
