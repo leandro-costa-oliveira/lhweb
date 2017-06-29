@@ -155,7 +155,7 @@ abstract class AbstractController {
                         $original_table_name = $cj::$table; // holds the name, for restoring.
                         $cj::$table = $cj::$table . "_" . $join_count;
                         if($attr==$ftable){
-                            error_log("SEARCH CONDITION: " . $cj::getNomeCampo($c));
+                            // error_log("SEARCH CONDITION: " . $cj::getNomeCampo($c));
                             $q->andWhere($cj::getNomeCampo($c))->like($valor, $cj::getTipoCampo($c));
                             $found = true;
                         }
@@ -174,7 +174,7 @@ abstract class AbstractController {
                             $original_table_name = $cj::$table; // holds the name, for restoring.
                             $cj::$table = $cj::$table . "_" . $join_count;
                             if($attr==$ftable){
-                                error_log("SEARCH CONDITION: " . $cj::getNomeCampo($c));
+                                // error_log("SEARCH CONDITION: " . $cj::getNomeCampo($c));
                                 $q->andWhere($cj::getNomeCampo($c))->like($valor, $cj::getTipoCampo($c));
                                 $found = true;
                             }
@@ -203,7 +203,7 @@ abstract class AbstractController {
                     $original_table_name = $cj::$table; // holds the name, for restoring.
                     $cj::$table = $cj::$table . "_" . $join_count;
                     if($attr==$ftable){
-                        error_log("SEARCH CONDITION: " . $cj::getNomeCampo($campo));
+                        // error_log("SEARCH CONDITION: " . $cj::getNomeCampo($campo));
                         $q->andWhere($cj::getNomeCampo($campo))->like($valor, $cj::getTipoCampo($campo));
                         $found = true;
                     }
@@ -222,7 +222,7 @@ abstract class AbstractController {
                         $original_table_name = $cj::$table; // holds the name, for restoring.
                         $cj::$table = $cj::$table . "_" . $join_count;
                         if($attr==$ftable){
-                            error_log("SEARCH CONDITION: " . $cj::getNomeCampo($campo));
+                            // error_log("SEARCH CONDITION: " . $cj::getNomeCampo($campo));
                             $q->andWhere($cj::getNomeCampo($campo))->like($valor, $cj::getTipoCampo($campo));
                             $found = true;
                         }

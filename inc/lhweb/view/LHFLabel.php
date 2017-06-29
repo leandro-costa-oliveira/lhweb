@@ -16,6 +16,7 @@ class LHFLabel extends LHFormField {
         }
         $txt = "<label id='label_$this->id' for='$this->id' class='col-sm-$this->width control-label $this->class'";
         $txt .= $this->renderHtmlAttr("style");
+        $txt .= $this->renderHtmlAttr("title");
         $txt .= $this->renderData();
         $txt .= ">";
         $txt .= "$this->text</label>";

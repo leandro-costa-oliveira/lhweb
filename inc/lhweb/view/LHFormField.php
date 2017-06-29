@@ -16,6 +16,7 @@ abstract class LHFormField {
     
     protected $id    = "lhFormField";
     protected $name  = null;
+    protected $title = "";
     protected $class = "";
     protected $style = "";
     protected $role  = "";
