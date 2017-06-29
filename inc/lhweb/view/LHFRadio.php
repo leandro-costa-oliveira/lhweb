@@ -12,6 +12,7 @@ class LHFRadio extends LHFormField {
     protected $width = null;
     protected $value = 1;
     protected $checked = false;
+    protected $class = "radio-inline";
     
     public function render() {
         if($this->text === null) {
@@ -22,7 +23,7 @@ class LHFRadio extends LHFormField {
             $txt .=  "<div class='col-sm-$this->width'>";
         }
         
-        $txt = "<label id='label_$this->id' for='$this->id' class='radio-inline $this->class'";
+        $txt = "<label id='label_$this->id' class='$this->class'";
         $txt .= $this->renderHtmlAttr("style");
         $txt .= $this->renderData();
         $txt .= ">";
