@@ -248,7 +248,7 @@ abstract class WebAction {
     
     
     public function getPk(){
-        return $this->getParametro($this->in, $this->controller->getPkName(), FILTER_SANITIZE_NUMBER_INT,true,false);
+        return $this->getParametroInt($this->controller->getPkName());
     }
     
     /**
