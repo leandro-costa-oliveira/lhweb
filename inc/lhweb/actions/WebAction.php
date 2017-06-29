@@ -200,7 +200,7 @@ abstract class WebAction {
         if($dt){
             return $dt;
         } else {
-            throw new ParametroException("[$paramName] Data Inválida");
+            return null;
         }
     }
     
@@ -210,7 +210,7 @@ abstract class WebAction {
         if($dt){
             return $dt->format(static::$FORMATO_DATA_DB);
         } else {
-            throw new ParametroException("[$paramName] Data Inválida");
+            return null;
         }
     }
     
