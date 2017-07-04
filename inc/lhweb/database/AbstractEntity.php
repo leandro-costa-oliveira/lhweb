@@ -42,6 +42,7 @@ abstract class AbstractEntity implements \JsonSerializable {
     protected static $camposReadOnly = array();
     protected static $camposBlockUpdate = array();
     protected static $camposBlockInsert = array();
+    protected static $camposNaoSerializar = array();
     
     /**
      *
@@ -500,7 +501,9 @@ abstract class AbstractEntity implements \JsonSerializable {
     public function jsonSerialize (){
         $ret = array();
         foreach($this as $key => $val){ 
-            $ret[$key] = $val;
+            if(!in_array($key, static::$camposNaoSerializar)){
+                $ret[$key] = $val;
+            }
         }
         
         if(method_exists($this, "__toString")){
