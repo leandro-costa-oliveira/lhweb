@@ -164,8 +164,8 @@ abstract class WebAction {
                 $param = filter_var($param, FILTER_SANITIZE_NUMBER_INT);
                 return is_numeric($param)?$param:null;
             case static::$PARAM_FLOAT :
-                // Fix para a virgula decimal, removida sumariamente pelo filter var -_-
-                return filter_var($this->formatarParametroFloat($param), FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
+                $param = filter_var($this->formatarParametroFloat($param), FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
+                return is_numeric($param)?$param:null;
             case static::$PARAM_STRING:
             default:
                 $param = str_replace("\0", "", $param); // Removendo Null Byte, vetor de ataques.
