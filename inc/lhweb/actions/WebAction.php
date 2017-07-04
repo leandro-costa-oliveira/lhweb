@@ -160,7 +160,9 @@ abstract class WebAction {
         }
         
         switch($tipo){
-            case static::$PARAM_INT   : return filter_var($param, FILTER_SANITIZE_NUMBER_INT);
+            case static::$PARAM_INT   : 
+                $param = filter_var($param, FILTER_SANITIZE_NUMBER_INT);
+                return is_numeric($param)?$param:null;
             case static::$PARAM_FLOAT :
                 // Fix para a virgula decimal, removida sumariamente pelo filter var -_-
                 return filter_var($this->formatarParametroFloat($param), FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
