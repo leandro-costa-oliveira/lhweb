@@ -501,7 +501,7 @@ abstract class AbstractEntity implements \JsonSerializable {
     public function jsonSerialize (){
         $ret = array();
         foreach($this as $key => $val){ 
-            if($editClone || in_array($key, static::$camposNaoSerializar)){
+            if($key == "editClone" || in_array($key, static::$camposNaoSerializar)){
                 continue;
             }
             
