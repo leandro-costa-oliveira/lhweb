@@ -124,6 +124,7 @@ abstract class AbstractController {
      * @return AbstractEntity
      */
     public function salvar($obj){
+        $this->validar($obj);
         return $obj->salvar();
     }
     

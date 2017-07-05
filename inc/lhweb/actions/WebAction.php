@@ -317,7 +317,6 @@ abstract class WebAction {
     
     public function Salvar(){
         $obj = $this->buildObjectFromRequest();
-        $this->controller->validar($obj);
         return $this->controller->salvar($obj);
     }
     
