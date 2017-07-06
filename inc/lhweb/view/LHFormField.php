@@ -75,7 +75,7 @@ abstract class LHFormField {
             if(strpos($method, "data")!==false){
                 $this->pushData(strtolower(str_replace("data", "", $method)), $val);
             } else if(!property_exists($this, $method)){
-                throw new Exception(static::class . " ERROR: Campo Inexistente [" . htmlspecialchars($var). "]");
+                throw new Exception(static::class . " ERROR: Campo Inexistente [" . htmlspecialchars($method). "]");
             } else if(is_array($this->$method)) {
                 $this->setArray($method, $val);
             } else {
