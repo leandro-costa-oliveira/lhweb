@@ -43,13 +43,15 @@ class LHFSelect  extends LHFormField {
         }
         
         foreach($this->options as $key => $val) {
+            $entity = "";
             if($val instanceof AbstractEntity){
                 $pkName = $val->getPkAttribute();
                 $key = $val->$pkName;
+                $entity = json_encode($val);
             }
             
             $slc = $this->value == $key ? "selected":"";
-            $txt .= "<option value='" . htmlspecialchars($key) . "' $slc>" . htmlspecialchars($val) . "</option>";
+            $txt .= "<option value='" . htmlspecialchars($key) . "' $slc data-entity='$entity'>" . htmlspecialchars($val) . "</option>";
         }
         
         $txt .= "</select>";
