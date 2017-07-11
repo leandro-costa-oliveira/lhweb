@@ -509,7 +509,7 @@ abstract class AbstractEntity implements \JsonSerializable {
         }
         
         if(method_exists($this, "__toString")){
-            $ret["toString"] = "".$this;
+            $ret["toString"] = $this->__toString();
         } else {
             $ret["toString"] = static::class;
         }
