@@ -3,6 +3,7 @@ namespace lhweb\controller;
 
 use lhweb\database\AbstractEntity;
 use lhweb\database\EntityArray;
+use lhweb\database\LHDB;
 use lhweb\exceptions\RegistroNaoEncontradoException;
 
 abstract class AbstractController {
@@ -125,7 +126,35 @@ abstract class AbstractController {
      */
     public function salvar($obj){
         $this->validar($obj);
-        return $obj->salvar();
+        
+        $pkName = $obj::$primaryKey;
+        LHDB::getConnection()->beginTransaction();
+        if(property_exists($obj, $pkName) && !empty($obj->$pkName)){
+            $obj = $this->update($obj);
+        } else {
+            $obj = $this->insert($obj);
+        }
+        LHDB::getConnection()->commit();
+            
+        return $obj;
+    }
+    
+    /**
+     * 
+     * @param AbstractEntity $obj
+     * @return AbstractEntity
+     */
+    public function insert($obj) {
+        return $obj->insert();
+    }
+    
+    /**
+     * 
+     * @param AbstractEntity $obj
+     * @return AbstractEntity
+     */
+    public function update($obj) {
+        return $obj->update();
     }
     
     public function listar($limit=0, $offset=0){
