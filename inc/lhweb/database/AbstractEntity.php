@@ -423,8 +423,14 @@ abstract class AbstractEntity implements \JsonSerializable {
      */
     public function update(){
         $count = 0;
+        
+        // Cria um modelo para evitar campos adicionados posteriomente quebrem a sql.
+        $c = static::class;
+        $mdl = new $c();
+        
         $q = LHDB::getConnection()->query(static::$table);
-        foreach($this as $key => $val) {
+        foreach($mdl as $key => $val) {
+            $val = $this->$key;
             if($key==static::$primaryKey){ // não devo atualizar a chave primaria
                 continue;
             } else if($this->editClone && $val == $this->editClone->$key) { // checando se o valor foi alterado
