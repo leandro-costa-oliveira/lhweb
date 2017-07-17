@@ -278,7 +278,8 @@ abstract class AbstractEntity implements \JsonSerializable {
      */
     public static function proximo($pk){
         $q = static::getBasicMoveQuery()
-                ->andWhere(static::getPkName())->maiorQue($pk, static::$primaryKeyTipo);
+                ->andWhere(static::getPkName())->maiorQue($pk, static::$primaryKeyTipo)
+                ->orderBy(static::getPkName());
         
         try {
             $rs = $q->getSingle();
