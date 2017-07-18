@@ -162,12 +162,48 @@ abstract class AbstractEntity implements \JsonSerializable {
     }
     
     public static function getNomeCampo($campo, $prependTableName=true){
-        $n = array_key_exists($campo, static::$campos)?static::$campos[$campo]:$campo;
-        
-        if($prependTableName && strpos($n, ".")===false){
-            return static::$table . "." . $n;
+        if(strpos($campo, ".")!==FALSE){
+            list($tabela,$campo) = explode(".", $campo);
+            
+            // Procurando nos Joins
+            $join_count = 0;
+            foreach(static::$joins as $cj => $val) {
+                list($join_campo, $join_variable) = $val;
+                
+                $original_table_name = $cj::$table;
+                $cj::$table     = $cj::$table . "_" . $join_count;
+                $cj::$processarJoins = false;
+                
+                if($join_variable==$tabela) {
+                    return $cj::getNomeCampo($campo, $prependTableName);
+                }
+                $join_count++;
+                $cj::$table = $original_table_name;
+                $cj::$processarJoins = true;
+            }
+            
+            foreach(static::$leftOuterJoins as $cj => $val) {
+                list($join_campo, $join_variable) = $val;
+                
+                $original_table_name = $cj::$table;
+                $cj::$table     = $cj::$table . "_" . $join_count;
+                $cj::$processarJoins = false;
+                
+                if($join_variable==$tabela) {
+                    return $cj::getNomeCampo($campo, $prependTableName);
+                }
+                $join_count++;
+                $cj::$table = $original_table_name;
+                $cj::$processarJoins = true;
+            }
         } else {
-            return $n;
+            $n = array_key_exists($campo, static::$campos)?static::$campos[$campo]:$campo;
+
+            if($prependTableName && strpos($n, ".")===false){
+                return static::$table . "." . $n;
+            } else {
+                return $n;
+            }
         }
     }
     
