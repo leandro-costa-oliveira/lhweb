@@ -68,6 +68,15 @@ abstract class LHDB extends PDO {
     
     /**
      * 
+     * @param type string
+     * @return \lhweb\database\GenericQuery
+     */
+    public function pdoquery($stm){
+        return parent::query($stm);
+    }
+    
+    /**
+     * 
      * @param \lhweb\database\AbstractEntity $entity
      * @return \lhweb\database\GenericQuery
      */

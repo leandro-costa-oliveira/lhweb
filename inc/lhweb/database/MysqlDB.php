@@ -16,6 +16,6 @@ class MysqlDB extends LHDB {
     }
     
     public function select_db($dbname) {
-        $this->query("USE $dbname");
+        $this->exec("USE $dbname");
     }
 }
