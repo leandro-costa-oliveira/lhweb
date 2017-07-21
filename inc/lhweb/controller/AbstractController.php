@@ -168,112 +168,66 @@ abstract class AbstractController {
      * @return AbstractEntity
      */
     public function procurar($campo, $valor, $limit=0, $offset=0){
+        if(is_array($campo)){
+            return $this->procurarCampoArray($campo, $valor, $limit, $offset);
+        } else {
+            return $this->procurarCampoString($campo, $valor, $limit, $offset);
+        } 
+    }
+    
+    function getNomeCampoProcura($obj, $campo) {
+        if(strpos($campo, ".")!==false){ // PROCURAR NOS JOINS
+            list($subCampo, $campo) = explode(".", $campo);
+            
+            $joinCount = 0;
+            foreach($obj::$joins as $classJoin => $det) {
+                list($campoJoin, $varName) = $det;
+                if($subCampo==$varName){
+                    return $classJoin::$table . "_$joinCount." . $classJoin::getNomeCampo($campo);
+                }
+                $joinCount++;
+            }
+            
+            foreach($obj::$leftOuterJoins as $classJoin => $det) {
+                list($campoJoin, $varName) = $det;
+                if($subCampo==$varName){
+                    return $classJoin::$table . "." . $classJoin::getNomeCampo($campo);
+                }
+                $joinCount++;
+            }
+        } else { // É UM CAMPO DA PROPRIA CLASSE
+            return $obj::$table . "." . $obj::getNomeCampo($campo);
+        }
+    }
+    
+    function procurarCampoString($campo, $valor, $limit=0, $offset=0){
         $obj = $this->getEntityClass();
         $q = $obj::getBasicMoveQuery();
         
-        if(is_array($campo)){
-            $q->andWhere("(");
-            foreach($campo as $c){
-                if(strpos($c, ".")!==false){ // PROCURAR NOS JOINS
-                    list($ftable, $c) = explode(".", $c);
-
-                    $found = false;
-                    $join_count = 0;
-                    foreach($obj::$joins as $cj => $join){
-                        list($fk, $attr) = $join;
-                        $original_table_name = $cj::$table; // holds the name, for restoring.
-                        $cj::$table = $cj::$table . "_" . $join_count;
-                        if($attr==$ftable){
-                            // error_log("SEARCH CONDITION: " . $cj::getNomeCampo($c));
-                            $q->andWhere($cj::getNomeCampo($c))->like($valor, $cj::getTipoCampo($c));
-                            $found = true;
-                        }
-
-                        $cj::$table = $original_table_name; // restoring the name.
-                        $join_count++;
-
-                        if($found) {
-                            break;
-                        }
-                    }
-
-                    if(!$found){
-                        foreach($obj::$leftOuterJoins as $cj => $join){
-                            list($fk, $attr) = $join;
-                            $original_table_name = $cj::$table; // holds the name, for restoring.
-                            $cj::$table = $cj::$table . "_" . $join_count;
-                            if($attr==$ftable){
-                                // error_log("SEARCH CONDITION: " . $cj::getNomeCampo($c));
-                                $q->andWhere($cj::getNomeCampo($c))->like($valor, $cj::getTipoCampo($c));
-                                $found = true;
-                            }
-
-                            $cj::$table = $original_table_name; // restoring the name.
-                            $join_count++;
-
-                            if($found) {
-                                break;
-                            }
-                        }
-                    }
-                } else { // É UM CAMPO DA PROPRIA CLASSE
-                    $q->orWhere($obj::getNomeCampo($c,true))->like($valor, $obj::getTipoCampo($c));
-                }
-            }
-            $q->Where(")");
-        } else {
-            if(strpos($campo, ".")!==false){ // PROCURAR NOS JOINS
-                list($ftable, $campo) = explode(".", $campo);
-                
-                $found = false;
-                $join_count = 0;
-                foreach($obj::$joins as $cj => $join){
-                    list($fk, $attr) = $join;
-                    $original_table_name = $cj::$table; // holds the name, for restoring.
-                    $cj::$table = $cj::$table . "_" . $join_count;
-                    if($attr==$ftable){
-                        // error_log("SEARCH CONDITION: " . $cj::getNomeCampo($campo));
-                        $q->andWhere($cj::getNomeCampo($campo))->like($valor, $cj::getTipoCampo($campo));
-                        $found = true;
-                    }
-                    
-                    $cj::$table = $original_table_name; // restoring the name.
-                    $join_count++;
-                    
-                    if($found) {
-                        break;
-                    }
-                }
-                
-                if(!$found){
-                    foreach($obj::$leftOuterJoins as $cj => $join){
-                        list($fk, $attr) = $join;
-                        $original_table_name = $cj::$table; // holds the name, for restoring.
-                        $cj::$table = $cj::$table . "_" . $join_count;
-                        if($attr==$ftable){
-                            // error_log("SEARCH CONDITION: " . $cj::getNomeCampo($campo));
-                            $q->andWhere($cj::getNomeCampo($campo))->like($valor, $cj::getTipoCampo($campo));
-                            $found = true;
-                        }
-
-                        $cj::$table = $original_table_name; // restoring the name.
-                        $join_count++;
-
-                        if($found) {
-                            break;
-                        }
-                    }
-                }
-            } else { // É UM CAMPO DA PROPRIA CLASSE
-                $q->andWhere($obj::getNomeCampo($campo))->like($valor, $obj::getTipoCampo($campo));
-            } 
-        } 
+        $q->andWhere($this->getNomeCampoProcura($obj, $campo))->like($valor, $obj::getTipoCampo($campo));
         
         if($limit) { $q->limit($limit); }
         if($offset) { $q->offset($offset); }
         
         return new EntityArray($q->getList(), $obj);
     }
+    
+    function procurarCampoArray($campos, $valor, $limit=0, $offset=0){
+        $obj = $this->getEntityClass();
+        $q = $obj::getBasicMoveQuery();
+        
+        $q->andWhere("(");
+        foreach($campos as $campo){
+            $q->orWhere($this->getNomeCampoProcura($obj, $campo))->like($valor, $obj::getTipoCampo($campo));
+        }
+        $q->Where(")");
+        
+        if($limit) { $q->limit($limit); }
+        if($offset) { $q->offset($offset); }
+        
+        return new EntityArray($q->getList(), $obj);
+    }
+    
     
     public function count(){
         $c = $this->getEntityClass();
