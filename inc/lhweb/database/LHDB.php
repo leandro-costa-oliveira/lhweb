@@ -89,4 +89,8 @@ abstract class LHDB extends PDO {
         
         return $nrows;
     }
+    
+    public function select_db($dbname) {
+        error_log("LHDB::SELECT DB STUB [$dbname]");
+    }
 }
