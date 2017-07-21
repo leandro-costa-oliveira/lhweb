@@ -90,7 +90,7 @@ abstract class LHDB extends PDO {
      * @return int
      */
     public function exec($sql) {
-        $nrows = $this->exec($sql);
+        $nrows = parent::exec($sql);
         
         if($this->autoCommit) {
             $this->commit();
