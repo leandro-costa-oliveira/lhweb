@@ -58,11 +58,15 @@ abstract class LHFormField {
     
     protected function setArray($var, $val) {
         if(is_array($val) || $val instanceof Iterator){
+            
+            $a = array();
             foreach($val as $k => $v) {
-                $this->$var[$k] = $v;
+                $a[$k] = $v;
             }
+            // Hack for PHP 5.5, $this->$var[$k] = $v wasn't working
+            $this->$var = array_merge($this->$var,$a);
         } else {
-            $this->$var[$k] = $v;
+            array_push($this->$var, $val);
         }
     }
     
