@@ -231,6 +231,7 @@ abstract class AbstractController {
     
     public function count(){
         $c = $this->getEntityClass();
-        return $c::count();
+        $o = new $c();
+        return $o->count();
     }
 }
