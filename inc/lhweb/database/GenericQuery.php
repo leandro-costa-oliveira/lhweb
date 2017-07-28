@@ -130,7 +130,7 @@ class GenericQuery {
         return $this;
     }
     
-    public function in($dados, $paramType=LHDB::PARAM_STR) {
+    public function in($dados, $paramType=LHDB::PARAM_STR, $prefix="") {
         if($dados instanceof GenericQuery) {
             return $this->inSubquery($dados);
         }
@@ -141,7 +141,7 @@ class GenericQuery {
         }
         
         $this->addAndOr[$this->condition]    = true;
-        $this->conditions[$this->condition] .= " IN (";
+        $this->conditions[$this->condition] .= $prefix . " IN (";
         
         $count = 0;
         foreach($dados as $val){
@@ -153,6 +153,10 @@ class GenericQuery {
         }
         $this->conditions[$this->condition] .= ") ";
         return $this;
+    }
+    
+    public function notIn($dados, $paramType=LHDB::PARAM_STR) {
+        return $this->in($dados, $paramType, " NOT ");
     }
     
     public function isNull() {
