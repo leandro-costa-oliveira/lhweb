@@ -147,7 +147,7 @@ abstract class WebAction {
      * @return type
      * @throws ParametroRequeridoException
      */
-    private function getParametro($in, $paramName, $tipo, $requerido=true, $permitirVazio=false){
+    private function getParametro($in, $paramName, $tipo, $requerido=false, $permitirVazio=true){
         $param = array_key_exists($paramName, $in)?$in[$paramName]:null;
         if($requerido) {
             if(!array_key_exists($paramName, $in)){
