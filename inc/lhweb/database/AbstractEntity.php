@@ -34,14 +34,14 @@ abstract class AbstractEntity implements JsonSerializable {
      * @var array
      * Variável utilizada para configurar o mapeamento entre os campos da classe
      * e o nome das colunas no banco de dados. por ex:
-     * protected $campos = array(
+     * protected $camposMap = array(
      *     "campoDaClasse" => "ColunaDoBanco"
      * );
      * Ao fazer um select, será utilizado na SQL o ColunaDoBanco, mas quando o 
      * resultado retornar será armazenado na propriedade campoDaClasse do objeto.
      * 
      */
-    protected static $campos = array();
+    protected static $camposMap = array();
     protected static $camposReadOnly = array();
     protected static $camposBlockUpdate = array();
     protected static $camposBlockInsert = array();
@@ -58,7 +58,7 @@ abstract class AbstractEntity implements JsonSerializable {
     
     
     public static function getCampos(){
-        return static::$campos;
+        return static::$camposMap;
     }
     
     /**
@@ -89,7 +89,7 @@ abstract class AbstractEntity implements JsonSerializable {
      * @return string[]
      */
     public static function getCamposQuery($tablename=null, $prefix=null){
-        $campos = array();
+        $camposMap = array();
         
         $classe = static::class;
         $entidade = new $classe();
@@ -106,10 +106,10 @@ abstract class AbstractEntity implements JsonSerializable {
                 $campo .= static::getNomeCampo($key);
             }
 
-            array_push($campos, $campo);
+            array_push($camposMap, $campo);
         }
 
-        return $campos;
+        return $camposMap;
     }
     
     public static function getJoinFieldName($fk){
@@ -191,7 +191,7 @@ abstract class AbstractEntity implements JsonSerializable {
     }
     
     public static function getPkAttribute(){
-        foreach(static::$campos as $key => $val) {
+        foreach(static::$camposMap as $key => $val) {
             if($val === static::$primaryKey) {
                 return $key?$key:$val;
             }
@@ -249,7 +249,7 @@ abstract class AbstractEntity implements JsonSerializable {
                 $cj::$processarJoins = true;
             }
         } else {
-            return array_key_exists($campo, static::$campos)?static::$campos[$campo]:$campo;
+            return array_key_exists($campo, static::$camposMap)?static::$camposMap[$campo]:$campo;
         }
     }
     

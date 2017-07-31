@@ -35,15 +35,15 @@ $db = new MysqlDB("localhost","lhwebdb","lhweb","lhweb");
         <div class="container">
             <div class="form-horizontal" style="border: solid red 1px; margin-left: 50px;">
                 <div class="form-group">
-                    <?php LHFLabel::id("inp_name")->text("Nome:")->width(2)->dataTeste("true")->render(); ?>
-                    <?php LHFInpText::id("inp_name")->width(6)->class("text-mutted")->render(); ?>
+                    <?php echo LHFLabel::id("inp_name")->text("Nome:")->width(2)->dataTeste("true")->render(); ?>
+                    <?php echo LHFInpText::id("inp_name")->width(6)->class("text-mutted")->render(); ?>
                     
                     <div class="col-sm-3">
-                        <?php LHFSelect::id("slc_campo_id")->options(LHWebEntity::listar())->css("width","100%")->render(); ?>
+                        <?php echo LHFSelect::id("slc_campo_id")->options(LHWebEntity::listar())->css("width","100%")->render(); ?>
                     </div>
                     
                     <div class="col-sm-1">
-                    <?php LHFButton::id("bt_novo")->icon("usd")->class("btn-primary")->text("Novo Registro")->render(); ?>
+                    <?php echo LHFButton::id("bt_novo")->icon("usd")->class("btn-primary")->text("Novo Registro")->render(); ?>
                     </div>
                 </div>
             </div>
