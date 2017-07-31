@@ -1,11 +1,14 @@
 <?php
 namespace lhweb\database;
+
+use Exception;
+use JsonSerializable;
 /**
  * Description of AbstractEntity
  *
  * @author loki
  */
-abstract class AbstractEntity implements \JsonSerializable {
+abstract class AbstractEntity implements JsonSerializable {
     public static $primaryKey = "id";
     public static $primaryKeyTipo = LHDB::PARAM_INT;
     public static $table = null;
@@ -417,7 +420,7 @@ abstract class AbstractEntity implements \JsonSerializable {
         $q = static::getBasicMoveQuery();
         
         if(!method_exists($q, $modo)){
-            throw new \Exception("Modo de Procura Inválido: $modo");
+            throw new Exception("Modo de Procura Inválido: $modo");
         }
         
         $q->andWhere(static::getNomeCampo($campo))->$modo($txt, static::getTipoCampo($campo));
@@ -556,7 +559,11 @@ abstract class AbstractEntity implements \JsonSerializable {
                 continue;
             }
             
-            $ret[$key] = $val;
+            if($val instanceof EntityArray){ // Armazena em formato convertível para json, no caso um array.
+                $ret[$key] = $val->jsonSerialize();
+            } else {
+                $ret[$key] = $val;
+            }
         }
         
         if(method_exists($this, "__toString")){
