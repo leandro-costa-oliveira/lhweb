@@ -128,7 +128,6 @@ abstract class AbstractController {
         $this->validar($obj);
         
         $pkName = $obj::$primaryKey;
-        LHDB::getConnection()->beginTransaction();
         if(property_exists($obj, $pkName) && !empty($obj->$pkName)){
             $obj = $this->update($obj);
             $obj = $this->afterUpdate($obj);
@@ -137,8 +136,6 @@ abstract class AbstractController {
             $obj = $this->afterInsert($obj);
         }
         $obj = $this->afterSalvar($obj);
-        
-        LHDB::getConnection()->commit();
             
         return $obj;
     }
