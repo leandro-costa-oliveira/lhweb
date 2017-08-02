@@ -129,15 +129,15 @@ abstract class AbstractController {
         
         $pkName = $obj::$primaryKey;
         if(property_exists($obj, $pkName) && !empty($obj->$pkName)){
-            $obj = $this->update($obj);
-            $obj = $this->afterUpdate($obj);
+            $this->update($obj);
+            $this->afterUpdate($obj);
         } else {
-            $obj = $this->insert($obj);
-            $obj = $this->afterInsert($obj);
+            $this->insert($obj);
+            $this->afterInsert($obj);
         }
         $obj = $this->afterSalvar($obj);
             
-        return $obj;
+        return $this->getByPK($obj->$pkName);
     }
     
     /**
@@ -164,7 +164,6 @@ abstract class AbstractController {
      * @return AbstractEntity
      */
     public function afterUpdate($obj){
-        return $obj;
     }
     
     /**
@@ -173,7 +172,6 @@ abstract class AbstractController {
      * @return AbstractEntity
      */
     public function afterInsert($obj){
-        return $obj;
     }
     
     /**
@@ -182,7 +180,6 @@ abstract class AbstractController {
      * @return AbstractEntity
      */
     public function afterSalvar($obj){
-        return $obj;
     }
     
     public function listar($limit=0, $offset=0){
