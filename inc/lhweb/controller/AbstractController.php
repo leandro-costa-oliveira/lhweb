@@ -135,7 +135,7 @@ abstract class AbstractController {
             $this->insert($obj);
             $this->afterInsert($obj);
         }
-        $obj = $this->afterSalvar($obj);
+        $this->afterSalvar($obj);
             
         return $this->getByPK($obj->$pkName);
     }
