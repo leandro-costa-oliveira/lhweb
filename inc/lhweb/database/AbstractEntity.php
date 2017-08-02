@@ -239,14 +239,14 @@ abstract class AbstractEntity implements JsonSerializable {
                 
                 $original_table_name = $cj::$table;
                 $cj::$table     = $cj::$table . "_" . $join_count;
-                $cj::$processarJoins = false;
+                // $cj::$processarJoins = false;
                 
                 if($join_variable==$tabela) {
                     return $cj::getNomeCampo($campo);
                 }
                 $join_count++;
                 $cj::$table = $original_table_name;
-                $cj::$processarJoins = true;
+                // $cj::$processarJoins = true;
             }
         } else {
             return array_key_exists($campo, static::$camposMap)?static::$camposMap[$campo]:$campo;
