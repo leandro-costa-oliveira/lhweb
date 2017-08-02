@@ -131,9 +131,13 @@ abstract class AbstractController {
         LHDB::getConnection()->beginTransaction();
         if(property_exists($obj, $pkName) && !empty($obj->$pkName)){
             $obj = $this->update($obj);
+            $obj = $this->afterUpdate($obj);
         } else {
             $obj = $this->insert($obj);
+            $obj = $this->afterInsert($obj);
         }
+        $obj = $this->afterSalvar($obj);
+        
         LHDB::getConnection()->commit();
             
         return $obj;
@@ -155,6 +159,33 @@ abstract class AbstractController {
      */
     public function update($obj) {
         return $obj->update();
+    }
+    
+    /**
+     * 
+     * @param AbstractEntity $obj
+     * @return AbstractEntity
+     */
+    public function afterUpdate($obj){
+        return $obj;
+    }
+    
+    /**
+     * 
+     * @param AbstractEntity $obj
+     * @return AbstractEntity
+     */
+    public function afterInsert($obj){
+        return $obj;
+    }
+    
+    /**
+     * 
+     * @param AbstractEntity $obj
+     * @return AbstractEntity
+     */
+    public function afterSalvar($obj){
+        return $obj;
     }
     
     public function listar($limit=0, $offset=0){
