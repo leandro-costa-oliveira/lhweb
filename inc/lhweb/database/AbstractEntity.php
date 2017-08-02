@@ -469,10 +469,9 @@ abstract class AbstractEntity implements JsonSerializable {
         }
         
         try {
-            $q->insert();
-            $primaryKey  = static::$primaryKey;
-            $this->$primaryKey = $q->lastInsertId();
-            return static::getByPK($this->$primaryKey);
+            return $q->insert();
+            // $primaryKey  = static::$primaryKey;
+            // $this->$primaryKey = $q->lastInsertId();
         }  catch(Exception $ex) {
             throw $ex;
         }
@@ -513,13 +512,11 @@ abstract class AbstractEntity implements JsonSerializable {
         
         if($count>0){
             try {
-                $q->update();
+                return $q->update();
             }  catch(Exception $ex) {
                 throw $ex;
             }
         }
-        
-        return static::getByPK($this->$pkName);
     }
     
     /**
