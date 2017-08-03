@@ -6,6 +6,7 @@ namespace lhweb\view;
  * @author loki
  */
 class LHFInpText extends LHFormField {
+    protected $type        = "text";
     protected $width       = 0;
     protected $maxlength   = null;
     protected $placeholder = "";
@@ -24,7 +25,7 @@ class LHFInpText extends LHFormField {
             $txt .=  "<div class='col-sm-$this->width'>";
         }
         
-        $txt .= "<input type='text' ";
+        $txt .= "<input type='$this->type' ";
         $txt .= $this->renderHtmlAttr("class");
         $txt .= $this->renderHtmlAttr("id");
         $txt .= $this->renderHtmlAttr("name");
