@@ -13,6 +13,7 @@ class LHFCheckbox extends LHFormField {
     protected $value = 1;
     protected $checked = false;
     protected $class = "checkbox-inline";
+    protected $help  = "";
     
     public function render() {
         if($this->text === null) {
@@ -34,7 +35,16 @@ class LHFCheckbox extends LHFormField {
         $txt .= $this->renderHtmlAttr("value");
         $txt .= $this->renderHtmlProp("checked");
         $txt .= "/>";
-        $txt .= " $this->text</label>";
+        
+        $txt .= " $this->text";
+        
+        if($this->help){
+            $txt .= " <span class=\"glyphicon glyphicon-question-sign info\" style=\"cursor: help;\" ";
+            $txt .= "title=\"" . htmlentities($this->help) . "\">";
+            $txt .= "</span>";
+        }
+        
+        $txt .= "</label>";
         
         
         if($this->width > 0){
