@@ -21,6 +21,7 @@ abstract class LHFormField {
     protected $style = "";
     protected $role  = "";
     protected $disabled = false;
+    protected $required = false;
     protected $data = array();
     
     /**

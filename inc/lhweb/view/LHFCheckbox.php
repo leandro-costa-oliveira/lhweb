@@ -34,6 +34,7 @@ class LHFCheckbox extends LHFormField {
         $txt .= $this->renderHtmlAttr("name");
         $txt .= $this->renderHtmlAttr("value");
         $txt .= $this->renderHtmlProp("checked");
+        $txt .= $this->renderHtmlProp("required");
         $txt .= "/>";
         
         $txt .= " $this->text";
