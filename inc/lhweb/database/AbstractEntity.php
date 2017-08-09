@@ -436,7 +436,6 @@ abstract class AbstractEntity implements JsonSerializable {
         $q = static::getProcurarQuery($campo, $txt, $modo);
         
         try {
-            error_log("Q:" . $q->getQuerySql());
             return static::makeFromRs($q->getSingle());
         }  catch(Exception $ex) {
             throw $ex;
