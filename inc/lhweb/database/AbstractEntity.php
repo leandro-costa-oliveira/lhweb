@@ -469,7 +469,8 @@ abstract class AbstractEntity implements JsonSerializable {
         }
         
         try {
-            return $q->insert();
+            $q->insert();
+            return $q->lastInsertId();
             // $primaryKey  = static::$primaryKey;
             // $this->$primaryKey = $q->lastInsertId();
         }  catch(Exception $ex) {
