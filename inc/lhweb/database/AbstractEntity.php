@@ -213,7 +213,7 @@ abstract class AbstractEntity implements JsonSerializable {
      * @param boolean $prependTableName
      * @return String
      */
-    public static function getNomeCampo($campo){
+    public static function getNomeCampo($campo, $prependTableName=false){
         if(strpos($campo, ".")!==FALSE){
             list($tabela,$campo) = explode(".", $campo);
             
@@ -227,7 +227,7 @@ abstract class AbstractEntity implements JsonSerializable {
                 //$cj::$processarJoins = false;
                 
                 if($join_variable==$tabela) {
-                    return $cj::getNomeCampo($campo);
+                    return $cj::getNomeCampo($campo,true);
                 }
                 $join_count++;
                 $cj::$table = $original_table_name;
@@ -242,14 +242,18 @@ abstract class AbstractEntity implements JsonSerializable {
                 // $cj::$processarJoins = false;
                 
                 if($join_variable==$tabela) {
-                    return $cj::getNomeCampo($campo);
+                    return $cj::getNomeCampo($campo,true);
                 }
                 $join_count++;
                 $cj::$table = $original_table_name;
                 // $cj::$processarJoins = true;
             }
         } else {
-            return array_key_exists($campo, static::$camposMap)?static::$camposMap[$campo]:$campo;
+            $campo = array_key_exists($campo, static::$camposMap)?static::$camposMap[$campo]:$campo;
+            if($prependTableName){
+                $campo = static::$table . "." . $campo;
+            }
+            return $campo;
         }
     }
     
@@ -423,7 +427,7 @@ abstract class AbstractEntity implements JsonSerializable {
             throw new Exception("Modo de Procura Inválido: $modo");
         }
         
-        $q->andWhere(static::getNomeCampo($campo))->$modo($txt, static::getTipoCampo($campo));
+        $q->andWhere(static::getNomeCampo($campo,true))->$modo($txt, static::getTipoCampo($campo));
         
         return $q;
     }
@@ -432,6 +436,7 @@ abstract class AbstractEntity implements JsonSerializable {
         $q = static::getProcurarQuery($campo, $txt, $modo);
         
         try {
+            error_log("Q:" . $q->getQuerySql());
             return static::makeFromRs($q->getSingle());
         }  catch(Exception $ex) {
             throw $ex;
