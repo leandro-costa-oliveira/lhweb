@@ -125,14 +125,17 @@ abstract class AbstractController {
      * @return AbstractEntity
      */
     public function salvar($obj){
-        $this->validar($obj);
-        
+        $this->validar($obj);        
+        $this->preSalvar($obj);
+
         $pkName = $obj::$primaryKey;
         if(property_exists($obj, $pkName) && !empty($obj->$pkName)){
             $pk = $obj->$pkName;
+            $this->preUpdate($obj);
             $this->update($obj);
             $this->afterUpdate($obj);
         } else {
+            $this->preInsert($obj);
             $pk = $this->insert($obj);
             $obj->$pkName = $pk;
             $this->afterInsert($obj);
@@ -165,6 +168,14 @@ abstract class AbstractController {
      * @param AbstractEntity $obj
      * @return AbstractEntity
      */
+    public function preUpdate($obj){
+    }
+    
+    /**
+     * 
+     * @param AbstractEntity $obj
+     * @return AbstractEntity
+     */
     public function afterUpdate($obj){
     }
     
@@ -174,6 +185,22 @@ abstract class AbstractController {
      * @return AbstractEntity
      */
     public function afterInsert($obj){
+    }
+    
+    /**
+     * 
+     * @param AbstractEntity $obj
+     * @return AbstractEntity
+     */
+    public function preInsert($obj){
+    }
+    
+    /**
+     * 
+     * @param AbstractEntity $obj
+     * @return AbstractEntity
+     */
+    public function preSalvar($obj){
     }
     
     /**
