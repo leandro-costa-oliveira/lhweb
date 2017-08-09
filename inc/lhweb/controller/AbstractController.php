@@ -139,8 +139,6 @@ abstract class AbstractController {
         }
         $this->afterSalvar($obj);
             
-        
-        error_log("ABS CTL SAVE PK[ $pk ]");
         return $this->getByPK($pk);
     }
     
