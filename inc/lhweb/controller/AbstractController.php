@@ -138,7 +138,7 @@ abstract class AbstractController {
             $this->update($obj);
             
             $obj2 = $this->getByPK($pk);
-            $this->posUpdate($obj);
+            $this->posUpdate($obj2);
         } else {
             $this->preInsert($obj);
             $pk = $this->insert($obj);
