@@ -3,7 +3,6 @@ namespace lhweb\controller;
 
 use lhweb\database\AbstractEntity;
 use lhweb\database\EntityArray;
-use lhweb\database\LHDB;
 use lhweb\exceptions\RegistroNaoEncontradoException;
 
 abstract class AbstractController {
@@ -102,7 +101,10 @@ abstract class AbstractController {
         $obj = $c::getByPK($pk);
         
         if($obj){
-            return $obj->delete();
+            $this->preApagar($obj);
+            $ret = $obj->delete();
+            $this->posApagar($obj);
+            return $ret;
         } else {
             throw new RegistroNaoEncontradoException("PK:".htmlspecialchars($pk));
         }
@@ -136,15 +138,15 @@ abstract class AbstractController {
             $this->update($obj);
             
             $obj2 = $this->getByPK($pk);
-            $this->afterUpdate($obj);
+            $this->posUpdate($obj);
         } else {
             $this->preInsert($obj);
             $pk = $this->insert($obj);
             
             $obj2 = $this->getByPK($pk);
-            $this->afterInsert($obj2);
+            $this->posInsert($obj2);
         }
-        $this->afterSalvar($obj2);
+        $this->posSalvar($obj2);
             
         return $obj2;
     }
@@ -180,7 +182,7 @@ abstract class AbstractController {
      * @param AbstractEntity $obj
      * @return AbstractEntity
      */
-    public function afterUpdate($obj){
+    public function posUpdate($obj){
     }
     
     /**
@@ -188,7 +190,7 @@ abstract class AbstractController {
      * @param AbstractEntity $obj
      * @return AbstractEntity
      */
-    public function afterInsert($obj){
+    public function posInsert($obj){
     }
     
     /**
@@ -212,7 +214,22 @@ abstract class AbstractController {
      * @param AbstractEntity $obj
      * @return AbstractEntity
      */
-    public function afterSalvar($obj){
+    public function posSalvar($obj){
+    }
+    
+    
+    /**
+     * 
+     * @param AbstractEntity $obj
+     */
+    public function preApagar($obj){
+    }
+    
+    /**
+     * 
+     * @param AbstractEntity $obj
+     */
+    public function posApagar($obj){
     }
     
     public function listar($limit=0, $offset=0){
