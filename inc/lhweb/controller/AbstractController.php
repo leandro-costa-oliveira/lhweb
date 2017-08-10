@@ -131,18 +131,22 @@ abstract class AbstractController {
         $pkName = $obj::$primaryKey;
         if(property_exists($obj, $pkName) && !empty($obj->$pkName)){
             $pk = $obj->$pkName;
+            
             $this->preUpdate($obj);
             $this->update($obj);
+            
+            $obj2 = $this->getByPK($pk);
             $this->afterUpdate($obj);
         } else {
             $this->preInsert($obj);
             $pk = $this->insert($obj);
-            $obj->$pkName = $pk;
-            $this->afterInsert($obj);
-        }
-        $this->afterSalvar($obj);
             
-        return $this->getByPK($pk);
+            $obj2 = $this->getByPK($pk);
+            $this->afterInsert($obj2);
+        }
+        $this->afterSalvar($obj2);
+            
+        return $obj2;
     }
     
     /**
