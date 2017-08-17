@@ -35,6 +35,7 @@ class LHFRadio extends LHFormField {
         $txt .= $this->renderHtmlProp("checked");
         $txt .= $this->renderHtmlProp("required");
         $txt .= $this->renderHtmlProp("disabled");
+        $txt .= $this->renderData();
         $txt .= "/>";
         
         $txt .= " $this->text";
