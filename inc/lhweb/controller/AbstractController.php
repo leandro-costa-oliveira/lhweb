@@ -237,19 +237,6 @@ abstract class AbstractController {
         return $c::listar($limit, $offset);
     }
     
-    /**
-     * @param string $campo
-     * @param string $valor
-     * @return AbstractEntity
-     */
-    public function procurar($campo, $valor, $limit=0, $offset=0){
-        if(is_array($campo)){
-            return $this->procurarCampoArray($campo, $valor, $limit, $offset);
-        } else {
-            return $this->procurarCampoString($campo, $valor, $limit, $offset);
-        } 
-    }
-    
     function getNomeCampoProcura($obj, $campo) {
         if(strpos($campo, ".")!==false){ // PROCURAR NOS JOINS
             list($subCampo, $campo) = explode(".", $campo);
@@ -275,11 +262,19 @@ abstract class AbstractController {
         }
     }
     
-    function procurarCampoString($campo, $valor, $limit=0, $offset=0){
+    
+    /**
+     * @param string $campo
+     * @param string $valor
+     * @return AbstractEntity
+     */
+    public function procurar($campo, $valor, $limit=0, $offset=0){
         $obj = $this->getEntityClass();
-        $q = $obj::getBasicMoveQuery();
-        
-        $q->andWhere($this->getNomeCampoProcura($obj, $campo))->like($valor, $obj::getTipoCampo($campo));
+        if(is_array($campo)){
+            $q = $this->getQueryProcurarCampoArray($obj, $campo, $valor);
+        } else {
+            $q = $this->getQueryProcurarCampoString($obj, $campo, $valor);
+        }
         
         if($limit) { $q->limit($limit); }
         if($offset) { $q->offset($offset); }
@@ -287,8 +282,13 @@ abstract class AbstractController {
         return new EntityArray($q->getList(), $obj);
     }
     
-    function procurarCampoArray($campos, $valor, $limit=0, $offset=0){
-        $obj = $this->getEntityClass();
+    function getQueryProcurarCampoString($obj, $campo, $valor){
+        $q = $obj::getBasicMoveQuery();
+        $q->andWhere($this->getNomeCampoProcura($obj, $campo))->like($valor, $obj::getTipoCampo($campo));
+        return $q;
+    }
+    
+    function getQueryProcurarCampoArray($obj, $campos, $valor){
         $q = $obj::getBasicMoveQuery();
         
         $q->andWhere("(");
@@ -297,12 +297,27 @@ abstract class AbstractController {
         }
         $q->Where(")");
         
-        if($limit) { $q->limit($limit); }
-        if($offset) { $q->offset($offset); }
-        
-        return new EntityArray($q->getList(), $obj);
+        return $q;
     }
     
+    /**
+     * @param string $campo
+     * @param string $valor
+     * @return AbstractEntity
+     */
+    public function procurarCount($campo, $valor){
+        $obj = $this->getEntityClass();
+        if(is_array($campo)){
+            $q = $this->getQueryProcurarCampoArray($obj, $campo, $valor);
+        } else {
+            $q = $this->getQueryProcurarCampoString($obj, $campo, $valor);
+        }
+        
+        $q->campos(array("COUNT(" . $obj::$table . "." . static::getPkName() . ") as total"));
+        
+        $rs = $q->getSingle();
+        return $rs["total"];
+    }
     
     public function count(){
         $c = $this->getEntityClass();
