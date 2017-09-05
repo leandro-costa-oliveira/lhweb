@@ -115,7 +115,7 @@ abstract class LHFormField {
             $val = $this->$attr;
         }
         
-        if(!empty($val)){
+        if(!is_null($val)){
             $attr = str_replace("_", "-", $attr);
             return " $attr=\"" . htmlspecialchars($val) . "\" ";
         }
