@@ -145,7 +145,7 @@ abstract class AbstractEntity implements JsonSerializable {
      * 
      * @return GenericQuery
      */
-    public static function getBasicMoveQuery(){
+    public static function getBasicMoveQuery(){ 
         if(static::$table===null){
             $class = explode("\\",strtolower(static::class));
             static::$table = str_replace("entity", "", strtolower($class[count($class)-1]));
@@ -159,7 +159,7 @@ abstract class AbstractEntity implements JsonSerializable {
             list($fk, $attr) = $join;
             $jointable_name = $cj::$table . "_" . $join_count;
             
-            $joinfield_name = static::getJoinFieldName($fk);
+            $joinfield_name = static::getJoinFieldName($fk, true);
             $q->join($cj::$table . " AS " . $jointable_name , $jointable_name . "." . $cj::getPkName() . "=" . $joinfield_name);
             
             foreach($cj::getCamposQuery($jointable_name, $jointable_name) as $c){
@@ -173,7 +173,8 @@ abstract class AbstractEntity implements JsonSerializable {
             list($fk, $attr) = $join;
             $original_table_name = $cj::$table; 
             $jointable_name = $cj::$table . "_" . $join_count;
-            $q->leftOuterJoin($cj::$table . " AS " . $jointable_name , $jointable_name . "." . $cj::getPkName() . "=" . static::$table . "." . static::getNomeCampo($fk));
+            
+            $q->leftOuterJoin($cj::$table . " AS " . $jointable_name , $jointable_name . "." . $cj::getPkName() . "=" . static::getNomeCampo($fk, true));
             
             foreach($cj::getCamposQuery($jointable_name, $jointable_name) as $c){
                 $q->addCampo($c);
@@ -217,6 +218,9 @@ abstract class AbstractEntity implements JsonSerializable {
         if(strpos($campo, ".")!==FALSE){
             list($tabela,$campo) = explode(".", $campo);
             
+            
+            $joinedClasses = [];
+            
             // Procurando nos Joins
             $join_count = 0;
             foreach(static::$joins as $cj => $val) {
@@ -224,14 +228,13 @@ abstract class AbstractEntity implements JsonSerializable {
                 
                 $original_table_name = $cj::$table;
                 $cj::$table     = $cj::$table . "_" . $join_count;
-                //$cj::$processarJoins = false;
                 
                 if($join_variable==$tabela) {
                     return $cj::getNomeCampo($campo,true);
                 }
+                
                 $join_count++;
                 $cj::$table = $original_table_name;
-                // $cj::$processarJoins = true;
             }
             
             foreach(static::$leftOuterJoins as $cj => $val) {
@@ -239,14 +242,12 @@ abstract class AbstractEntity implements JsonSerializable {
                 
                 $original_table_name = $cj::$table;
                 $cj::$table     = $cj::$table . "_" . $join_count;
-                // $cj::$processarJoins = false;
                 
                 if($join_variable==$tabela) {
                     return $cj::getNomeCampo($campo,true);
                 }
                 $join_count++;
                 $cj::$table = $original_table_name;
-                // $cj::$processarJoins = true;
             }
         } else {
             $campo = array_key_exists($campo, static::$camposMap)?static::$camposMap[$campo]:$campo;
