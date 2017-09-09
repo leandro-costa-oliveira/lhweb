@@ -214,7 +214,7 @@ abstract class AbstractEntity implements JsonSerializable {
      * @param boolean $prependTableName
      * @return String
      */
-    public static function getNomeCampo($campo, $prependTableName=false){
+    public static function getNomeCampo($campo, $prependTableName=false, $tableSuffix=null){
         if(strpos($campo, ".")!==FALSE){
             list($tabela,$campo) = explode(".", $campo);
             
@@ -226,33 +226,25 @@ abstract class AbstractEntity implements JsonSerializable {
             foreach(static::$joins as $cj => $val) {
                 list($join_campo, $join_variable) = $val;
                 
-                $original_table_name = $cj::$table;
-                $cj::$table     = $cj::$table . "_" . $join_count;
-                
                 if($join_variable==$tabela) {
-                    return $cj::getNomeCampo($campo,true);
+                    return $cj::getNomeCampo($campo,true,"_$join_count");
                 }
                 
                 $join_count++;
-                $cj::$table = $original_table_name;
             }
             
             foreach(static::$leftOuterJoins as $cj => $val) {
                 list($join_campo, $join_variable) = $val;
                 
-                $original_table_name = $cj::$table;
-                $cj::$table     = $cj::$table . "_" . $join_count;
-                
                 if($join_variable==$tabela) {
-                    return $cj::getNomeCampo($campo,true);
+                    return $cj::getNomeCampo($campo,true, "_$join_count");
                 }
                 $join_count++;
-                $cj::$table = $original_table_name;
             }
         } else {
             $campo = array_key_exists($campo, static::$camposMap)?static::$camposMap[$campo]:$campo;
             if($prependTableName){
-                $campo = static::$table . "." . $campo;
+                $campo = static::$table . $tableSuffix . "." . $campo;
             }
             return $campo;
         }
