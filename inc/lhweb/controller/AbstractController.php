@@ -245,7 +245,7 @@ abstract class AbstractController {
             foreach($obj::$joins as $classJoin => $det) {
                 list($campoJoin, $varName) = $det;
                 if($subCampo==$varName){
-                    return $classJoin::$table . "_$joinCount." . $classJoin::getNomeCampo($campo);
+                    return $classJoin::getNomeCampo($campo, true, "_$joinCount");
                 }
                 $joinCount++;
             }
@@ -253,12 +253,12 @@ abstract class AbstractController {
             foreach($obj::$leftOuterJoins as $classJoin => $det) {
                 list($campoJoin, $varName) = $det;
                 if($subCampo==$varName){
-                    return $classJoin::$table . "." . $classJoin::getNomeCampo($campo);
+                    return $classJoin::getNomeCampo($campo, true, "_$joinCount");
                 }
                 $joinCount++;
             }
         } else { // É UM CAMPO DA PROPRIA CLASSE
-            return $obj::$table . "." . $obj::getNomeCampo($campo);
+            return $obj::getNomeCampo($campo, true); 
         }
     }
     
