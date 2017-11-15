@@ -2,29 +2,18 @@
 namespace lhweb\actions;
 
 use DateTime;
-use lhweb\controller\AbstractController;
-use lhweb\database\AbstractEntity;
+use lhweb\controller\LHWebController;
+use lhweb\database\LHWebEntity;
 use lhweb\database\LHDB;
 use lhweb\exceptions\ParametroException;
 use lhweb\exceptions\ParametroRequeridoException;
 
 abstract class WebAction {
-    public static $FORMATO_DATA_EXIBICAO = "d/m/Y";
-    public static $FORMATO_DATAHORA_EXIBICAO = "d/m/Y H:i";
-    public static $FORMATO_DATA_DB= "Y-m-d";
-    public static $FORMATO_DATAHORA_DB= "Y-m-d H:i";
-    
     /**
      *
-     * @var LHDB
+     * @var LHWebController
      */
-    protected $db;
-    
-    /**
-     *
-     * @var AbstractController
-     */
-    protected $controller;
+    protected $controller = null;
     
     /**
      *
@@ -33,30 +22,15 @@ abstract class WebAction {
      */
     protected $in;
     
-    
     public static $PARAM_INT = "int";
     public static $PARAM_FLOAT = "float";
     public static $PARAM_STRING = "string";
     
-    public abstract function buildObjectFromRequest();
-    public abstract function initController();
-    
     public function __construct() {
-        $get  = $this->parseRequestData($_GET);
-        $post = $this->parseRequestData($_POST);
-        $this->in = array_merge($get,$post);
-    }
-    
-    public function initDatabase(LHDB $db=null) {
-        if($db===null){
-            $this->db = LHDB::getConnection();
-        } else {
-            $this->db = $db;
-        }
-    }
-    
-    public function getController(){
-        return $this->controller;
+        $this->in = array_merge(
+                $this->parseRequestData($_GET),
+                $this->parseRequestData($_POST)
+        );
     }
     
     /**
@@ -89,8 +63,7 @@ abstract class WebAction {
      */
     public function requireAuth($acao){
         switch($acao){
-            default:
-                return true;
+            default: return true;
         }
     }
     
@@ -106,7 +79,7 @@ abstract class WebAction {
         }
     }
     
-    public function setDb($db){
+    public function setLHDB($db){
         $this->db = $db;
     }
     
@@ -160,10 +133,10 @@ abstract class WebAction {
         }
         
         switch($tipo){
-            case static::$PARAM_INT   : 
+            case static::$PARAM_INT: 
                 $param = filter_var($param, FILTER_SANITIZE_NUMBER_INT);
                 return is_numeric($param)?$param:null;
-            case static::$PARAM_FLOAT :
+            case static::$PARAM_FLOAT:
                 $param = filter_var($this->formatarParametroFloat($param), FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
                 return is_numeric($param)?$param:null;
             case static::$PARAM_STRING:
@@ -198,7 +171,7 @@ abstract class WebAction {
     
     public function getParametroData($paramName){
         $txt = $this->getParametro($this->in, $paramName, static::$PARAM_STRING, false, true);
-        $dt = DateTime::createFromFormat(static::$FORMATO_DATA_EXIBICAO, $txt);
+        $dt = DateTime::createFromFormat(LHWebMisc::$FORMATO_DATA_EXIBICAO, $txt);
         if($dt){
             return $dt;
         } else {
@@ -208,9 +181,9 @@ abstract class WebAction {
     
     public function getParametroDataAsString($paramName){
         $txt = $this->getParametro($this->in, $paramName, static::$PARAM_STRING, false, true);
-        $dt = DateTime::createFromFormat(static::$FORMATO_DATA_EXIBICAO, $txt);
+        $dt = DateTime::createFromFormat(LHWebMisc::$FORMATO_DATA_EXIBICAO, $txt);
         if($dt){
-            return $dt->format(static::$FORMATO_DATA_DB);
+            return $dt->format(LHWebMisc::$FORMATO_DATA_DB);
         } else {
             return null;
         }
@@ -230,7 +203,7 @@ abstract class WebAction {
     
     public function requererParametroData($paramName){
         $txt = $this->getParametro($this->in, $paramName, static::$PARAM_STRING, true);
-        $dt = DateTime::createFromFormat(static::$FORMATO_DATA_EXIBICAO, $txt);
+        $dt = DateTime::createFromFormat(LHWebMisc::$FORMATO_DATA_EXIBICAO, $txt);
         if($dt){
             return $dt;
         } else {
@@ -240,22 +213,27 @@ abstract class WebAction {
     
     public function requererParametroDataAsString($paramName){
         $txt = $this->getParametro($this->in, $paramName, static::$PARAM_STRING, true);
-        $dt = DateTime::createFromFormat(static::$FORMATO_DATA_EXIBICAO, $txt);
+        $dt = DateTime::createFromFormat(LHWebMisc::$FORMATO_DATA_EXIBICAO, $txt);
         if($dt){
-            return $dt->format(static::$FORMATO_DATA_DB);
+            return $dt->format(LHWebMisc::$FORMATO_DATA_DB);
         } else {
             throw new ParametroException("[$paramName] Data Inválida");
         }
     }
     
+    public function getChavePrimaria(){
+        $this->getParametro($this->in, $this->controller->getNomeChavePrimaria(), 
+                $this->controller->getTipoChavePrimaria());
+    }
     
-    public function getPk(){
-        return $this->getParametroInt($this->controller->getPkName());
+    public function requererChavePrimaria(){
+        $this->getParametro($this->in, $this->controller->getNomeChavePrimaria(), 
+                $this->controller->getTipoChavePrimaria(), true);
     }
     
     /**
      * 
-     * @return AbstractEntity
+     * @return LHWebEntity
      */
     public function Primeiro(){
         return $this->controller->primeiro();
@@ -263,7 +241,7 @@ abstract class WebAction {
     
     /**
      * 
-     * @return AbstractEntity
+     * @return LHWebEntity
      */
     public function Ultimo(){
         return $this->controller->ultimo();
@@ -271,11 +249,10 @@ abstract class WebAction {
     
     /**
      * 
-     * @return AbstractEntity
+     * @return LHWebEntity
      */
     public function Anterior(){
-        $pk  = $this->getPk();
-        $ret = $this->controller->anterior($pk);
+        $ret = $this->controller->anterior($this->getChavePrimaria());
         if(!$ret){
             $ret = $this->controller->ultimo();
         }
@@ -285,11 +262,10 @@ abstract class WebAction {
     
     /**
      * 
-     * @return AbstractEntity
+     * @return LHWebEntity
      */
     public function Proximo(){
-        $pk  = $this->getPk();
-        $ret = $this->controller->proximo($pk);
+        $ret = $this->controller->proximo($this->getChavePrimaria());
         if(!$ret){
             $ret = $this->controller->primeiro();
         }
@@ -298,11 +274,10 @@ abstract class WebAction {
     
     /**
      * 
-     * @return AbstractEntity
+     * @return LHWebEntity
      */
     public function Mover(){
-        $pk  = $this->getPk();
-        return $this->controller->getByPK($pk);
+        return $this->controller->getByPK($this->getChavePrimaria());
     }
     
     /**
@@ -311,24 +286,13 @@ abstract class WebAction {
      * @throws RegistroNaoEncontrado
      */
     public function Apagar(){
-        $pk  = $this->getPk();
+        $pk  = $this->getChavePrimaria();
         return $this->controller->apagar($pk);
     }
     
     public function Salvar(){
-        $obj = $this->buildObjectFromRequest();
-        return $this->controller->salvar($obj);
+        return $this->controller->salvar($this->buildEntityFromRequest());
     }
     
-    public function get($obj, $var) {
-        if($obj===null) {
-            return;
-        }
-        
-        if(!property_exists($obj, $var)){
-            return;
-        }
-        
-        return htmlspecialchars($obj->$var);
-    }
+    public abstract function buildEntityFromRequest();
 }

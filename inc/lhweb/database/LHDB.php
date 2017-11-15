@@ -1,6 +1,8 @@
 <?php
 namespace lhweb\database;
-use \PDO;
+
+use Exception;
+use PDO;
 
 /**
  * Represents the connection with the database,
@@ -25,7 +27,7 @@ abstract class LHDB extends PDO {
         if(array_key_exists($idx, LHDB::$conexoes)){
             return LHDB::$conexoes[$idx];
         } else {
-            throw new \Exception("Conexão com o Banco de Dados não encontrada.");
+            throw new Exception("Conexão com o Banco de Dados não encontrada.");
         }
     }
     
@@ -60,7 +62,7 @@ abstract class LHDB extends PDO {
     /**
      * 
      * @param type string
-     * @return \lhweb\database\GenericQuery
+     * @return GenericQuery
      */
     public function query($table){
         return new GenericQuery($this, $table, null);
@@ -69,7 +71,7 @@ abstract class LHDB extends PDO {
     /**
      * 
      * @param type string
-     * @return \lhweb\database\GenericQuery
+     * @return GenericQuery
      */
     public function pdoquery($stm){
         return parent::query($stm);
@@ -78,7 +80,7 @@ abstract class LHDB extends PDO {
     /**
      * 
      * @param \lhweb\database\AbstractEntity $entity
-     * @return \lhweb\database\GenericQuery
+     * @return GenericQuery
      */
     public function queryEntity(AbstractEntity $entity){
         return new GenericQuery($this, $entity->getTableName(), $entity);

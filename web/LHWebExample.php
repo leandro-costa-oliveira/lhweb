@@ -1,16 +1,16 @@
 <?php
-use lhweb\database\AbstractEntity;
+use lhweb\database\LHWebEntity;
 
 /**
  * Entidade de testes criada para demonstrar como Extender uma AbstractEntity.
  */
-class LHWebEntity extends AbstractEntity {
+class LHWebExample extends LHWebEntity {
     public $id;
     public $nome;
     public $valor;
     public $descp;
     
-    protected static $camposMap = array(
+    public static $mapaCampos = array(
         "id",
         "nome",
         "valor",

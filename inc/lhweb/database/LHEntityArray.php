@@ -1,24 +1,38 @@
 <?php
 namespace lhweb\database;
 
+use Countable;
+use Iterator;
+use JsonSerializable;
+use lhweb\controller\LHWebController;
+
 /**
  * Description of EntityArray
  *
  * @author loki
  */
-class EntityArray implements \Iterator, \Countable, \JsonSerializable {
+class LHEntityArray implements Iterator, Countable, JsonSerializable {
     /**
      *
      * @var array
      */
     private $array;
     
-    private $entityClass;
+    /**
+     *
+     * @var LHWebController
+     */
+    private $ctl;
     private $idx = 0;
     
-    public function __construct($array, $entityClass){
+    /**
+     * 
+     * @param array $array
+     * @param LHWebController $ctl
+     */
+    public function __construct($array, $ctl){
         $this->array = $array?$array:array();
-        $this->entityClass = $entityClass;
+        $this->ctl = $ctl;
     }
     
     public function count($mode = COUNT_NORMAL) {
@@ -26,8 +40,7 @@ class EntityArray implements \Iterator, \Countable, \JsonSerializable {
     }
 
     public function current() {
-        $c = $this->entityClass;
-        return $c::makeFromRs($this->array[$this->idx]);
+        return $this->ctl->getEntityFromRS($this->array[$this->idx]);
     }
 
     public function key() {
@@ -35,7 +48,6 @@ class EntityArray implements \Iterator, \Countable, \JsonSerializable {
     }
 
     public function next() {
-        $c = $this->entityClass;
         $this->idx++;
     }
 
