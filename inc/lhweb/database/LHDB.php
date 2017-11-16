@@ -12,6 +12,8 @@ use PDO;
  * @author loki
  */
 abstract class LHDB extends PDO {
+    const PARAM_FLOAT = 50;
+    
     /**
      *
      * @var LHDB[]

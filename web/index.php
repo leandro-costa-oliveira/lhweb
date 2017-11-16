@@ -43,18 +43,18 @@ $ctl_usuario = new LHWebController(LHWebUsuario::class);
                     <input type="hidden" name="id" value="" />
                     <div class="form-group">
                         <?php echo LHFLabel::id("inp_name")->text("Nome:")->width(2)->dataTeste("true")->render(); ?>
-                        <?php echo LHFInpText::id("nome")->width(3)->class("text-mutted")->render(); ?>
+                        <?php echo LHFInpText::id("nome")->width(3)->class("text-mutted")->value(array_key_exists("nome", $_GET)?$_GET["nome"]:"")->render(); ?>
                         
                         <?php echo LHFLabel::id("valor")->text("Valor:")->width(2)->dataTeste("true")->render(); ?>
-                        <?php echo LHFInpText::id("valor")->width(2)->class("text-mutted")->render(); ?>
+                        <?php echo LHFInpText::id("valor")->width(2)->class("text-mutted")->value(array_key_exists("valor", $_GET)?$_GET["valor"]:"")->render(); ?>
                     </div>
                     
                     <div class="form-group">
                         <?php echo LHFLabel::id("usuario")->text("Usuário:")->width(2)->dataTeste("true")->render(); ?>
-                        <?php echo LHFSelect::id("usuario_id")->width(3)->options($ctl_usuario->listar())->render(); ?>
+                        <?php echo LHFSelect::id("usuario_id")->width(3)->options($ctl_usuario->listar())->value(array_key_exists("usuario_id", $_GET)?$_GET["usuario_id"]:"")->render(); ?>
                         
                         <?php echo LHFLabel::id("descp")->text("Descrição:")->width(2)->dataTeste("true")->render(); ?>
-                        <?php echo LHFInpText::id("descp")->width(5)->class("text-mutted")->render(); ?>
+                        <?php echo LHFInpText::id("descp")->width(5)->class("text-mutted")->value(array_key_exists("descp", $_GET)?$_GET["descp"]:"")->render(); ?>
                     </div>
                     
                     <div class="form-group">

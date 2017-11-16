@@ -12,7 +12,7 @@ class LHWebController {
      *
      * @var LHWebEntity
      */
-    protected $class_entidade = null;
+    public $class_entidade = null;
     
     protected $tabela = null;
     
@@ -61,6 +61,21 @@ class LHWebController {
         }
         
         return $nomecampo;
+    }
+    
+    /**
+     * 
+     * @param type $c
+     * @return string
+     * Retornar o nome do campo, levando em conta o mapeamento de colunas 
+     * para o banco de dados.
+     */
+    public static function get_tipo_campo($classe_entidade, $c) {
+        if(array_key_exists($c, $classe_entidade::$mapaTipos)){
+            return $classe_entidade::$mapaTipos[$c];
+        } else {
+            return LHDB::PARAM_STR;
+        }
     }
     
     
@@ -199,7 +214,6 @@ class LHWebController {
             static::set_campos_consulta($q, $join_class, $join_alias, "lj_$count"); // Adiciona os campos da tabela joined na consulta
         }
         
-        error_log("BQ:" . $q->getQuerySql());
         return $q;
     }
     
@@ -223,12 +237,7 @@ class LHWebController {
      * para o banco de dados.
      */
     public function getTipoCampo($c) {
-        $classe_entidade = $this->class_entidade;
-        if(array_key_exists($c, $classe_entidade::$mapaTipos)){
-            $classe_entidade::$mapaTipos[$c];
-        } else {
-            return LHDB::PARAM_STR;
-        }
+        return static::get_tipo_campo($this->class_entidade, $c);
     }
     
     /**
@@ -400,6 +409,8 @@ class LHWebController {
         
         foreach($obj as $key => $val) {
             if(!isset($val)
+                || array_key_exists($key, $classe_entidade::$joins)
+                || array_key_exists($key, $classe_entidade::$leftOuterJoins)
                 || in_array($key, $classe_entidade::$camposNaoInserir) 
                 || in_array($key, $classe_entidade::$camposSomenteLeitura)
             ){
@@ -427,6 +438,8 @@ class LHWebController {
         foreach($obj as $key => $val) {
             if(!isset($val)
                     || $key == $nome_chave_primaria
+                    || array_key_exists($key, $classe_entidade::$joins) 
+                    || array_key_exists($key, $classe_entidade::$leftOuterJoins) 
                     || in_array($key, $classe_entidade::$camposNaoAlterar) 
                     || in_array($key, $classe_entidade::$camposSomenteLeitura)
             ){

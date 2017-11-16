@@ -1,4 +1,5 @@
 <?php
+use lhweb\database\LHDB;
 use lhweb\database\LHWebEntity;
 
 /**
@@ -19,6 +20,10 @@ class LHWebExample extends LHWebEntity {
     
     public static $mapaCampos = array(
         "descp" => "DESCRICAO"
+    );
+    
+    public static $mapaTipos = array(
+        "valor" => LHDB::PARAM_FLOAT
     );
     
     public static $leftOuterJoins = [

@@ -3,12 +3,13 @@ namespace lhweb\actions;
 
 use DateTime;
 use lhweb\controller\LHWebController;
+use lhweb\database\LHDB;
 use lhweb\database\LHWebEntity;
 use lhweb\exceptions\ParametroException;
 use lhweb\exceptions\ParametroRequeridoException;
 use lhweb\misc\LHWebMisc;
 
-abstract class WebAction {
+class LHWebAction {
     /**
      *
      * @var LHWebController
@@ -22,15 +23,17 @@ abstract class WebAction {
      */
     protected $in;
     
-    public static $PARAM_INT = "int";
-    public static $PARAM_FLOAT = "float";
-    public static $PARAM_STRING = "string";
-    
-    public function __construct() {
+    /**
+     * 
+     * @param LHWebController $controller
+     */
+    public function __construct($controller) {
         $this->in = array_merge(
                 $this->parseRequestData($_GET),
                 $this->parseRequestData($_POST)
         );
+        
+        $this->controller = $controller;
     }
     
     /**
@@ -133,13 +136,13 @@ abstract class WebAction {
         }
         
         switch($tipo){
-            case static::$PARAM_INT: 
+            case LHDB::PARAM_INT: 
                 $param = filter_var($param, FILTER_SANITIZE_NUMBER_INT);
                 return is_numeric($param)?$param:null;
-            case static::$PARAM_FLOAT:
+            case LHDB::PARAM_FLOAT:
                 $param = filter_var($this->formatarParametroFloat($param), FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION);
                 return is_numeric($param)?$param:null;
-            case static::$PARAM_STRING:
+            case LHDB::PARAM_STR:
             default:
                 $param = str_replace("\0", "", $param); // Removendo Null Byte, vetor de ataques.
                 return filter_var($param,FILTER_SANITIZE_STRING);
@@ -147,15 +150,15 @@ abstract class WebAction {
     }
     
     public function getParametroInt($paramName){
-        return $this->getParametro($this->in, $paramName, static::$PARAM_INT, false, true);
+        return $this->getParametro($this->in, $paramName, LHDB::PARAM_INT, false, true);
     }
     
     public function getParametroFloat($paramName){
-        return $this->getParametro($this->in, $paramName, static::$PARAM_FLOAT, false, true);
+        return $this->getParametro($this->in, $paramName, LHDB::PARAM_FLOAT, false, true);
     }
     
     public function getParametroString($paramName){
-        return $this->getParametro($this->in, $paramName, static::$PARAM_STRING, false, true);
+        return $this->getParametro($this->in, $paramName, LHDB::PARAM_STR, false, true);
     }
     
     public function getParametroArray($arrayName, $tipo){
@@ -170,7 +173,7 @@ abstract class WebAction {
     }
     
     public function getParametroData($paramName){
-        $txt = $this->getParametro($this->in, $paramName, static::$PARAM_STRING, false, true);
+        $txt = $this->getParametro($this->in, $paramName, LHDB::PARAM_STR, false, true);
         $dt = DateTime::createFromFormat(LHWebMisc::$FORMATO_DATA_EXIBICAO, $txt);
         if($dt){
             return $dt;
@@ -180,7 +183,7 @@ abstract class WebAction {
     }
     
     public function getParametroDataAsString($paramName){
-        $txt = $this->getParametro($this->in, $paramName, static::$PARAM_STRING, false, true);
+        $txt = $this->getParametro($this->in, $paramName, LHDB::PARAM_STR, false, true);
         $dt = DateTime::createFromFormat(LHWebMisc::$FORMATO_DATA_EXIBICAO, $txt);
         if($dt){
             return $dt->format(LHWebMisc::$FORMATO_DATA_DB);
@@ -190,19 +193,19 @@ abstract class WebAction {
     }
     
     public function requererParametroInt($paramName, $permitirVazio=false){
-        return $this->getParametro($this->in, $paramName, static::$PARAM_INT, true, $permitirVazio);
+        return $this->getParametro($this->in, $paramName, LHDB::PARAM_INT, true, $permitirVazio);
     }
     
     public function requererParametroFloat($paramName, $permitirVazio=false){
-        return $this->getParametro($this->in, $paramName, static::$PARAM_FLOAT, true, $permitirVazio);
+        return $this->getParametro($this->in, $paramName, LHDB::PARAM_FLOAT, true, $permitirVazio);
     }
     
     public function requererParametroString($paramName, $permitirVazio=false){
-        return $this->getParametro($this->in, $paramName, static::$PARAM_STRING, true, $permitirVazio);
+        return $this->getParametro($this->in, $paramName, LHDB::PARAM_STR, true, $permitirVazio);
     }
     
     public function requererParametroData($paramName){
-        $txt = $this->getParametro($this->in, $paramName, static::$PARAM_STRING, true);
+        $txt = $this->getParametro($this->in, $paramName, LHDB::PARAM_STR, true);
         $dt = DateTime::createFromFormat(LHWebMisc::$FORMATO_DATA_EXIBICAO, $txt);
         if($dt){
             return $dt;
@@ -212,7 +215,7 @@ abstract class WebAction {
     }
     
     public function requererParametroDataAsString($paramName){
-        $txt = $this->getParametro($this->in, $paramName, static::$PARAM_STRING, true);
+        $txt = $this->getParametro($this->in, $paramName, LHDB::PARAM_STR, true);
         $dt = DateTime::createFromFormat(LHWebMisc::$FORMATO_DATA_EXIBICAO, $txt);
         if($dt){
             return $dt->format(LHWebMisc::$FORMATO_DATA_DB);
@@ -294,5 +297,14 @@ abstract class WebAction {
         return $this->controller->salvar($this->buildEntityFromRequest());
     }
     
-    public abstract function buildEntityFromRequest();
+    public function buildEntityFromRequest(){
+        $classe_entidade = $this->controller->class_entidade;
+        $entidade = new $classe_entidade();
+        
+        foreach($entidade as $key -> $val){
+            $entidade->$key = $this->getParametro($this->in, $key,  $this->controller->getTipoCampo($key));
+        }
+        
+        return $entidade;
+    }
 }
