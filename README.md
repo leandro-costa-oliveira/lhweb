@@ -46,4 +46,55 @@ uma lista de conexões criadas para serem utilizadas pelas entidades. Temos a cl
 GenericQuery que é basicamente uma fabrica de sql, com ele podemos contruir consultas 
 sql de forma orientada a objetos, veja exemplos abaixo.
 
+---
+O primeiro passo é a criação de uma classe entidade, que irá representar uma tabela
+do seu banco de dados, ela deve extender use lhweb\database\LHWebEntity;, vamos a um exemplo rápido:
+
+```
+use lhweb\database\LHWebEntity;
+
+class MeuUsuario extends LHWebEntity {
+    public $id;
+    public $nome;
+    public $login;
+    public $senha;
+}
+```
+
+Pronto, essa classe será mapeada pelo controlador automaticamente da seguinte forma:
+    - Tabela nome meuusuario
+    - campos: id, nome, login, senha.
+    - chave primária: id, por padrão a chave primaria é chamada id, e o tipo int.
+
+Para criar um controlador padrão, capaz de operações CRUD, basta fazer o seguinte:
+
+```
+use lhweb\controller\LHWebController;
+
+$ctl = new LHWebController(MeuUsuario::class);
+
+$primeiro = $ctl->primeiro(); // Obtem o primeiro registro ordenado pela Chave Primária.
+$ultimo = $ctl->ultimo(); // Obtem o último registro ordenado pela Chave Primária.
+$porpkk = $ctl->getByPK(5); // Obtem o registro pela chave primária passada como parâmetro.
+$proximo = $ctl->proximo($porpkk->id); // Obtem o registro posterior da id passada.
+$proximo = $ctl->anterior($porpkk->id); // Obtem o registro anterior da id passada.
+
+// Efetuando um update em um registro
+$usuario = $ctl->getByPK(5); // Obtem o Usuário
+$usuario->nome = "Alterando o Nome";
+$ctl->salvar($usuario);
+
+
+// Removento um Registro
+$ctl->apagar(5);
+
+// Cadastrando um novo registro.
+$u = new MeuUsuario();
+$u->nome = "Usuario Novo";
+$u->login = "Login do Usuario";
+$u->senha = "123";
+$u = $ctl->salvar($u); // Recebe o usuário salvo com a id gerada pelo banco de dados.
+```
+
+Em breve estarei postando exemplos mais avançados de relacionamentos entre tabelas.
 

@@ -24,18 +24,123 @@ class LHWebController {
     
     public function __construct($class_entidade) {
         $this->class_entidade = $class_entidade;
+        $this->tabela = static::get_nome_tabela($class_entidade);
         $this->lhdb = LHDB::getConnection();
-        
+    }
+    
+    /**
+     * 
+     * @param string $class_entidade
+     * @return string
+     * Retorna o nome da tabela para a data classe, sendo que esta deve ser 
+     * filha de LHWebEntity ( Não Enforçado ).
+     */
+    public static function get_nome_tabela($class_entidade){
         if($class_entidade::$tabela) {
-            $this->tabela = $class_entidade::$tabela;
+            return $class_entidade::$tabela;
         } else { // Gerando Nomeclatura Padrão da Tabela.
-            $this->tabela = static::getNomePadraoTabela($class_entidade);
+            $class = explode("\\",strtolower($class_entidade));
+            return str_replace("entity", "", strtolower($class[count($class)-1]));
         }
     }
     
-    public static function getNomePadraoTabela($class_entidade){
-        $class = explode("\\",strtolower($class_entidade));
-        return str_replace("entity", "", strtolower($class[count($class)-1]));
+    /**
+     * 
+     * @param string $campo
+     * @param boolean $prependNomeTabela
+     * @return string
+     * Retornar o nome do campo, levando em conta o mapeamento de colunas 
+     * para o banco de dados.
+     */
+    public static function get_nome_campo($classe_entidade, $campo, $tabela=null) {
+        $nomecampo = $tabela?$tabela. ".":"";
+        if(array_key_exists($campo, $classe_entidade::$mapaCampos)){
+            $nomecampo .= $classe_entidade::$mapaCampos[$campo];
+        } else {
+            $nomecampo .= $campo;
+        }
+        
+        return $nomecampo;
+    }
+    
+    
+    /**
+     * 
+     * @return string
+     * Retorna o nome da coluna chave primaria na tabela.
+     */
+    public static function get_nome_chave_primaria($classe_entidade, $tabela=null){
+        return ($tabela?$tabela.".":"") . $classe_entidade::$nomeChavePrimaria;
+    }
+    
+    /**
+     * 
+     * @return int
+     * Retorna o tipo da chave primaria... INT por padrão.
+     */
+    public static function get_tipo_chave_primaria($classe_entidade){
+        return $classe_entidade::$tipoChavePrimaria?$classe_entidade::$tipoChavePrimaria:LHDB::PARAM_INT;
+    }
+    
+    /**
+     * 
+     * @param type $rs
+     * @return LHWebEntity
+     * Recebe um ResultSet com um registro de preenche o objeto Entity.
+     */
+    public static function get_entity_from_rs($class_entidade, $rs, $prefix="") {
+        $obj = new $class_entidade();
+        
+        // Percorre os atributos de $obj e preencher do $rs.
+        foreach($obj as $key => $val){
+            $coluna = $prefix . static::get_nome_campo($class_entidade, $key);
+            if(is_array($rs)){
+                $obj->$key = array_key_exists($coluna, $rs)?$rs[$coluna]:null;
+            } else if(is_object($rs)){
+                $obj->$key = property_exists($coluna, $coluna)?$rs->$coluna:null;
+            }
+        }
+        
+        // Processar Joins
+        $count = 1;
+        foreach($class_entidade::$joins as $attr => $join) {
+            list($join_class, $join_attr) = $join;
+            $obj->$attr = static::get_entity_from_rs($join_class, $rs, "j_" . $count++ . "_");
+        }
+        
+        foreach($class_entidade::$leftOuterJoins as $attr => $join) {
+            list($join_class, $join_attr) = $join;
+            $obj->$attr = static::get_entity_from_rs($join_class, $rs, "lj_" . $count++ . "_");
+        }
+        
+        return $obj;
+    }
+    
+    /**
+     * 
+     * @param GenericQuery $q
+     * @param string $classe_entidade
+     * @param string $tabela
+     * Cria um objeto da classe entidade, e seta os campos na query.
+     * Desconsidera campos agregados por joins.
+     */
+    public static function set_campos_consulta($q, $classe_entidade, $tabela, $alias=""){
+        $obj = new $classe_entidade();
+        foreach($obj as $key => $val){
+            if(array_key_exists($key, $classe_entidade::$joins) || 
+                    array_key_exists($key, $classe_entidade::$leftOuterJoins)) {
+                continue;
+            }
+            
+            $nomeCampo = static::get_nome_campo($classe_entidade, $key);
+            if($alias){
+                $campoAlias = " AS " . $alias . "_" . $nomeCampo;
+            } else {
+                $campoAlias = "";
+            }
+            
+            $q->addCampo($tabela . "." . $nomeCampo . $campoAlias);
+        }
     }
     
     /**
@@ -43,8 +148,7 @@ class LHWebController {
      * @return string
      */
     public function getNomeChavePrimaria($prependNomeTabela=false){
-        $c = $this->class_entidade;
-        return ($prependNomeTabela?$this->tabela.".":"") . $c::$nomeChavePrimaria;
+        return static::get_nome_chave_primaria($this->class_entidade, $prependNomeTabela?$this->tabela:null);
     }
     
     /**
@@ -61,11 +165,41 @@ class LHWebController {
      * @return GenericQuery
      */
     protected function getBasicMoveQuery(){
-        $q = $this->lhdb->query($this->tabela);
+        $classe_entidade = $this->class_entidade;
+        
+        
+        // Definindo campos da tabela.
+        $count = 0;
+        $q = $this->lhdb->query($this->tabela)->campos([]);
+        static::set_campos_consulta($q, $this->class_entidade, $this->tabela);
         
         // Processar Joins
-        // Processar Left Outer Joins
+        foreach($classe_entidade::$joins as $atributo => $det){
+            list($join_class, $campo_join) = $det;
+            
+            $join_table = static::get_nome_tabela($join_class);
+            $join_alias = $join_table . "_" . $count++;
+            $left_cond  = $join_alias . "." . static::get_nome_chave_primaria($join_class);
+            $right_cond = $this->getNomeCampo($campo_join, true);
+            
+            $q->join($join_table . " AS " . $join_alias, $left_cond . "=" . $right_cond);
+            static::set_campos_consulta($q, $join_class, $join_alias, "j_$count"); // Adiciona os campos da tabela joined na consulta
+        }
         
+        // Processar Left Outer Joins
+        foreach($classe_entidade::$leftOuterJoins as $atributo => $det){
+            list($join_class, $campo_join) = $det;
+            
+            $join_table = static::get_nome_tabela($join_class);
+            $join_alias = $join_table . "_" . $count++;
+            $left_cond  = $join_alias . "." . static::get_nome_chave_primaria($join_class);
+            $right_cond = $this->getNomeCampo($campo_join, true);
+            
+            $q->leftOuterJoin($join_table . " AS " . $join_alias, $left_cond . "=" . $right_cond);
+            static::set_campos_consulta($q, $join_class, $join_alias, "lj_$count"); // Adiciona os campos da tabela joined na consulta
+        }
+        
+        error_log("BQ:" . $q->getQuerySql());
         return $q;
     }
     
@@ -78,16 +212,7 @@ class LHWebController {
      * para o banco de dados.
      */
     public function getNomeCampo($campo, $prependNomeTabela=false) {
-        $classe_entidade = $this->class_entidade;
-        
-        $nomecampo = $prependNomeTabela?$this->tabela . ".":"";
-        if(array_key_exists($campo, $classe_entidade::$mapaCampos)){
-            $nomecampo .= $classe_entidade::$mapaCampos[$campo];
-        } else {
-            $nomecampo .= $campo;
-        }
-        
-        return $nomecampo;
+        return static::get_nome_campo($this->class_entidade, $campo, $prependNomeTabela?$this->tabela:null);
     }
     
     /**
@@ -112,24 +237,8 @@ class LHWebController {
      * @return LHWebEntity
      * Recebe um ResultSet com um registro de preenche o objeto Entity.
      */
-    public function getEntityFromRS($rs, $prefix="") {
-        $class_entidade = $this->class_entidade;
-        $obj = new $class_entidade();
-        
-        // Percorre os atributos de $obj e preencher do $rs.
-        foreach($obj as $key => $val){
-            $coluna = $prefix . $this->getNomeCampo($key);
-            
-            if(is_array($rs)){
-                $obj->$key = array_key_exists($coluna, $rs)?$rs[$coluna]:null;
-            } else if(is_object($rs)){
-                $obj->$key = property_exists($coluna, $coluna)?$rs->$coluna:null;
-            }
-        }
-        
-        // Processar Joins
-        
-        return $obj;
+    public function getEntityFromRS($rs) {
+        return static::get_entity_from_rs($this->class_entidade, $rs);
     }
     
     /**

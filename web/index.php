@@ -2,6 +2,7 @@
 error_reporting(E_ALL);
 require_once("../inc/autoloader.php");
 require_once("LHWebExample.php");
+require_once("LHWebUsuario.php");
 header('Content-Type: text/html; charset=utf-8');
 
 use lhweb\controller\LHWebController;
@@ -9,15 +10,17 @@ use lhweb\database\MysqlDB;
 use lhweb\view\LHFButton;
 use lhweb\view\LHFInpText;
 use lhweb\view\LHFLabel;
+use lhweb\view\LHFSelect;
 
-$db = new MysqlDB("localhost","lhprovedordev","lhweb","lhweb");
-$ctl = new LHWebController(LHWebExample::class);
+$db = new MysqlDB("localhost","lhweb","lhweb","lhweb");
+$ctl_example = new LHWebController(LHWebExample::class);
+$ctl_usuario = new LHWebController(LHWebUsuario::class);
 ?><!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8">
         <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-        <title></title>
+        <title>LHWeb Example's</title>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
         
@@ -37,19 +40,25 @@ $ctl = new LHWebController(LHWebExample::class);
         <div class="container">
             <div>
                 <form method="GET" class="form-horizontal">
+                    <input type="hidden" name="id" value="" />
                     <div class="form-group">
                         <?php echo LHFLabel::id("inp_name")->text("Nome:")->width(2)->dataTeste("true")->render(); ?>
-                        <?php echo LHFInpText::id("nome")->width(6)->class("text-mutted")->render(); ?>
-
+                        <?php echo LHFInpText::id("nome")->width(3)->class("text-mutted")->render(); ?>
+                        
                         <?php echo LHFLabel::id("valor")->text("Valor:")->width(2)->dataTeste("true")->render(); ?>
                         <?php echo LHFInpText::id("valor")->width(2)->class("text-mutted")->render(); ?>
                     </div>
                     
                     <div class="form-group">
-                        <?php echo LHFLabel::id("descp")->text("Descrição:")->width(2)->dataTeste("true")->render(); ?>
-                        <?php echo LHFInpText::id("descp")->width(6)->class("text-mutted")->render(); ?>
+                        <?php echo LHFLabel::id("usuario")->text("Usuário:")->width(2)->dataTeste("true")->render(); ?>
+                        <?php echo LHFSelect::id("usuario_id")->width(3)->options($ctl_usuario->listar())->render(); ?>
                         
-                        <div class="col-sm-4 text-right">
+                        <?php echo LHFLabel::id("descp")->text("Descrição:")->width(2)->dataTeste("true")->render(); ?>
+                        <?php echo LHFInpText::id("descp")->width(5)->class("text-mutted")->render(); ?>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="col-sm-12 text-right">
                         <?php echo LHFButton::id("bt_novo")->type("submit")->icon("usd")->class("btn-primary")->text("Novo Registro")->render(); ?>
                         </div>
                     </div>
@@ -66,10 +75,10 @@ $ctl = new LHWebController(LHWebExample::class);
         try { 
             echo "\n";
             $tini = microtime(true);
-            $ctl->getBy("nome", "","isNull");
+            $ctl_example->getBy("nome", "","isNull");
             if(array_key_exists("nome", $_GET) && array_key_exists("valor", $_GET) && array_key_exists("descp", $_GET)){
                 echo "\n###########################################################################################\n";
-                $e = $ctl->getBy("nome", filter_var($_GET["nome"], FILTER_SANITIZE_STRING));
+                $e = $ctl_example->getBy("nome", filter_var($_GET["nome"], FILTER_SANITIZE_STRING));
                 if(!$e){
                     $e = new LHWebExample();
                 }
@@ -80,29 +89,30 @@ $ctl = new LHWebController(LHWebExample::class);
                 $e->nome  = filter_var($_GET["nome"], FILTER_SANITIZE_STRING);
                 $e->valor = filter_var($_GET["valor"], FILTER_SANITIZE_NUMBER_FLOAT,FILTER_FLAG_ALLOW_FRACTION | FILTER_FLAG_ALLOW_THOUSAND);
                 $e->descp = filter_var($_GET["descp"], FILTER_SANITIZE_STRING);
-                $e2 = $ctl->salvar($e);
+                $e->usuario_id = filter_var($_GET["usuario_id"], FILTER_SANITIZE_STRING);
+                $e2 = $ctl_example->salvar($e);
                 
                 echo "\nSAVED OBJECT:";
                 print_r($e2);
             }
             
             echo "\n###########################################################################################\n";
-            $primeiro = $ctl->primeiro();
-            $ultimo   = $ctl->ultimo();
-            echo "\nBY PK[4]:" . print_r($ctl->getByPK(4),true);
+            $primeiro = $ctl_example->primeiro();
+            $ultimo   = $ctl_example->ultimo();
+            echo "\nBY PK[4]:" . print_r($ctl_example->getByPK(4),true);
             echo "\nPRIMEIRO:" . print_r($primeiro,true);
             echo "\nULTIMO  :" . print_r($ultimo,true);
-            echo "\nPROXIMO  A [" . ($primeiro?$primeiro->id:"") . "]:" . print_r($primeiro?$ctl->proximo($primeiro->id):"",true);
-            echo "\nANTERIOR A [" . ($ultimo?$ultimo->id:"") . "]:"   . print_r($ultimo?$ctl->anterior($ultimo->id):"",true);
+            echo "\nPROXIMO  A [" . ($primeiro?$primeiro->id:"") . "]:" . print_r($primeiro?$ctl_example->proximo($primeiro->id):"",true);
+            echo "\nANTERIOR A [" . ($ultimo?$ultimo->id:"") . "]:"   . print_r($ultimo?$ctl_example->anterior($ultimo->id):"",true);
             
             echo "\n###########################################################################################";
             echo "\n#### LISTA:\n";
-            foreach($ctl->listar() as $key => $val){
+            foreach($ctl_example->listar() as $key => $val){
                 echo "$key => "   . $val . "<br/>";
             }
             
             echo "\n#### LISTA JSON:\n";
-            echo json_encode($ctl->listar(),JSON_PRETTY_PRINT);
+            echo json_encode($ctl_example->listar(),JSON_PRETTY_PRINT);
             $tend = microtime(true); 
             
             echo "\n\n##### EXECUTION TIME: " . round($tend - $_SERVER["REQUEST_TIME_FLOAT"], 4) . "us \n";

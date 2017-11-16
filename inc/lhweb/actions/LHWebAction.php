@@ -4,9 +4,9 @@ namespace lhweb\actions;
 use DateTime;
 use lhweb\controller\LHWebController;
 use lhweb\database\LHWebEntity;
-use lhweb\database\LHDB;
 use lhweb\exceptions\ParametroException;
 use lhweb\exceptions\ParametroRequeridoException;
+use lhweb\misc\LHWebMisc;
 
 abstract class WebAction {
     /**

@@ -9,14 +9,21 @@ class LHWebExample extends LHWebEntity {
     public $nome;
     public $valor;
     public $descp;
+    public $usuario_id;
+    
+    /**
+     *
+     * @var LHWebUsuario
+     */
+    public $usuario;
     
     public static $mapaCampos = array(
-        "id",
-        "nome",
-        "valor",
         "descp" => "DESCRICAO"
     );
     
+    public static $leftOuterJoins = [
+        "usuario" => [LHWebUsuario::class, "usuario_id"]
+    ];
     
     public function __toString() {
         return $this->id . ":" . $this->nome . " - " . $this->valor;
