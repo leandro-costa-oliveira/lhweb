@@ -39,7 +39,7 @@ class LHEntityArray implements Iterator, Countable, JsonSerializable {
         return count($this->array, $mode);
     }
 
-    public function current() {
+    public function current() { 
         return $this->ctl->getEntityFromRS($this->array[$this->idx]);
     }
 
