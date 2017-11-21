@@ -15,6 +15,7 @@ class LHWebController {
     public $class_entidade = null;
     
     protected $tabela = null;
+    protected $query_listar = null;
     
     /**
      *
@@ -185,6 +186,13 @@ class LHWebController {
     public function getTipoChavePrimaria(){
         $c = $this->class_entidade;
         return $c::$tipoChavePrimaria;
+    }
+    
+    public function getListarQuery(){
+        if(!$this->query_listar){
+            $this->query_listar = $this->getBasicMoveQuery();
+        }
+        return $this->query_listar;
     }
     
     /**
@@ -521,7 +529,7 @@ class LHWebController {
     public function posApagar($obj){}
     
     public function listar($limit=0, $offset=0){
-        $q = $this->getBasicMoveQuery();
+        $q = $this->query_listar?$this->query_listar:$this->getBasicMoveQuery();
         
         if($limit) {
             $q->limit($limit);
@@ -532,6 +540,7 @@ class LHWebController {
         }
         
         try {
+            $this->query_listar = null;
             return new LHEntityArray($q->getList(), $this);
         }  catch(Exception $ex) {
             throw $ex;
@@ -582,15 +591,15 @@ class LHWebController {
     public function procurar($campo, $valor, $limit=0, $offset=0){
         $obj = $this->class_entidade;
         if(is_array($campo)){
-            $q = $this->getQueryProcurarCampoArray($obj, $campo, $valor);
+            $q = $this->getQueryProcurarCampoArray($campo, $valor);
         } else {
-            $q = $this->getQueryProcurarCampoString($obj, $campo, $valor);
+            $q = $this->getQueryProcurarCampoString($campo, $valor);
         }
         
         if($limit) { $q->limit($limit); }
         if($offset) { $q->offset($offset); }
         
-        return new LHEntityArray($q->getList(), $obj);
+        return new LHEntityArray($q->getList(), $this);
     }
     
     function getQueryProcurarCampoString($campo, $valor){
