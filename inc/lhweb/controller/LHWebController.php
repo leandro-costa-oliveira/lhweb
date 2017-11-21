@@ -20,12 +20,24 @@ class LHWebController {
      *
      * @var LHDB
      */
-    protected $lhdb;
+    protected $lhdb = null;
     
     public function __construct($class_entidade) {
         $this->class_entidade = $class_entidade;
         $this->tabela = static::get_nome_tabela($class_entidade);
-        $this->lhdb = LHDB::getConnection();
+    }
+    
+    /**
+     * 
+     * @param string $table
+     * @return type
+     */
+    public function query($table){
+        if(!$this->lhdb){
+            $this->lhdb = LHDB::getConnection();
+        }
+        
+        return $this->lhdb->query($table);
     }
     
     /**
@@ -179,13 +191,13 @@ class LHWebController {
      * 
      * @return GenericQuery
      */
-    protected function getBasicMoveQuery(){
+    public function getBasicMoveQuery(){
         $classe_entidade = $this->class_entidade;
         
         
         // Definindo campos da tabela.
         $count = 0;
-        $q = $this->lhdb->query($this->tabela)->campos([]);
+        $q = $this->query($this->tabela)->campos([]);
         static::set_campos_consulta($q, $this->class_entidade, $this->tabela);
         
         // Processar Joins
@@ -405,7 +417,7 @@ class LHWebController {
      */
     public function insert($obj) {
         $classe_entidade = $this->class_entidade;
-        $q = $this->lhdb->query($this->tabela);
+        $q = $this->query($this->tabela);
         
         foreach($obj as $key => $val) {
             if(!isset($val)
@@ -431,7 +443,7 @@ class LHWebController {
      */
     public function update($obj) {
         $classe_entidade = $this->class_entidade;
-        $q = $this->lhdb->query($this->tabela);
+        $q = $this->query($this->tabela);
         
         $nome_chave_primaria = $this->getNomeChavePrimaria();
         

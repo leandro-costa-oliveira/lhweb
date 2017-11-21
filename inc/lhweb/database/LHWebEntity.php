@@ -3,7 +3,7 @@ namespace lhweb\database;
 
 use JsonSerializable;
 /**
- * Description of AbstractEntity
+ * Description of LHWebEntity
  *
  * @author loki
  */
