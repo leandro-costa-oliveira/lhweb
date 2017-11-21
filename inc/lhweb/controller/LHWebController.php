@@ -298,7 +298,7 @@ class LHWebController {
         $q = $this->getBasicMoveQuery()
                 ->andWhere($this->getNomeChavePrimaria(true))->maiorQue($chave_primaria, $this->getTipoChavePrimaria())
                 ->orderby($this->getNomeChavePrimaria(true), "DESC");
-        $this->getEntityFromRS($q->getSingle());
+        return $this->getEntityFromRS($q->getSingle());
     }
     
     /**
@@ -309,7 +309,7 @@ class LHWebController {
         $q = $this->getBasicMoveQuery()
                 ->andWhere($this->getNomeChavePrimaria(true))->maiorQue($chave_primaria, $this->getTipoChavePrimaria())
                 ->orderby($this->getNomeChavePrimaria(true), "ASC");
-        $this->getEntityFromRS($q->getSingle());
+        return $this->getEntityFromRS($q->getSingle());
     }
     
     /**
@@ -319,7 +319,7 @@ class LHWebController {
     public function getByPK($chave_primaria){
         $q = $this->getBasicMoveQuery()
                 ->andWhere($this->getNomeChavePrimaria(true))->equals($chave_primaria, $this->getTipoChavePrimaria());
-        $this->getEntityFromRS($q->getSingle());
+        return $this->getEntityFromRS($q->getSingle());
     }
     
     
