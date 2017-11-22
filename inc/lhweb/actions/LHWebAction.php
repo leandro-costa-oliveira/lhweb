@@ -301,7 +301,7 @@ class LHWebAction {
         $classe_entidade = $this->controller->class_entidade;
         $entidade = new $classe_entidade();
         
-        foreach($entidade as $key -> $val){
+        foreach($entidade as $key => $val){
             $entidade->$key = $this->getParametro($this->in, $key,  $this->controller->getTipoCampo($key));
         }
         
