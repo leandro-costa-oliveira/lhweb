@@ -103,6 +103,15 @@ class LHWebController {
     
     /**
      * 
+     * @return string
+     * Retorna o nome da coluna chave primaria na tabela.
+     */
+    public static function get_coluna_chave_primaria($classe_entidade, $tabela=null){
+        return ($tabela?$tabela.".":"") . static::get_nome_campo($classe_entidade, $classe_entidade::$nomeChavePrimaria);
+    }
+    
+    /**
+     * 
      * @return int
      * Retorna o tipo da chave primaria... INT por padrão.
      */
@@ -177,6 +186,14 @@ class LHWebController {
      */
     public function getNomeChavePrimaria($prependNomeTabela=false){
         return static::get_nome_chave_primaria($this->class_entidade, $prependNomeTabela?$this->tabela:null);
+    }
+    
+    /**
+     * 
+     * @return string
+     */
+    public function getColunaChavePrimaria($prependNomeTabela=false){
+        return static::get_coluna_chave_primaria($this->class_entidade, $prependNomeTabela?$this->tabela:null);
     }
     
     /**
@@ -276,7 +293,7 @@ class LHWebController {
      */
     public function primeiro(){
         $q = $this->getBasicMoveQuery()
-                ->orderby($this->getNomeChavePrimaria(true), "ASC");
+                ->orderby($this->getColunaChavePrimaria(true), "ASC");
         return $this->getEntityFromRS($q->getSingle());
     }
     
@@ -286,7 +303,7 @@ class LHWebController {
      */
     public function ultimo(){
         $q = $this->getBasicMoveQuery()
-                ->orderby($this->getNomeChavePrimaria(true), "DESC");
+                ->orderby($this->getColunaChavePrimaria(true), "DESC");
         return $this->getEntityFromRS($q->getSingle());
     }
     
@@ -296,8 +313,8 @@ class LHWebController {
      */
     public function anterior($chave_primaria){
         $q = $this->getBasicMoveQuery()
-                ->andWhere($this->getNomeChavePrimaria(true))->maiorQue($chave_primaria, $this->getTipoChavePrimaria())
-                ->orderby($this->getNomeChavePrimaria(true), "DESC");
+                ->andWhere($this->getColunaChavePrimaria(true))->maiorQue($chave_primaria, $this->getTipoChavePrimaria())
+                ->orderby($this->getColunaChavePrimaria(true), "DESC");
         return $this->getEntityFromRS($q->getSingle());
     }
     
@@ -307,8 +324,8 @@ class LHWebController {
      */
     public function proximo($chave_primaria){
         $q = $this->getBasicMoveQuery()
-                ->andWhere($this->getNomeChavePrimaria(true))->maiorQue($chave_primaria, $this->getTipoChavePrimaria())
-                ->orderby($this->getNomeChavePrimaria(true), "ASC");
+                ->andWhere($this->getColunaChavePrimaria(true))->maiorQue($chave_primaria, $this->getTipoChavePrimaria())
+                ->orderby($this->getColunaChavePrimaria(true), "ASC");
         return $this->getEntityFromRS($q->getSingle());
     }
     
@@ -318,7 +335,7 @@ class LHWebController {
      */
     public function getByPK($chave_primaria){
         $q = $this->getBasicMoveQuery()
-                ->andWhere($this->getNomeChavePrimaria(true))->equals($chave_primaria, $this->getTipoChavePrimaria());
+                ->andWhere($this->getColunaChavePrimaria(true))->equals($chave_primaria, $this->getTipoChavePrimaria());
         return $this->getEntityFromRS($q->getSingle());
     }
     
@@ -625,7 +642,7 @@ class LHWebController {
      */
     public function count(){
         $rs = $this->getBasicMoveQuery()
-                ->campos(array("COUNT(" . $this->getNomeChavePrimaria(true) . ") as total"))
+                ->campos(array("COUNT(" . $this->getColunaChavePrimaria(true) . ") as total"))
                 ->getSingle();
         return $rs["total"];
     }
@@ -643,7 +660,7 @@ class LHWebController {
             $q = $this->getQueryProcurarCampoString($obj, $campo, $valor);
         }
         
-        $q->campos(array("COUNT(" . $this->getNomeChavePrimaria(true). ") as total"));
+        $q->campos(array("COUNT(" . $this->getColunaChavePrimaria(true). ") as total"));
         
         $rs = $q->getSingle();
         return $rs["total"];

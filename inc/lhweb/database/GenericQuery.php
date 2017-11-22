@@ -346,5 +346,9 @@ class GenericQuery {
     function lastInsertId($name=null){
         return $this->db->lastInsertId($name);
     }
+    
+    function getValores(){
+        return $this->valores;
+    }
 }
 

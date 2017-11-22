@@ -225,12 +225,12 @@ class LHWebAction {
     }
     
     public function getChavePrimaria(){
-        $this->getParametro($this->in, $this->controller->getNomeChavePrimaria(), 
+        return $this->getParametro($this->in, $this->controller->getNomeChavePrimaria(), 
                 $this->controller->getTipoChavePrimaria());
     }
     
     public function requererChavePrimaria(){
-        $this->getParametro($this->in, $this->controller->getNomeChavePrimaria(), 
+        return $this->getParametro($this->in, $this->controller->getNomeChavePrimaria(), 
                 $this->controller->getTipoChavePrimaria(), true);
     }
     
