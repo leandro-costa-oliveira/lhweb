@@ -236,6 +236,8 @@ class LHWebController {
         if(!$this->query_listar){
             $this->query_listar = $this->getBasicMoveQuery();
         }
+        
+        $this->showDebug("LISTAR QUERY:" . $q->getQuerySql());
         return $this->query_listar;
     }
     
@@ -278,6 +280,7 @@ class LHWebController {
             static::set_campos_consulta($q, $join_class, $join_alias, "lj_$count"); // Adiciona os campos da tabela joined na consulta
         }
         
+        $this->showDebug("BASIC MOVE QUERY:" . $q->getQuerySql());
         return $q;
     }
     
