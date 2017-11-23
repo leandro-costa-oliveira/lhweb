@@ -124,20 +124,35 @@ class LHWebController {
     /**
      * 
      * @param type $rs
+     * @param string $campo
+     */
+    public static function get_from_rs($rs, $campo) {
+        if(is_array($rs)){
+            return array_key_exists($campo, $rs)?$rs[$campo]:null;
+        } else if(is_object($rs)){
+            return property_exists($campo, $coluna)?$rs->$campo:null;
+        }
+    }
+    
+    /**
+     * 
+     * @param type $rs
      * @return LHWebEntity
      * Recebe um ResultSet com um registro de preenche o objeto Entity.
      */
     public static function get_entity_from_rs($classe_entidade, $rs, $prefix="") {
         $obj = new $classe_entidade();
         
+        // Checa se a chave primária existe no resultset, caso contrário, retorna null;
+        if(static::get_from_rs($rs, static::get_nome_campo($classe_entidade, $classe_entidade::$nomeChavePrimaria))==null){
+            error_log($classe_entidade . " -> " . $classe_entidade::$nomeChavePrimaria . " NOT IN RS : " . print_r($rs));
+            return null;
+        }
+        
         // Percorre os atributos de $obj e preencher do $rs.
         foreach($obj as $key => $val){
             $coluna = $prefix . static::get_nome_campo($classe_entidade, $key);
-            if(is_array($rs)){
-                $obj->$key = array_key_exists($coluna, $rs)?$rs[$coluna]:null;
-            } else if(is_object($rs)){
-                $obj->$key = property_exists($coluna, $coluna)?$rs->$coluna:null;
-            }
+            $obj->$key = static::get_from_rs($rs, $coluna);
         }
         
         // Processar Joins
@@ -325,7 +340,7 @@ class LHWebController {
      */
     public function anterior($chave_primaria){
         $q = $this->getBasicMoveQuery()
-                ->andWhere($this->getColunaChavePrimaria(true))->maiorQue($chave_primaria, $this->getTipoChavePrimaria())
+                ->andWhere($this->getColunaChavePrimaria(true))->menorQue($chave_primaria, $this->getTipoChavePrimaria())
                 ->orderby($this->getColunaChavePrimaria(true), "DESC");
         return $this->getEntityFromRS($q->getSingle());
     }
