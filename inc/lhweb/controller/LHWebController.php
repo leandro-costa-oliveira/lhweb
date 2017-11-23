@@ -16,7 +16,9 @@ class LHWebController {
     
     protected $tabela = null;
     protected $query_listar = null;
-    
+    protected $debug = false;
+
+
     /**
      *
      * @var LHDB
@@ -177,6 +179,16 @@ class LHWebController {
             }
             
             $q->addCampo($tabela . "." . $nomeCampo . $campoAlias);
+        }
+    }
+    
+    /**
+     * 
+     * @param string $txt
+     */
+    public function showDebug($txt) {
+        if($this->debug){
+            error_log($txt);
         }
     }
     
@@ -457,6 +469,9 @@ class LHWebController {
             $q->set($this->getNomeCampo($key), $val, $this->getTipoCampo($key));
         }
         
+        $this->showDebug("INSERT SQL:" . $q->getUpdateSql());
+        $this->showDebug("INSERT VALORES:" . print_r($q->getValores(),true));
+        
         $q->insert();
         return $q->lastInsertId();
     }
@@ -487,6 +502,10 @@ class LHWebController {
         }
         
         $q->where($nome_chave_primaria)->equals($obj->$nome_chave_primaria);
+        
+        $this->showDebug("UPDATE SQL:" . $q->getUpdateSql());
+        $this->showDebug("UPDATE VALORES:" . print_r($q->getValores(),true));
+        
         return $q->update();
     }
     
