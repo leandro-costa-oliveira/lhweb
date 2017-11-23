@@ -188,7 +188,7 @@ class LHWebController {
      */
     public function showDebug($txt) {
         if($this->debug){
-            error_log($txt);
+            error_log("[".static::class . "] " .$txt);
         }
     }
     
@@ -456,6 +456,7 @@ class LHWebController {
         $classe_entidade = $this->classe_entidade;
         $q = $this->query($this->tabela);
         
+        $this->showDebug("====== INSERT ======");
         foreach($obj as $key => $val) {
             if(!isset($val)
                 || array_key_exists($key, $classe_entidade::$joins)
@@ -463,14 +464,16 @@ class LHWebController {
                 || in_array($key, $classe_entidade::$camposNaoInserir) 
                 || in_array($key, $classe_entidade::$camposSomenteLeitura)
             ){
+                $this->showDebug("== SKIP: [CAMPO:$key] [VAL: $val]");
                 continue;
             }
             
+            $this->showDebug("== SET: [CAMPO:$key] [VAL: $val]");
             $q->set($this->getNomeCampo($key), $val, $this->getTipoCampo($key));
         }
         
-        $this->showDebug("INSERT SQL:" . $q->getUpdateSql());
-        $this->showDebug("INSERT VALORES:" . print_r($q->getValores(),true));
+        $this->showDebug("INSERT SQL:" . $q->getInsertSql());
+        $this->showDebug("INSERT VALORES:" . print_r($q->getValoresInsertUpdate(),true));
         
         $q->insert();
         return $q->lastInsertId();
@@ -487,6 +490,7 @@ class LHWebController {
         
         $nome_chave_primaria = $this->getNomeChavePrimaria();
         
+        $this->showDebug("====== UPDATE ======");
         foreach($obj as $key => $val) {
             if(!isset($val)
                     || $key == $nome_chave_primaria
@@ -495,16 +499,18 @@ class LHWebController {
                     || in_array($key, $classe_entidade::$camposNaoAlterar) 
                     || in_array($key, $classe_entidade::$camposSomenteLeitura)
             ){
+                $this->showDebug("== SKIP: [CAMPO:$key] [VAL: $val]");
                 continue;
             }
             
+            $this->showDebug("== SET: [CAMPO:$key] [VAL: $val]");
             $q->set($this->getNomeCampo($key), $val, $this->getTipoCampo($key));
         }
         
         $q->where($nome_chave_primaria)->equals($obj->$nome_chave_primaria);
         
         $this->showDebug("UPDATE SQL:" . $q->getUpdateSql());
-        $this->showDebug("UPDATE VALORES:" . print_r($q->getValores(),true));
+        $this->showDebug("UPDATE VALORES:" . print_r($q->getValoresInsertUpdate(),true));
         
         return $q->update();
     }

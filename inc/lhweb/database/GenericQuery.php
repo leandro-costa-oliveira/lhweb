@@ -350,5 +350,9 @@ class GenericQuery {
     function getValores(){
         return $this->valores;
     }
+    
+    function getValoresInsertUpdate(){
+        return $this->valoresSet;
+    }
 }
 
