@@ -302,7 +302,9 @@ class LHWebAction {
         $entidade = new $classe_entidade();
         
         foreach($entidade as $key => $val){
-            $entidade->$key = $this->getParametro($this->in, $key,  $this->controller->getTipoCampo($key));
+            $requerido = in_array($key, $classe_entidade::$camposRequeridos);
+            // Caso o campo seja requerido, nao será aceito valores em branco, ou seja, !$requerido.
+            $entidade->$key = $this->getParametro($this->in, $key,  $this->controller->getTipoCampo($key), $requerido, !$requerido);
         }
         
         return $entidade;

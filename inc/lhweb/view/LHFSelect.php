@@ -1,6 +1,7 @@
 <?php
 namespace lhweb\view;
-use lhweb\database\AbstractEntity;
+
+use lhweb\database\LHWebEntity;
 
 /**
  * Representa o objeto html <button>
@@ -44,10 +45,11 @@ class LHFSelect  extends LHFormField {
         
         foreach($this->options as $key => $val) {
             $entity = "";
-            if($val instanceof AbstractEntity){
-                $pkName = $val->getPkAttribute();
-                $key = $val->$pkName;
-                $entity = json_encode($val);
+            if($val instanceof LHWebEntity){
+                $class_entidade = get_class($val);
+                $pkName = $class_entidade::$nomeChavePrimaria;
+                $key    = $val->$pkName;
+                $entity = json_encode($val);    
             }
             
             $slc = $this->value == $key ? "selected":"";

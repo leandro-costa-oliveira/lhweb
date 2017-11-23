@@ -51,6 +51,16 @@ abstract class LHWebEntity implements JsonSerializable {
      */
     public static $mapaTipos = array();
     
+    
+    /**
+     *
+     * @var array
+     * Array contendo os campos que são obrigatórios
+     * sem Insert e sem Update.
+     */
+    public static $camposRequeridos = array();
+    
+    
     /**
      *
      * @var array
