@@ -298,7 +298,7 @@ class LHWebAction {
     }
     
     public function buildEntityFromRequest(){
-        $classe_entidade = $this->controller->class_entidade;
+        $classe_entidade = $this->controller->classe_entidade;
         $entidade = new $classe_entidade();
         
         foreach($entidade as $key => $val){

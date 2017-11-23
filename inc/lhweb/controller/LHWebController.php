@@ -12,7 +12,7 @@ class LHWebController {
      *
      * @var LHWebEntity
      */
-    public $class_entidade = null;
+    public $classe_entidade = null;
     
     protected $tabela = null;
     protected $query_listar = null;
@@ -23,9 +23,9 @@ class LHWebController {
      */
     protected $lhdb = null;
     
-    public function __construct($class_entidade) {
-        $this->class_entidade = $class_entidade;
-        $this->tabela = static::get_nome_tabela($class_entidade);
+    public function __construct($classe_entidade) {
+        $this->classe_entidade = $classe_entidade;
+        $this->tabela = static::get_nome_tabela($classe_entidade);
     }
     
     /**
@@ -43,16 +43,16 @@ class LHWebController {
     
     /**
      * 
-     * @param string $class_entidade
+     * @param string $classe_entidade
      * @return string
      * Retorna o nome da tabela para a data classe, sendo que esta deve ser 
      * filha de LHWebEntity ( Não Enforçado ).
      */
-    public static function get_nome_tabela($class_entidade){
-        if($class_entidade::$tabela) {
-            return $class_entidade::$tabela;
+    public static function get_nome_tabela($classe_entidade){
+        if($classe_entidade::$tabela) {
+            return $classe_entidade::$tabela;
         } else { // Gerando Nomeclatura Padrão da Tabela.
-            $class = explode("\\",strtolower($class_entidade));
+            $class = explode("\\",strtolower($classe_entidade));
             return str_replace("entity", "", strtolower($class[count($class)-1]));
         }
     }
@@ -125,12 +125,12 @@ class LHWebController {
      * @return LHWebEntity
      * Recebe um ResultSet com um registro de preenche o objeto Entity.
      */
-    public static function get_entity_from_rs($class_entidade, $rs, $prefix="") {
-        $obj = new $class_entidade();
+    public static function get_entity_from_rs($classe_entidade, $rs, $prefix="") {
+        $obj = new $classe_entidade();
         
         // Percorre os atributos de $obj e preencher do $rs.
         foreach($obj as $key => $val){
-            $coluna = $prefix . static::get_nome_campo($class_entidade, $key);
+            $coluna = $prefix . static::get_nome_campo($classe_entidade, $key);
             if(is_array($rs)){
                 $obj->$key = array_key_exists($coluna, $rs)?$rs[$coluna]:null;
             } else if(is_object($rs)){
@@ -140,12 +140,12 @@ class LHWebController {
         
         // Processar Joins
         $count = 1;
-        foreach($class_entidade::$joins as $attr => $join) {
+        foreach($classe_entidade::$joins as $attr => $join) {
             list($join_class, $join_attr) = $join;
             $obj->$attr = static::get_entity_from_rs($join_class, $rs, "j_" . $count++ . "_");
         }
         
-        foreach($class_entidade::$leftOuterJoins as $attr => $join) {
+        foreach($classe_entidade::$leftOuterJoins as $attr => $join) {
             list($join_class, $join_attr) = $join;
             $obj->$attr = static::get_entity_from_rs($join_class, $rs, "lj_" . $count++ . "_");
         }
@@ -185,7 +185,7 @@ class LHWebController {
      * @return string
      */
     public function getNomeChavePrimaria($prependNomeTabela=false){
-        return static::get_nome_chave_primaria($this->class_entidade, $prependNomeTabela?$this->tabela:null);
+        return static::get_nome_chave_primaria($this->classe_entidade, $prependNomeTabela?$this->tabela:null);
     }
     
     /**
@@ -193,7 +193,7 @@ class LHWebController {
      * @return string
      */
     public function getColunaChavePrimaria($prependNomeTabela=false){
-        return static::get_coluna_chave_primaria($this->class_entidade, $prependNomeTabela?$this->tabela:null);
+        return static::get_coluna_chave_primaria($this->classe_entidade, $prependNomeTabela?$this->tabela:null);
     }
     
     /**
@@ -201,7 +201,7 @@ class LHWebController {
      * @return int
      */
     public function getTipoChavePrimaria(){
-        $c = $this->class_entidade;
+        $c = $this->classe_entidade;
         return $c::$tipoChavePrimaria;
     }
     
@@ -217,13 +217,13 @@ class LHWebController {
      * @return GenericQuery
      */
     public function getBasicMoveQuery(){
-        $classe_entidade = $this->class_entidade;
+        $classe_entidade = $this->classe_entidade;
         
         
         // Definindo campos da tabela.
         $count = 0;
         $q = $this->query($this->tabela)->campos([]);
-        static::set_campos_consulta($q, $this->class_entidade, $this->tabela);
+        static::set_campos_consulta($q, $this->classe_entidade, $this->tabela);
         
         // Processar Joins
         foreach($classe_entidade::$joins as $atributo => $det){
@@ -263,7 +263,7 @@ class LHWebController {
      * para o banco de dados.
      */
     public function getNomeCampo($campo, $prependNomeTabela=false) {
-        return static::get_nome_campo($this->class_entidade, $campo, $prependNomeTabela?$this->tabela:null);
+        return static::get_nome_campo($this->classe_entidade, $campo, $prependNomeTabela?$this->tabela:null);
     }
     
     /**
@@ -274,7 +274,7 @@ class LHWebController {
      * para o banco de dados.
      */
     public function getTipoCampo($c) {
-        return static::get_tipo_campo($this->class_entidade, $c);
+        return static::get_tipo_campo($this->classe_entidade, $c);
     }
     
     /**
@@ -284,7 +284,7 @@ class LHWebController {
      * Recebe um ResultSet com um registro de preenche o objeto Entity.
      */
     public function getEntityFromRS($rs) {
-        return static::get_entity_from_rs($this->class_entidade, $rs);
+        return static::get_entity_from_rs($this->classe_entidade, $rs);
     }
     
     /**
@@ -363,7 +363,7 @@ class LHWebController {
         return $this->getEntityFromRS($q->getSingle());
     }
     
-    public static function listarPor($campo, $txt, $modo="like") {
+    public function listarPor($campo, $txt, $modo="like") {
         $q = $this->getProcurarQuery($campo, $txt, $modo);
         return new LHEntityArray($q->getList(), $this);
     }
@@ -441,7 +441,7 @@ class LHWebController {
      * Monta a SQL e Persiste o novo Objeto  no Banco
      */
     public function insert($obj) {
-        $classe_entidade = $this->class_entidade;
+        $classe_entidade = $this->classe_entidade;
         $q = $this->query($this->tabela);
         
         foreach($obj as $key => $val) {
@@ -467,7 +467,7 @@ class LHWebController {
      * @return LHWebEntity
      */
     public function update($obj) {
-        $classe_entidade = $this->class_entidade;
+        $classe_entidade = $this->classe_entidade;
         $q = $this->query($this->tabela);
         
         $nome_chave_primaria = $this->getNomeChavePrimaria();
@@ -572,7 +572,7 @@ class LHWebController {
      * em conta campos de classes associadas ( Joinned Tables ), 
      */
     function getNomeCampoProcura($campo) {
-        $classe_entitdade = $this->class_entidade;
+        $classe_entitdade = $this->classe_entidade;
         if(strpos($campo, ".")!==false){ // PROCURAR NOS JOINS
             list($subCampo, $campo) = explode(".", $campo);
             
@@ -606,7 +606,7 @@ class LHWebController {
      * @return LHWebEntity
      */
     public function procurar($campo, $valor, $limit=0, $offset=0){
-        $obj = $this->class_entidade;
+        $obj = $this->classe_entidade;
         if(is_array($campo)){
             $q = $this->getQueryProcurarCampoArray($campo, $valor);
         } else {
@@ -653,7 +653,7 @@ class LHWebController {
      * @return LHWebEntity
      */
     public function procurarCount($campo, $valor){
-        $obj = $this->class_entidade;
+        $obj = $this->classe_entidade;
         if(is_array($campo)){
             $q = $this->getQueryProcurarCampoArray($obj, $campo, $valor);
         } else {
