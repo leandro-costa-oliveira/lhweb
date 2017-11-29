@@ -237,7 +237,7 @@ class LHWebController {
             $this->query_listar = $this->getBasicMoveQuery();
         }
         
-        $this->showDebug("LISTAR QUERY:" . $q->getQuerySql());
+        $this->showDebug("LISTAR QUERY:" . $this->query_listar->getQuerySql());
         return $this->query_listar;
     }
     
@@ -395,6 +395,7 @@ class LHWebController {
     
     public function listarPor($campo, $txt, $modo="like") {
         $q = $this->getProcurarQuery($campo, $txt, $modo);
+        $this->showDebug("LISTAR POR:" . $q->getQuerySql());
         return new LHEntityArray($q->getList(), $this);
     }
     
@@ -659,6 +660,7 @@ class LHWebController {
         if($limit) { $q->limit($limit); }
         if($offset) { $q->offset($offset); }
         
+        $this->showDebug("== PROCURAR QUERY: " . $q->getQuerySql());
         return new LHEntityArray($q->getList(), $this);
     }
     
