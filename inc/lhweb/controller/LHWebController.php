@@ -618,21 +618,21 @@ class LHWebController {
     function getNomeCampoProcura($campo) {
         $classe_entitdade = $this->classe_entidade;
         if(strpos($campo, ".")!==false){ // PROCURAR NOS JOINS
-            list($subCampo, $campo) = explode(".", $campo);
+            list($atributo_join, $campo) = explode(".", $campo);
             
             $joinCount = 0;
-            foreach($classe_entitdade::$joins as $classJoin => $det) {
-                list($campoJoin, $varName) = $det;
-                if($subCampo==$varName){
-                    return $classJoin::getNomeCampo($campo, true, "_$joinCount");
+            foreach($classe_entitdade::$joins as $attributo => $det) {
+                list($classe_join, $foreign_key) = $det;
+                if($atributo_join==$attributo){
+                    return static::get_nome_campo($classe_join, $campo, static::get_nome_tabela($classe_join) . "_$joinCount");
                 }
                 $joinCount++;
             }
             
-            foreach($classe_entitdade::$leftOuterJoins as $classJoin => $det) {
-                list($campoJoin, $varName) = $det;
-                if($subCampo==$varName){
-                    return $classJoin::getNomeCampo($campo, true, "_$joinCount");
+            foreach($classe_entitdade::$leftOuterJoins as $attributo => $det) {
+                list($classe_join, $foreign_key) = $det;
+                if($atributo_join==$attributo){
+                    return static::get_nome_campo($classe_join, $campo, static::get_nome_tabela($classe_join) . "_$joinCount");
                 }
                 $joinCount++;
             }
@@ -671,10 +671,12 @@ class LHWebController {
     }
     
     function getQueryProcurarCampoArray($campos, $valor){
+        $classe_entidade = $this->classe_entidade;
         $q = $this->getBasicMoveQuery();
         
         $q->andWhere("(");
         foreach($campos as $campo){
+            $this->showDebug("CAMPO PROCURAR: $campo");
             $q->orWhere($this->getNomeCampoProcura($campo))->like($valor, $this->getTipoCampo($campo));
         }
         $q->Where(")");
