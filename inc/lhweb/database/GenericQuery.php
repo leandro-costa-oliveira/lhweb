@@ -246,7 +246,11 @@ class GenericQuery {
     function bindQueryParameters($stm){
         if(count($this->valores)>0){
             foreach($this->valores as $key => $val){
-                $stm->bindValue(":valores$key", $val["v"], $val["t"]);
+                if($val["v"]===null){
+                    $stm->bindValue(":valores$key", null, LHDB::PARAM_NULL);
+                } else {
+                    $stm->bindValue(":valores$key", $val["v"], $val["t"]);
+                }
             }
         }
     }
@@ -280,9 +284,9 @@ class GenericQuery {
     }
     
     function set($campo, $valor, $paramType=LHDB::PARAM_STR){
-        array_push($this->camposSet, $campo);
+        array_push($this->camposSet , $campo);
         array_push($this->valoresSet, $valor);
-        array_push($this->tiposSet, $paramType);
+        array_push($this->tiposSet  , $paramType);
     }
     
     function getInsertSql($insertOpt=""){
