@@ -17,7 +17,8 @@ class LHWebController {
     protected $tabela = null;
     protected $query_listar = null;
     protected $debug = false;
-
+    
+    public static $max_join_level = 1;
 
     /**
      *
@@ -139,13 +140,14 @@ class LHWebController {
      * @param type $rs
      * @return LHWebEntity
      * Recebe um ResultSet com um registro de preenche o objeto Entity.
+     * $prefix é o prefixo da tabela no result set
+     * join_level é o nivel em que está de recursividade, para evitar loops infititos.
      */
-    public static function get_entity_from_rs($classe_entidade, $rs, $prefix="") {
+    public static function get_entity_from_rs($classe_entidade, $rs, $prefix="", $join_level=0) {
         $obj = new $classe_entidade();
         
         // Checa se a chave primária existe no resultset, caso contrário, retorna null;
         if(static::get_from_rs($rs, static::get_nome_campo($classe_entidade, $classe_entidade::$nomeChavePrimaria))==null){
-            error_log($classe_entidade . " -> " . $classe_entidade::$nomeChavePrimaria . " NOT IN RS : " . print_r($rs));
             return null;
         }
         
@@ -155,18 +157,22 @@ class LHWebController {
             $obj->$key = static::get_from_rs($rs, $coluna);
         }
         
-        // Processar Joins
-        $count = 1;
-        foreach($classe_entidade::$joins as $attr => $join) {
-            list($join_class, $join_attr) = $join;
-            $obj->$attr = static::get_entity_from_rs($join_class, $rs, "j_" . $count++ . "_");
-        }
+        // Incrementando o nível do join, para evitar loops infinitos
+        $join_level++;
         
-        foreach($classe_entidade::$leftOuterJoins as $attr => $join) {
-            list($join_class, $join_attr) = $join;
-            $obj->$attr = static::get_entity_from_rs($join_class, $rs, "lj_" . $count++ . "_");
+        // Processar Joins se dentro do limite da recursividade
+        if($join_level <= static::$max_join_level) {
+            $count = 1;
+            foreach($classe_entidade::$joins as $attr => $join) {
+                list($join_class, $join_attr) = $join;
+                $obj->$attr = static::get_entity_from_rs($join_class, $rs, "j_" . $count++ . "_", $join_level);
+            }
+
+            foreach($classe_entidade::$leftOuterJoins as $attr => $join) {
+                list($join_class, $join_attr) = $join;
+                $obj->$attr = static::get_entity_from_rs($join_class, $rs, "lj_" . $count++ . "_", $join_level);
+            }
         }
-        
         return $obj;
     }
     
