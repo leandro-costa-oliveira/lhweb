@@ -52,6 +52,12 @@ class LHWebController {
      * filha de LHWebEntity ( Não Enforçado ).
      */
     public static function get_nome_tabela($classe_entidade){
+        if(!class_exists($classe_entidade)){
+            error_log("GET NOME TABELA: CLASSE NÃO ENCONTRADA [$classe_entidade]");
+            error_log("BACK TRACE: " . print_r(debug_backtrace(),true));
+            return null;
+        }
+        
         if($classe_entidade::$tabela) {
             return $classe_entidade::$tabela;
         } else { // Gerando Nomeclatura Padrão da Tabela.
