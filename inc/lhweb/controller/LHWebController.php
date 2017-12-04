@@ -27,6 +27,10 @@ class LHWebController {
     protected $lhdb = null;
     
     public function __construct($classe_entidade) {
+        if(!class_exists($classe_entidade)){
+            throw new Exception("LHWebController: Classe Não Encontrada [$classe_entidade]");
+        }
+        
         $this->classe_entidade = $classe_entidade;
         $this->tabela = static::get_nome_tabela($classe_entidade);
     }
@@ -54,11 +58,9 @@ class LHWebController {
     public static function get_nome_tabela($classe_entidade){
         if(!class_exists($classe_entidade)){
             error_log("GET NOME TABELA: CLASSE NÃO ENCONTRADA [$classe_entidade]");
-            error_log("BACK TRACE: " . print_r(debug_backtrace(),true));
+            error_log(print_r(debug_backtrace(),true));
             return null;
-        }
-        
-        if($classe_entidade::$tabela) {
+        } else if($classe_entidade::$tabela) {
             return $classe_entidade::$tabela;
         } else { // Gerando Nomeclatura Padrão da Tabela.
             $class = explode("\\",strtolower($classe_entidade));
@@ -260,7 +262,6 @@ class LHWebController {
     public function getBasicMoveQuery(){
         $classe_entidade = $this->classe_entidade;
         
-        
         // Definindo campos da tabela.
         $count = 0;
         $q = $this->query($this->tabela)->campos([]);
@@ -270,6 +271,9 @@ class LHWebController {
         foreach($classe_entidade::$joins as $atributo => $det){
             list($join_class, $campo_join) = $det;
             
+            if(!class_exists($join_class)){
+                throw new \Exception("[".get_class($this) . "] JOIN CLASS NÃO EXISTE [$join_class]");
+            }
             $join_table = static::get_nome_tabela($join_class);
             $join_alias = $join_table . "_" . $count++;
             $left_cond  = $join_alias . "." . static::get_nome_chave_primaria($join_class);
@@ -282,6 +286,10 @@ class LHWebController {
         // Processar Left Outer Joins
         foreach($classe_entidade::$leftOuterJoins as $atributo => $det){
             list($join_class, $campo_join) = $det;
+            
+            if(!class_exists($join_class)){
+                throw new \Exception("[".get_class($this) . "] LEFT OUTER JOIN CLASS NÃO EXISTE [$join_class]");
+            }
             
             $join_table = static::get_nome_tabela($join_class);
             $join_alias = $join_table . "_" . $count++;
