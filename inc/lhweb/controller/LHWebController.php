@@ -456,7 +456,7 @@ class LHWebController {
      * @return LHWebEntity
      */
     public function salvar($obj){
-        $this->validar($obj);        
+        $this->validar($obj);
         $this->preSalvar($obj);
 
         $pkName = $this->getNomeChavePrimaria();
@@ -722,12 +722,14 @@ class LHWebController {
     public function procurarCount($campo, $valor){
         $obj = $this->classe_entidade;
         if(is_array($campo)){
-            $q = $this->getQueryProcurarCampoArray($obj, $campo, $valor);
+            $q = $this->getQueryProcurarCampoArray($campo, $valor);
         } else {
-            $q = $this->getQueryProcurarCampoString($obj, $campo, $valor);
+            $q = $this->getQueryProcurarCampoString($campo, $valor);
         }
         
         $q->campos(array("COUNT(" . $this->getColunaChavePrimaria(true). ") as total"));
+        
+        $this->showDebug("== PROCURAR COUNT QUERY: " . $q->getQuerySql());
         
         $rs = $q->getSingle();
         return $rs["total"];
