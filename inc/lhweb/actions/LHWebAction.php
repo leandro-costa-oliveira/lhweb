@@ -225,13 +225,20 @@ class LHWebAction {
     }
     
     public function getChavePrimaria(){
-        return $this->getParametro($this->in, $this->controller->getNomeChavePrimaria(), 
-                $this->controller->getTipoChavePrimaria());
+        return $this->getParametro(
+                $this->in, 
+                $this->controller->getNomeChavePrimaria(), 
+                $this->controller->getTipoChavePrimaria()
+        );
     }
     
     public function requererChavePrimaria(){
-        return $this->getParametro($this->in, $this->controller->getNomeChavePrimaria(), 
-                $this->controller->getTipoChavePrimaria(), true);
+        return $this->getParametro(
+                $this->in, 
+                $this->controller->getNomeChavePrimaria(), 
+                $this->controller->getTipoChavePrimaria(),
+                true
+        );
     }
     
     /**
@@ -280,7 +287,7 @@ class LHWebAction {
      * @return LHWebEntity
      */
     public function Mover(){
-        return $this->controller->getByPK($this->getChavePrimaria());
+        return $this->controller->getByPK($this->requererChavePrimaria());
     }
     
     /**
