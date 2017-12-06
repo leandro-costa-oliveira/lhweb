@@ -109,7 +109,7 @@ class LHWebController {
      * Retorna o nome da coluna chave primaria na tabela.
      */
     public static function get_nome_chave_primaria($classe_entidade, $tabela=null){
-        return ($tabela?$tabela.".":"") . static::get_nome_campo($classe_entidade, $classe_entidade::$nomeChavePrimaria);
+        return ($tabela?$tabela.".":"") . $classe_entidade::$nomeChavePrimaria;
     }
     
     /**
@@ -254,7 +254,7 @@ class LHWebController {
                 $subjoin_table = static::get_nome_tabela($subjoin_class);
                 $subjoin_alias = $subjoin_table . "_" . $count;
 
-                $left_cond  = $subjoin_alias . "." . static::get_nome_chave_primaria($subjoin_class);
+                $left_cond  = $subjoin_alias . "." . static::get_coluna_chave_primaria($subjoin_class);
                 $right_cond = static::get_nome_campo($join_class, $campo_join, $join_alias);
                 return $left_cond . "=" . $right_cond; 
             }
@@ -268,7 +268,7 @@ class LHWebController {
                 $subjoin_table = static::get_nome_tabela($subjoin_class);
                 $subjoin_alias = $subjoin_table . "_" . $count;
 
-                $left_cond  = $subjoin_alias . "." . static::get_nome_chave_primaria($subjoin_class);
+                $left_cond  = $subjoin_alias . "." . static::get_coluna_chave_primaria($subjoin_class);
                 $right_cond = static::get_nome_campo($join_class, $campo_join, $join_alias);
                 return $left_cond . "=" . $right_cond;
             }
@@ -283,7 +283,7 @@ class LHWebController {
             
             // Join Reverso, no formato CLASSEENTIDADE.PK = JOINCLASS.CAMPO_JOIN
             if($attributo_join==$atributo) {
-                $left_cond  = static::get_nome_chave_primaria($classe_entidade, static::get_nome_tabela($classe_entidade));
+                $left_cond  = static::get_coluna_chave_primaria($classe_entidade, static::get_nome_tabela($classe_entidade));
                 $right_cond =  $join_alias . "." . static::get_nome_campo($join_class, $campo_join);
                 return $left_cond . "=" . $right_cond;
             } else {
@@ -291,7 +291,7 @@ class LHWebController {
             }
         } else {
             // Join Direto, no formato, JOINCLASS.PK = CLASSENTIDADE.FK;
-            $left_cond  = $join_alias . "." . static::get_nome_chave_primaria($join_class);
+            $left_cond  = $join_alias . "." . static::get_coluna_chave_primaria($join_class);
             $right_cond = static::get_nome_campo($classe_entidade, $campo_join, static::get_nome_tabela($classe_entidade));
             return $left_cond . "=" . $right_cond;
         }
