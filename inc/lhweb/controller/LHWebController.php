@@ -109,7 +109,7 @@ class LHWebController {
      * Retorna o nome da coluna chave primaria na tabela.
      */
     public static function get_nome_chave_primaria($classe_entidade, $tabela=null){
-        return ($tabela?$tabela.".":"") . $classe_entidade::$nomeChavePrimaria;
+        return ($tabela?$tabela.".":"") . static::get_nome_campo($classe_entidade, $classe_entidade::$nomeChavePrimaria);
     }
     
     /**
@@ -246,13 +246,55 @@ class LHWebController {
         return $c::$tipoChavePrimaria;
     }
     
-    public function getListarQuery(){
-        if(!$this->query_listar){
-            $this->query_listar = $this->getBasicMoveQuery();
+    public static function get_subjoin_condition($classe_entidade, $join_class, $join_alias, $attributo_join, $campo_join){
+        $count = 0;
+        foreach($classe_entidade::$joins as $subattr => $subjoin) {
+            if($subattr == $attributo_join){
+                list($subjoin_class, $campo_subjoin) = $subjoin;
+                $subjoin_table = static::get_nome_tabela($subjoin_class);
+                $subjoin_alias = $subjoin_table . "_" . $count;
+
+                $left_cond  = $subjoin_alias . "." . static::get_nome_chave_primaria($subjoin_class);
+                $right_cond = static::get_nome_campo($join_class, $campo_join, $join_alias);
+                return $left_cond . "=" . $right_cond; 
+            }
+
+            $count++;
         }
         
-        $this->showDebug("LISTAR QUERY:" . $this->query_listar->getQuerySql());
-        return $this->query_listar;
+        foreach($classe_entidade::$leftOuterJoins as $subattr => $subjoin) {
+            if($subattr == $attributo_join){
+                list($subjoin_class, $campo_subjoin) = $subjoin;
+                $subjoin_table = static::get_nome_tabela($subjoin_class);
+                $subjoin_alias = $subjoin_table . "_" . $count;
+
+                $left_cond  = $subjoin_alias . "." . static::get_nome_chave_primaria($subjoin_class);
+                $right_cond = static::get_nome_campo($join_class, $campo_join, $join_alias);
+                return $left_cond . "=" . $right_cond;
+            }
+
+            $count++;
+        }
+    }
+    
+    public static function get_join_condition($classe_entidade, $atributo, $join_class, $join_alias, $campo_join){
+        if(strpos($campo_join, ".")) { // Join 
+            list($attributo_join, $campo_join) = explode(".", $campo_join);
+            
+            // Join Reverso, no formato CLASSEENTIDADE.PK = JOINCLASS.CAMPO_JOIN
+            if($attributo_join==$atributo) {
+                $left_cond  = static::get_nome_chave_primaria($classe_entidade, static::get_nome_tabela($classe_entidade));
+                $right_cond =  $join_alias . "." . static::get_nome_campo($join_class, $campo_join);
+                return $left_cond . "=" . $right_cond;
+            } else {
+                return static::get_subjoin_condition($classe_entidade, $join_class, $join_alias, $attributo_join, $campo_join);
+            }
+        } else {
+            // Join Direto, no formato, JOINCLASS.PK = CLASSENTIDADE.FK;
+            $left_cond  = $join_alias . "." . static::get_nome_chave_primaria($join_class);
+            $right_cond = static::get_nome_campo($classe_entidade, $campo_join, static::get_nome_tabela($classe_entidade));
+            return $left_cond . "=" . $right_cond;
+        }
     }
     
     /**
@@ -274,12 +316,12 @@ class LHWebController {
             if(!class_exists($join_class)){
                 throw new \Exception("[".get_class($this) . "] JOIN CLASS NÃO EXISTE [$join_class]");
             }
+            
             $join_table = static::get_nome_tabela($join_class);
             $join_alias = $join_table . "_" . $count++;
-            $left_cond  = $join_alias . "." . static::get_nome_chave_primaria($join_class);
-            $right_cond = $this->getNomeCampo($campo_join, true);
+            $joincond = static::get_join_condition($classe_entidade, $atributo, $join_class, $join_alias, $campo_join);
             
-            $q->join($join_table . " AS " . $join_alias, $left_cond . "=" . $right_cond);
+            $q->join($join_table . " AS " . $join_alias, $joincond);
             static::set_campos_consulta($q, $join_class, $join_alias, "j_$count"); // Adiciona os campos da tabela joined na consulta
         }
         
@@ -293,15 +335,31 @@ class LHWebController {
             
             $join_table = static::get_nome_tabela($join_class);
             $join_alias = $join_table . "_" . $count++;
-            $left_cond  = $join_alias . "." . static::get_nome_chave_primaria($join_class);
-            $right_cond = $this->getNomeCampo($campo_join, true);
+            $joincond = static::get_join_condition($classe_entidade, $atributo, $join_class, $join_alias, $campo_join);
             
-            $q->leftOuterJoin($join_table . " AS " . $join_alias, $left_cond . "=" . $right_cond);
+            $q->leftOuterJoin($join_table . " AS " . $join_alias, $joincond);
             static::set_campos_consulta($q, $join_class, $join_alias, "lj_$count"); // Adiciona os campos da tabela joined na consulta
+        }
+        
+        if($classe_entidade::$orderBy) {
+            $q->orderBy(static::get_nome_campo($classe_entidade, $classe_entidade::$orderBy));
+        }
+        
+        if($classe_entidade::$groupBy) {
+            $q->groupBy(static::get_nome_campo($classe_entidade, $classe_entidade::$groupBy));
         }
         
         $this->showDebug("BASIC MOVE QUERY:" . $q->getQuerySql());
         return $q;
+    }
+    
+    public function getListarQuery(){
+        if(!$this->query_listar){
+            $this->query_listar = $this->getBasicMoveQuery();
+        }
+        
+        $this->showDebug("LISTAR QUERY:" . $this->query_listar->getQuerySql());
+        return $this->query_listar;
     }
     
     /**
