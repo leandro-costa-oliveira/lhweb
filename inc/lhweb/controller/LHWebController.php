@@ -358,7 +358,6 @@ class LHWebController {
             $this->query_listar = $this->getBasicMoveQuery();
         }
         
-        $this->showDebug("LISTAR QUERY:" . $this->query_listar->getQuerySql());
         return $this->query_listar;
     }
     
@@ -445,36 +444,6 @@ class LHWebController {
         $q = $this->getBasicMoveQuery()
                 ->andWhere($this->getColunaChavePrimaria(true))->equals($chave_primaria, $this->getTipoChavePrimaria());
         return $this->getEntityFromRS($q->getSingle());
-    }
-    
-    
-    /**
-     * 
-     * @param string $campo
-     * @param type $txt
-     * @return array
-     */
-    public function getProcurarQuery($campo, $txt, $modo="like") {
-        $q = $this->getBasicMoveQuery();
-        
-        if(!method_exists($q, $modo)){
-            throw new Exception("Modo de Procura Inválido: $modo");
-        }
-        
-        $q->andWhere($this->getNomeCampo($campo,true))->$modo($txt, $this->getTipoCampo($campo));
-        
-        return $q;
-    }
-    
-    public function getBy($campo, $txt, $modo="like") {
-        $q = $this->getProcurarQuery($campo, $txt, $modo);
-        return $this->getEntityFromRS($q->getSingle());
-    }
-    
-    public function listarPor($campo, $txt, $modo="like") {
-        $q = $this->getProcurarQuery($campo, $txt, $modo);
-        $this->showDebug("LISTAR POR:" . $q->getQuerySql());
-        return new LHEntityArray($q->getList(), $this);
     }
     
     /**
@@ -721,6 +690,30 @@ class LHWebController {
         }
     }
     
+    function getQueryProcurar(){
+        return $this->getBasicMoveQuery();
+    }
+    
+    function getQueryProcurarCampoString($campo, $valor, $modo="like"){
+        $q = $this->getQueryProcurar();
+        $q->andWhere($this->getNomeCampoProcura($campo))->$modo($valor, $this->getTipoCampo($campo));
+        return $q;
+    }
+    
+    function getQueryProcurarCampoArray($campos, $valor, $modo="like"){
+        $classe_entidade = $this->classe_entidade;
+        $q = $this->getQueryProcurar();
+        
+        $q->andWhere("(");
+        foreach($campos as $campo){
+            $this->showDebug("CAMPO PROCURAR: $campo");
+            $q->orWhere($this->getNomeCampoProcura($campo))->$modo($valor, $this->getTipoCampo($campo));
+        }
+        $q->Where(")");
+        
+        return $q;
+    }
+    
     
     /**
      * @param string $campo
@@ -738,28 +731,20 @@ class LHWebController {
         if($limit) { $q->limit($limit); }
         if($offset) { $q->offset($offset); }
         
-        $this->showDebug("== PROCURAR QUERY: " . $q->getQuerySql());
+        $this->showDebug("== PROCURAR QUERY  : " . $q->getQuerySql());
         return new LHEntityArray($q->getList(), $this);
     }
     
-    function getQueryProcurarCampoString($campo, $valor){
+    public function getBy($campo, $txt, $modo="like") {
         $q = $this->getBasicMoveQuery();
-        $q->andWhere($this->getNomeCampoProcura($campo))->like($valor, $this->getTipoCampo($campo));
-        return $q;
+        $q->andWhere($this->getNomeCampo($campo))->$modo($txt);
+        return $this->getEntityFromRS($q->getSingle());
     }
     
-    function getQueryProcurarCampoArray($campos, $valor){
-        $classe_entidade = $this->classe_entidade;
-        $q = $this->getBasicMoveQuery();
-        
-        $q->andWhere("(");
-        foreach($campos as $campo){
-            $this->showDebug("CAMPO PROCURAR: $campo");
-            $q->orWhere($this->getNomeCampoProcura($campo))->like($valor, $this->getTipoCampo($campo));
-        }
-        $q->Where(")");
-        
-        return $q;
+    public function listarPor($campo, $txt, $modo="like") {
+        $q = $this->getListarQuery();
+        $q->andWhere($this->getNomeCampo($campo))->$modo($txt);
+        return new LHEntityArray($q->getList(), $this);
     }
     
     /*
