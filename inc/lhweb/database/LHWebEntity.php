@@ -12,6 +12,7 @@ abstract class LHWebEntity implements JsonSerializable {
     public static $tipoChavePrimaria = LHDB::PARAM_INT;
     public static $tabela = null;
     public static $orderBy = null;
+    public static $orderDirection = "ASC";
     public static $groupBy = null;
     
     /**

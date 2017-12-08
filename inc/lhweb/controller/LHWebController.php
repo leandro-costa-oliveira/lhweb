@@ -328,7 +328,7 @@ class LHWebController {
         }
         
         if($classe_entidade::$orderBy) {
-            $q->orderBy(static::get_nome_campo($classe_entidade, $classe_entidade::$orderBy));
+            $q->orderBy(static::get_nome_campo($classe_entidade, $classe_entidade::$orderBy), $classe_entidade::$orderDirection);
         }
         
         if($classe_entidade::$groupBy) {
