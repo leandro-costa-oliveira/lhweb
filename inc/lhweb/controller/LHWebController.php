@@ -246,55 +246,61 @@ class LHWebController {
         return $c::$tipoChavePrimaria;
     }
     
-    public static function get_subjoin_condition($classe_entidade, $join_class, $join_alias, $attributo_join, $campo_join){
-        $count = 0;
-        foreach($classe_entidade::$joins as $subattr => $subjoin) {
-            if($subattr == $attributo_join){
-                list($subjoin_class, $campo_subjoin) = $subjoin;
-                $subjoin_table = static::get_nome_tabela($subjoin_class);
-                $subjoin_alias = $subjoin_table . "_" . $count;
-
-                $left_cond  = $subjoin_alias . "." . static::get_coluna_chave_primaria($subjoin_class);
-                $right_cond = static::get_nome_campo($join_class, $campo_join, $join_alias);
-                return $left_cond . "=" . $right_cond; 
+    
+    /**
+     * 
+     * @param GenericQuery $q
+     * @param string $classe_entidade
+     * @param string $alias_entidade
+     * @param string $join_class
+     * @param string $join_alias
+     * @param string $atributo
+     * @param string $campo_join
+     * @param string $prefixo_campos
+     * @param string $tipo
+     * 
+     * Executa o Join Entre as Duas classes
+     * Os dados da junção vão ser armazenados no $atributo dentro do objeto 
+     * principal da classe_entidade.
+     * Tempos por padrão o join feito da seguinte maneira:
+     * JOIN $join_class AS $join_alias ON $join_alias.PK = $alias_entidade.FK
+     * 
+     * Caso $atributo contenha um ponto (.), a junção vai ser feita com base em 
+     * alguma atributo já unido, procurando nos joins já feitos de $classe_entidade
+     * 
+     */
+    public static function join($q, $classe_entidade, $alias_entidade, $join_class, $join_alias, $atributo, $campo_join, $prefixo_campos, $tipo="join"){
+        // Procura o atributo nos joins, para saber qual é classe em questão.
+        if(strpos($campo_join, ".")!==false){
+            list($atributo_join, $campo_join) = explode(".", $campo_join);
+            $count = 0;
+            foreach($classe_entidade::$joins as $jattr => $det){
+                if($jattr == $atributo_join){
+                    return static::join($q, $det[0], static::get_nome_tabela($det[0])."_$count", $join_class, $join_alias, $atributo, $campo_join, $prefixo_campos);
+                }
+                $count++;
             }
-
-            $count++;
+            
+            foreach($classe_entidade::$leftOuterJoins as $jattr => $det){
+                if($jattr == $atributo_join){
+                    return static::leftOuterJoin($q, $det[0], static::get_nome_tabela($det[0])."_$count", $join_class, $join_alias, $atributo, $campo_join, $prefixo_campos);
+                }
+                $count++;
+            }
+            
+            throw new \Exception("[$classe_entidade] " . strtoupper($tipo) . " ON $join_class NÃO ENCONTRADO");
         }
         
-        foreach($classe_entidade::$leftOuterJoins as $subattr => $subjoin) {
-            if($subattr == $attributo_join){
-                list($subjoin_class, $campo_subjoin) = $subjoin;
-                $subjoin_table = static::get_nome_tabela($subjoin_class);
-                $subjoin_alias = $subjoin_table . "_" . $count;
-
-                $left_cond  = $subjoin_alias . "." . static::get_coluna_chave_primaria($subjoin_class);
-                $right_cond = static::get_nome_campo($join_class, $campo_join, $join_alias);
-                return $left_cond . "=" . $right_cond;
-            }
-
-            $count++;
-        }
+        $left_cond  = $join_alias . "." . static::get_coluna_chave_primaria($join_class);
+        $right_cond = static::get_nome_campo($classe_entidade, $campo_join, $alias_entidade);
+        $joincond = $left_cond . "=" . $right_cond;
+        
+        $q->$tipo(static::get_nome_tabela($join_class) . " AS " . $join_alias, $joincond);
+        static::set_campos_consulta($q, $join_class, $join_alias, $prefixo_campos); // Adiciona os campos da tabela joined na consulta
     }
     
-    public static function get_join_condition($classe_entidade, $atributo, $join_class, $join_alias, $campo_join){
-        if(strpos($campo_join, ".")) { // Join 
-            list($attributo_join, $campo_join) = explode(".", $campo_join);
-            
-            // Join Reverso, no formato CLASSEENTIDADE.PK = JOINCLASS.CAMPO_JOIN
-            if($attributo_join==$atributo) {
-                $left_cond  = static::get_coluna_chave_primaria($classe_entidade, static::get_nome_tabela($classe_entidade));
-                $right_cond =  $join_alias . "." . static::get_nome_campo($join_class, $campo_join);
-                return $left_cond . "=" . $right_cond;
-            } else {
-                return static::get_subjoin_condition($classe_entidade, $join_class, $join_alias, $attributo_join, $campo_join);
-            }
-        } else {
-            // Join Direto, no formato, JOINCLASS.PK = CLASSENTIDADE.FK;
-            $left_cond  = $join_alias . "." . static::get_coluna_chave_primaria($join_class);
-            $right_cond = static::get_nome_campo($classe_entidade, $campo_join, static::get_nome_tabela($classe_entidade));
-            return $left_cond . "=" . $right_cond;
-        }
+    public static function leftOuterJoin($q, $classe_entidade, $alias_entidade, $join_class, $join_alias, $atributo, $campo_join, $prefixo_campos){
+        return static::join($q, $classe_entidade, $alias_entidade, $join_class, $join_alias, $atributo, $campo_join, $prefixo_campos, "leftOuterJoin");
     }
     
     /**
@@ -312,33 +318,13 @@ class LHWebController {
         // Processar Joins
         foreach($classe_entidade::$joins as $atributo => $det){
             list($join_class, $campo_join) = $det;
-            
-            if(!class_exists($join_class)){
-                throw new \Exception("[".get_class($this) . "] JOIN CLASS NÃO EXISTE [$join_class]");
-            }
-            
-            $join_table = static::get_nome_tabela($join_class);
-            $join_alias = $join_table . "_" . $count++;
-            $joincond = static::get_join_condition($classe_entidade, $atributo, $join_class, $join_alias, $campo_join);
-            
-            $q->join($join_table . " AS " . $join_alias, $joincond);
-            static::set_campos_consulta($q, $join_class, $join_alias, "j_$count"); // Adiciona os campos da tabela joined na consulta
+            static::join($q, $classe_entidade, $this->tabela, $join_class, static::get_nome_tabela($join_class) . "_" . $count++, $atributo, $campo_join, "j_$count");
         }
         
         // Processar Left Outer Joins
         foreach($classe_entidade::$leftOuterJoins as $atributo => $det){
             list($join_class, $campo_join) = $det;
-            
-            if(!class_exists($join_class)){
-                throw new \Exception("[".get_class($this) . "] LEFT OUTER JOIN CLASS NÃO EXISTE [$join_class]");
-            }
-            
-            $join_table = static::get_nome_tabela($join_class);
-            $join_alias = $join_table . "_" . $count++;
-            $joincond = static::get_join_condition($classe_entidade, $atributo, $join_class, $join_alias, $campo_join);
-            
-            $q->leftOuterJoin($join_table . " AS " . $join_alias, $joincond);
-            static::set_campos_consulta($q, $join_class, $join_alias, "lj_$count"); // Adiciona os campos da tabela joined na consulta
+            static::leftOuterJoin($q, $classe_entidade, $this->tabela, $join_class, static::get_nome_tabela($join_class) . "_" . $count++, $atributo, $campo_join, "lj_$count");
         }
         
         if($classe_entidade::$orderBy) {
