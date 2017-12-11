@@ -670,7 +670,6 @@ class LHWebController {
                 $joinCount++;
             }
         } else {
-            // É UM CAMPO DA PROPRIA CLASSE
             // Retorna o nome do campo precedido da tabela.
             return $this->getNomeCampo($campo, true); 
         }
@@ -739,7 +738,7 @@ class LHWebController {
         }
         
         foreach($campo as $key => $c){
-            $q->andWhere($this->getNomeCampo($c))->$modo($txt[$key]);
+            $q->andWhere($this->getNomeCampo($c,true))->$modo($txt[$key]);
         }
         
         return new LHEntityArray($q->getList(), $this);
