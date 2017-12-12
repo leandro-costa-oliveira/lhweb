@@ -692,7 +692,7 @@ class LHWebController {
         $q->andWhere("(");
         foreach($campos as $key => $campo){
             $this->showDebug("CAMPO PROCURAR: $campo");
-            $q->orWhere($this->getNomeCampoProcura($campo))->$modo($valor[$key], $this->getTipoCampo($campo));
+            $q->orWhere($this->getNomeCampoProcura($campo))->$modo(is_array($valor)?$valor[$key]:$valor, $this->getTipoCampo($campo));
         }
         $q->Where(")");
         
