@@ -13,7 +13,10 @@ class LHFCheckbox extends LHFormField {
     protected $value = 1;
     protected $checked = false;
     protected $class = "checkbox-inline";
+    protected $class_checkbox = "checkbox";
     protected $help  = "";
+    protected $onclick = "";
+    protected $onchange = "";
     
     public function render() {
         if($this->text === null) {
@@ -29,13 +32,15 @@ class LHFCheckbox extends LHFormField {
         $txt .= $this->renderHtmlAttr("style");
         $txt .= $this->renderData();
         $txt .= ">";
-        $txt .= "<input type='checkbox' ";
+        $txt .= "<input type='checkbox' class='$this->class_checkbox' ";
         $txt .= $this->renderHtmlAttr("id");
         $txt .= $this->renderHtmlAttr("name");
         $txt .= $this->renderHtmlAttr("value");
         $txt .= $this->renderHtmlProp("checked");
         $txt .= $this->renderHtmlProp("required");
         $txt .= $this->renderHtmlProp("disabled");
+        $txt .= $this->renderHtmlAttr("onclick");
+        $txt .= $this->renderHtmlAttr("onchange");
         $txt .= $this->renderData();
         $txt .= "/>";
         
