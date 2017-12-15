@@ -480,18 +480,19 @@ class LHWebController {
          */
         if(property_exists($obj, $pkName) && !empty($obj->$pkName)){
             $chave_primaria = $obj->$pkName;
+            $obj1 = $this->getByPK($chave_primaria);
             
             $this->preUpdate($obj);
             $this->update($obj);
             
             $obj2 = $this->getByPK($chave_primaria); // Obtem uma cópia atualizada do objetdo no banco de dados.
-            $this->posUpdate($obj, $obj2);
+            $this->posUpdate($obj1, $obj2);
         } else {
             $this->preInsert($obj);
             $chave_primaria = $this->insert($obj);
             
             $obj2 = $this->getByPK($chave_primaria);
-            $this->posInsert($obj, $obj2);
+            $this->posInsert($obj2);
         }
         $this->posSalvar($obj2);
             
@@ -586,7 +587,7 @@ class LHWebController {
      * @param LHWebEntity $obj
      * @return LHWebEntity
      */
-    public function posInsert($old, $new){}
+    public function posInsert($new){}
     
     /**
      * 
