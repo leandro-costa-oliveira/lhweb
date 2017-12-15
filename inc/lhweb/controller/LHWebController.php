@@ -505,7 +505,7 @@ class LHWebController {
      * @return int
      * Monta a SQL e Persiste o novo Objeto  no Banco
      */
-    public function insert($obj) {
+    protected function insert($obj) {
         $classe_entidade = $this->classe_entidade;
         $q = $this->query($this->tabela);
         
@@ -537,7 +537,7 @@ class LHWebController {
      * @param LHWebEntity $obj
      * @return LHWebEntity
      */
-    public function update($obj) {
+    protected function update($obj) {
         $classe_entidade = $this->classe_entidade;
         $q = $this->query($this->tabela);
         
