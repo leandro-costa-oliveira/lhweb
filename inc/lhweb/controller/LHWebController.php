@@ -442,9 +442,10 @@ class LHWebController {
         
         if($obj){
             $this->preApagar($obj);
-            $this->getBasicMoveQuery()
-                    ->andWhere($this->getNomeChavePrimaria(true))->equals($chave_primaria, $this->getTipoChavePrimaria())
-                    ->delete();
+            $q = $this->getBasicMoveQuery()
+                    ->andWhere($this->getNomeChavePrimaria(true))->equals($chave_primaria, $this->getTipoChavePrimaria());
+            $this->showDebug("DELETE SQL: " . $q->getDeleteSql());
+            $q->delete();
             $this->posApagar($obj);
             return $this->anterior($chave_primaria);
         } else {

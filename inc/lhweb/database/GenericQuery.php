@@ -202,7 +202,7 @@ class GenericQuery {
     }
     
     public function orderBy($txt, $dir="ASC"){
-        $this->orderBy .= "$txt $dir";
+        $this->orderBy = "$txt $dir";
         return $this;
     }
     
