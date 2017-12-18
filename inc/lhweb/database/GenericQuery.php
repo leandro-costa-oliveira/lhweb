@@ -287,6 +287,7 @@ class GenericQuery {
         array_push($this->camposSet , $campo);
         array_push($this->valoresSet, $valor);
         array_push($this->tiposSet  , $paramType);
+        return $this;
     }
     
     function getInsertSql($insertOpt=""){
