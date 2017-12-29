@@ -731,16 +731,22 @@ class LHWebController {
     public function listarPor($campo, $txt, $modo="like") {
         $q = $this->getListarQuery();
         
-        if(!is_array($campo)){
-            $campo = [$campo];
-        }
-        
         if(!is_array($txt)){
             $txt = [$txt];
         }
         
-        foreach($campo as $key => $c){
-            $q->andWhere($this->getNomeCampo($c,true))->$modo($txt[$key]);
+        if(is_array($campo)){
+            foreach($campo as $key => $c){
+                $q->andWhere($this->getNomeCampo($c,true))->$modo($txt[$key]);
+            }
+        } else {
+            if($modo=="in"){
+                $q->andWhere($this->getNomeCampo($campo,true))->in($txt);
+            } else {
+                foreach($txt as $key => $val){
+                    $q->andWhere($this->getNomeCampo($campo,true))->$modo($val);
+                }
+            }
         }
         
         return new LHEntityArray($q->getList(), $this);
