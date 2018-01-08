@@ -276,14 +276,14 @@ class LHWebController {
             $count = 0;
             foreach($classe_entidade::$joins as $jattr => $det){
                 if($jattr == $atributo_join){
-                    return static::join($q, $det[0], static::get_nome_tabela($det[0])."_$count", $join_class, $join_alias, $atributo, $campo_join, $prefixo_campos);
+                    return static::$tipo($q, $det[0], static::get_nome_tabela($det[0])."_$count", $join_class, $join_alias, $atributo, $campo_join, $prefixo_campos);
                 }
                 $count++;
             }
             
             foreach($classe_entidade::$leftOuterJoins as $jattr => $det){
                 if($jattr == $atributo_join){
-                    return static::leftOuterJoin($q, $det[0], static::get_nome_tabela($det[0])."_$count", $join_class, $join_alias, $atributo, $campo_join, $prefixo_campos);
+                    return static::$tipo($q, $det[0], static::get_nome_tabela($det[0])."_$count", $join_class, $join_alias, $atributo, $campo_join, $prefixo_campos);
                 }
                 $count++;
             }
