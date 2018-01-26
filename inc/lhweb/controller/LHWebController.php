@@ -305,6 +305,61 @@ class LHWebController {
         return static::join($q, $classe_entidade, $alias_entidade, $join_class, $join_alias, $atributo, $campo_join, $prefixo_campos, "leftOuterJoin");
     }
     
+    public static function processar_query_joins($q, $classe_entidade, $alias_entidade, $join_count=0, $join_level=0, $max_join_level=1){
+        $class_ctl = $classe_entidade::$controller;
+        
+        $join_level++;
+        
+        // Processar Joins
+        foreach($classe_entidade::$joins as $atributo => $det){
+            list($join_class, $campo_join) = $det;
+            
+            // Se for um subjoin, sempre será leftOuter.
+            $join_count++;
+            $joinType = $join_level==1?"join":"leftOuterJoin";
+            //error_log(str_pad("", $join_level*8,"_"). "ST JOIN [$join_level][$join_count] $join_class");
+            
+            static::$joinType($q, 
+                    $classe_entidade, 
+                    $alias_entidade,
+                    $join_class, 
+                    static::get_nome_tabela($join_class) . "_" . $join_count, 
+                    $atributo, 
+                    $campo_join, 
+                    "j_$join_count"
+            );
+            
+            if($join_level <= $max_join_level){
+                $join_ctrl = $join_class::$controller;
+                $join_count = static::processar_query_joins($q, $join_class, $join_ctrl::get_nome_tabela($join_class)."_$join_count", $join_count, $join_level, $max_join_level);
+            }
+        }
+        
+        // Processar Left Outer Joins
+        foreach($classe_entidade::$leftOuterJoins as $atributo => $det){
+            list($join_class, $campo_join) = $det;
+            
+            $join_count++;
+            //error_log(str_pad("", $join_level*8,"_") . "LO JOIN [$join_level][$join_count] $join_class");
+            static::leftOuterJoin($q, 
+                    $classe_entidade,
+                    $alias_entidade,
+                    $join_class, 
+                    static::get_nome_tabela($join_class) . "_" . $join_count, 
+                    $atributo, 
+                    $campo_join, 
+                    "lj_$join_count"
+            );
+            
+            if($join_level <= $max_join_level){
+                $join_ctrl = $join_class::$controller;
+                $join_count = static::processar_query_joins($q, $join_class, $join_ctrl::get_nome_tabela($join_class)."_$join_count", $join_count, $join_level, $max_join_level);
+            }
+        }
+        
+        return $join_count;
+    }
+    
     /**
      * 
      * @return GenericQuery
@@ -313,21 +368,12 @@ class LHWebController {
         $classe_entidade = $this->classe_entidade;
         
         // Definindo campos da tabela.
-        $count = 0;
         $q = $this->query($this->tabela)->campos([]);
         static::set_campos_consulta($q, $this->classe_entidade, $this->tabela);
         
-        // Processar Joins
-        foreach($classe_entidade::$joins as $atributo => $det){
-            list($join_class, $campo_join) = $det;
-            static::join($q, $classe_entidade, $this->tabela, $join_class, static::get_nome_tabela($join_class) . "_" . $count++, $atributo, $campo_join, "j_$count");
-        }
-        
-        // Processar Left Outer Joins
-        foreach($classe_entidade::$leftOuterJoins as $atributo => $det){
-            list($join_class, $campo_join) = $det;
-            static::leftOuterJoin($q, $classe_entidade, $this->tabela, $join_class, static::get_nome_tabela($join_class) . "_" . $count++, $atributo, $campo_join, "lj_$count");
-        }
+        $this->showDebug(str_pad("", 80, "#"));
+        $this->showDebug("BASIC MOVE QUERY: $classe_entidade");
+        static::processar_query_joins($q, $classe_entidade, static::get_nome_tabela($classe_entidade), 0, 0, static::$max_join_level);
         
         if($classe_entidade::$orderBy) {
             $q->orderBy(static::get_nome_campo($classe_entidade, $classe_entidade::$orderBy), $classe_entidade::$orderDirection);
@@ -751,6 +797,8 @@ class LHWebController {
             }
         }
         
+        $this->showDebug("-----------------------------------------------------------------------------------");
+        $this->showDebug("LISTAR POR QUERY: " . $q->getQuerySql());
         return new LHEntityArray($q->getList(), $this);
     }
     
