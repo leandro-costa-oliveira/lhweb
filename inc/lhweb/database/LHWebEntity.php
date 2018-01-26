@@ -2,12 +2,14 @@
 namespace lhweb\database;
 
 use JsonSerializable;
+use lhweb\controller\LHWebController;
 /**
  * Description of LHWebEntity
  *
  * @author loki
  */
 abstract class LHWebEntity implements JsonSerializable {
+    public static $controller = LHWebController::class;
     public static $nomeChavePrimaria = "id";
     public static $tipoChavePrimaria = LHDB::PARAM_INT;
     public static $tabela = null;

@@ -173,12 +173,14 @@ class LHWebController {
             $count = 1;
             foreach($classe_entidade::$joins as $attr => $join) {
                 list($join_class, $join_attr) = $join;
-                $obj->$attr = static::get_entity_from_rs($join_class, $rs, "j_" . $count++ . "_", $join_level);
+                $join_ctl = $join_class::$controller;
+                $obj->$attr = $join_ctl::get_entity_from_rs($join_class, $rs, "j_" . $count++ . "_", $join_level);
             }
 
             foreach($classe_entidade::$leftOuterJoins as $attr => $join) {
                 list($join_class, $join_attr) = $join;
-                $obj->$attr = static::get_entity_from_rs($join_class, $rs, "lj_" . $count++ . "_", $join_level);
+                $join_ctl = $join_class::$controller;
+                $obj->$attr = $join_ctl::get_entity_from_rs($join_class, $rs, "lj_" . $count++ . "_", $join_level);
             }
         }
         return $obj;
@@ -728,7 +730,7 @@ class LHWebController {
         return $this->getEntityFromRS($q->getSingle());
     }
     
-    public function listarPor($campo, $txt, $modo="like") {
+    public function listarPor($campo, $txt, $modo="equals") {
         $q = $this->getListarQuery();
         
         if(!is_array($txt)){
