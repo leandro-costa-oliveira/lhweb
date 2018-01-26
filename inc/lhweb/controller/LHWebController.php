@@ -151,7 +151,7 @@ class LHWebController {
      * $prefix é o prefixo da tabela no result set
      * join_level é o nivel em que está de recursividade, para evitar loops infititos.
      */
-    public static function get_entity_from_rs($classe_entidade, $rs, $prefix="", $join_level=0) {
+    public static function get_entity_from_rs($classe_entidade, $rs, $prefix="", $join_level=0, $max_join_level=1) {
         $obj = new $classe_entidade();
         
         // Checa se a chave primária existe no resultset, caso contrário, retorna null;
@@ -169,18 +169,18 @@ class LHWebController {
         $join_level++;
         
         // Processar Joins se dentro do limite da recursividade
-        if($join_level <= static::$max_join_level) {
+        if($join_level <= $max_join_level) {
             $count = 1;
             foreach($classe_entidade::$joins as $attr => $join) {
                 list($join_class, $join_attr) = $join;
                 $join_ctl = $join_class::$controller;
-                $obj->$attr = $join_ctl::get_entity_from_rs($join_class, $rs, "j_" . $count++ . "_", $join_level);
+                $obj->$attr = $join_ctl::get_entity_from_rs($join_class, $rs, "j_" . $count++ . "_", $join_level, $max_join_level);
             }
 
             foreach($classe_entidade::$leftOuterJoins as $attr => $join) {
                 list($join_class, $join_attr) = $join;
                 $join_ctl = $join_class::$controller;
-                $obj->$attr = $join_ctl::get_entity_from_rs($join_class, $rs, "lj_" . $count++ . "_", $join_level);
+                $obj->$attr = $join_ctl::get_entity_from_rs($join_class, $rs, "lj_" . $count++ . "_", $join_level, $max_join_level);
             }
         }
         return $obj;
@@ -379,7 +379,7 @@ class LHWebController {
      * Recebe um ResultSet com um registro de preenche o objeto Entity.
      */
     public function getEntityFromRS($rs) {
-        return static::get_entity_from_rs($this->classe_entidade, $rs);
+        return static::get_entity_from_rs($this->classe_entidade, $rs, "", 0, static::$max_join_level);
     }
     
     /**
