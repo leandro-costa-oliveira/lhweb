@@ -17,8 +17,10 @@ class LHWebController {
     protected $tabela = null;
     protected $query_listar = null;
     protected $debug = false;
+    protected static $debug_joins = false;
+    protected static $debug_entity = false;
+    protected $max_join_level = 5;
     
-    public static $max_join_level = 1;
 
     /**
      *
@@ -151,8 +153,11 @@ class LHWebController {
      * $prefix é o prefixo da tabela no result set
      * join_level é o nivel em que está de recursividade, para evitar loops infititos.
      */
-    public static function get_entity_from_rs($classe_entidade, $rs, $prefix="", $join_level=0, $max_join_level=1) {
+    public static function get_entity_from_rs($classe_entidade, $rs, $prefix="", $count=1, $join_level=0, $max_join_level=1, $debug_entity=false) {
         $obj = new $classe_entidade();
+        
+        if($debug_entity) 
+            error_log("GET FROM RS [$join_level] [$max_join_level] [$classe_entidade] [$prefix]");
         
         // Checa se a chave primária existe no resultset, caso contrário, retorna null;
         if(static::get_from_rs($rs, static::get_nome_campo($classe_entidade, $classe_entidade::$nomeChavePrimaria))==null){
@@ -170,18 +175,20 @@ class LHWebController {
         
         // Processar Joins se dentro do limite da recursividade
         if($join_level <= $max_join_level) {
-            $count = 1;
             foreach($classe_entidade::$joins as $attr => $join) {
                 list($join_class, $join_attr) = $join;
                 $join_ctl = $join_class::$controller;
-                $obj->$attr = $join_ctl::get_entity_from_rs($join_class, $rs, "j_" . $count++ . "_", $join_level, $max_join_level);
+                $obj->$attr = $join_ctl::get_entity_from_rs($join_class, $rs, "j_" . $count++ . "_", $count, $join_level, $max_join_level, $debug_entity);
             }
 
             foreach($classe_entidade::$leftOuterJoins as $attr => $join) {
                 list($join_class, $join_attr) = $join;
                 $join_ctl = $join_class::$controller;
-                $obj->$attr = $join_ctl::get_entity_from_rs($join_class, $rs, "lj_" . $count++ . "_", $join_level, $max_join_level);
+                $obj->$attr = $join_ctl::get_entity_from_rs($join_class, $rs, "lj_" . $count++ . "_", $count, $join_level, $max_join_level, $debug_entity);
             }
+        } else {
+            if($debug_entity) 
+                error_log("MAX JOIN EXCEDED [$join_level] [$max_join_level] [$classe_entidade]");
         }
         return $obj;
     }
@@ -317,7 +324,9 @@ class LHWebController {
             // Se for um subjoin, sempre será leftOuter.
             $join_count++;
             $joinType = $join_level==1?"join":"leftOuterJoin";
-            //error_log(str_pad("", $join_level*8,"_"). "ST JOIN [$join_level][$join_count] $join_class");
+            if(static::$debug_joins){
+                error_log(str_pad("", $join_level*8,"_"). "ST JOIN [$join_level][$join_count] $join_class");
+            }
             
             static::$joinType($q, 
                     $classe_entidade, 
@@ -340,7 +349,9 @@ class LHWebController {
             list($join_class, $campo_join) = $det;
             
             $join_count++;
-            //error_log(str_pad("", $join_level*8,"_") . "LO JOIN [$join_level][$join_count] $join_class");
+            if(static::$debug_joins){
+                error_log(str_pad("", $join_level*8,"_") . "LO JOIN [$join_level][$join_count] $join_class");
+            }
             static::leftOuterJoin($q, 
                     $classe_entidade,
                     $alias_entidade,
@@ -371,9 +382,11 @@ class LHWebController {
         $q = $this->query($this->tabela)->campos([]);
         static::set_campos_consulta($q, $this->classe_entidade, $this->tabela);
         
-        $this->showDebug(str_pad("", 80, "#"));
-        $this->showDebug("BASIC MOVE QUERY: $classe_entidade");
-        static::processar_query_joins($q, $classe_entidade, static::get_nome_tabela($classe_entidade), 0, 0, static::$max_join_level);
+        if(static::$debug_joins){
+            error_log(str_pad("", 80, "#"));
+            error_log("BASIC MOVE QUERY: $classe_entidade");
+        }
+        static::processar_query_joins($q, $classe_entidade, static::get_nome_tabela($classe_entidade), 0, 0, $this->max_join_level);
         
         if($classe_entidade::$orderBy) {
             $q->orderBy(static::get_nome_campo($classe_entidade, $classe_entidade::$orderBy), $classe_entidade::$orderDirection);
@@ -425,7 +438,11 @@ class LHWebController {
      * Recebe um ResultSet com um registro de preenche o objeto Entity.
      */
     public function getEntityFromRS($rs) {
-        return static::get_entity_from_rs($this->classe_entidade, $rs, "", 0, static::$max_join_level);
+        if(static::$debug_entity){
+            error_log("#############################################################################");
+            error_log("GET ENTITY FROM RS: " . $this->classe_entidade);
+        }
+        return static::get_entity_from_rs($this->classe_entidade, $rs, "", 1, 0, $this->max_join_level, static::$debug_entity);
     }
     
     /**
@@ -691,6 +708,31 @@ class LHWebController {
         }
     }
     
+    public static function get_join_count($classe_entitdade, $join_level, $max_join_level){
+        $count = 0;
+        $join_level++;
+        foreach($classe_entitdade::$joins as $attributo => $det) {
+            list($classe_join, $foreign_key) = $det;
+            $count++;
+            
+            if($join_level <= $max_join_level){
+                $count += static::get_join_count($classe_join, $join_level, $max_join_level);
+            }
+        }
+        
+        foreach($classe_entitdade::$leftOuterJoins as $attributo => $det) {
+            list($classe_join, $foreign_key) = $det;
+            $count++;
+            
+            if($join_level <= $max_join_level){
+                $count += static::get_join_count($classe_join, $join_level, $max_join_level);
+            }
+        }
+        
+        return $count;
+    }
+    
+    
     /**
      * 
      * @param string $campo
@@ -698,18 +740,19 @@ class LHWebController {
      * Retorna o nome do campo a ser utilizado nas consultas de procura, levando 
      * em conta campos de classes associadas ( Joinned Tables ), 
      */
-    function getNomeCampoProcura($campo) {
-        $classe_entitdade = $this->classe_entidade;
+    public static function getNomeCampoProcura($classe_entitdade, $campo, $max_join_level=5, &$joinCount=1) {
         if(strpos($campo, ".")!==false){ // PROCURAR NOS JOINS
             list($atributo_join, $campo) = explode(".", $campo);
             
-            $joinCount = 0;
             foreach($classe_entitdade::$joins as $attributo => $det) {
                 list($classe_join, $foreign_key) = $det;
                 if($atributo_join==$attributo){
                     return static::get_nome_campo($classe_join, $campo, static::get_nome_tabela($classe_join) . "_$joinCount");
                 }
                 $joinCount++;
+                
+                // Incrementando os Joins da Classe na contagem
+                $joinCount += static::get_join_count($classe_join, 1, $max_join_level);
             }
             
             foreach($classe_entitdade::$leftOuterJoins as $attributo => $det) {
@@ -718,10 +761,13 @@ class LHWebController {
                     return static::get_nome_campo($classe_join, $campo, static::get_nome_tabela($classe_join) . "_$joinCount");
                 }
                 $joinCount++;
+                
+                // Incrementando os Joins da Classe na contagem
+                $joinCount+= static::get_join_count($classe_join, 1, $max_join_level);
             }
         } else {
             // Retorna o nome do campo precedido da tabela.
-            return $this->getNomeCampo($campo, true); 
+            return static::get_nome_campo($classe_entitdade, $campo, true); 
         }
     }
     
@@ -730,8 +776,9 @@ class LHWebController {
     }
     
     function getQueryProcurarCampoString($campo, $valor, $modo="like"){
+        $classe_entidade = $this->classe_entidade;
         $q = $this->getQueryProcurar();
-        $q->andWhere($this->getNomeCampoProcura($campo))->$modo($valor, $this->getTipoCampo($campo));
+        $q->andWhere(static::getNomeCampoProcura($classe_entidade, $campo, $this->max_join_level))->$modo($valor, $this->getTipoCampo($campo));
         return $q;
     }
     
@@ -742,7 +789,7 @@ class LHWebController {
         $q->andWhere("(");
         foreach($campos as $key => $campo){
             $this->showDebug("CAMPO PROCURAR: $campo");
-            $q->orWhere($this->getNomeCampoProcura($campo))->$modo(is_array($valor)?$valor[$key]:$valor, $this->getTipoCampo($campo));
+            $q->orWhere(static::getNomeCampoProcura($classe_entidade, $campo, $this->max_join_level))->$modo(is_array($valor)?$valor[$key]:$valor, $this->getTipoCampo($campo));
         }
         $q->Where(")");
         
