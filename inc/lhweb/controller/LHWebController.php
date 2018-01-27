@@ -768,7 +768,7 @@ class LHWebController {
             }
         } else {
             // Retorna o nome do campo precedido da tabela.
-            return static::get_nome_campo($classe_entitdade, $campo, true); 
+            return static::get_nome_campo($classe_entitdade, $campo, static::get_nome_tabela($classe_entitdade)); 
         }
     }
     
