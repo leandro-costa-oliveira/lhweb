@@ -153,7 +153,7 @@ class LHWebController {
      * $prefix é o prefixo da tabela no result set
      * join_level é o nivel em que está de recursividade, para evitar loops infititos.
      */
-    public static function get_entity_from_rs($classe_entidade, $rs, $prefix="", $count=1, $join_level=0, $max_join_level=1, $debug_entity=false) {
+    public static function get_entity_from_rs($classe_entidade, $rs, $prefix="", &$count=1, $join_level=0, $max_join_level=1, $debug_entity=false) {
         $obj = new $classe_entidade();
         
         if($debug_entity) 
@@ -442,7 +442,8 @@ class LHWebController {
             error_log("#############################################################################");
             error_log("GET ENTITY FROM RS: " . $this->classe_entidade);
         }
-        return static::get_entity_from_rs($this->classe_entidade, $rs, "", 1, 0, $this->max_join_level, static::$debug_entity);
+        $count = 1;
+        return static::get_entity_from_rs($this->classe_entidade, $rs, "", $count, 0, $this->max_join_level, static::$debug_entity);
     }
     
     /**
