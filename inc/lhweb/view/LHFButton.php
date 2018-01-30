@@ -13,6 +13,7 @@ class LHFButton  extends LHFormField {
     protected $icon  = null;
     protected $iconSide = 1;
     protected $type  = "button";
+    protected $onClick = "";
     
     public function render() {
         if($this->name === null){
@@ -27,6 +28,8 @@ class LHFButton  extends LHFormField {
         $txt .= $this->renderHtmlAttr("title");
         $txt .= $this->renderHtmlProp("disabled");
         $txt .= $this->renderHtmlAttr("style");
+        $txt .= $this->renderHtmlAttr("onClick");
+        
         $txt .= $this->renderData();
         $txt .= ">";
         
